@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <script>
@@ -342,6 +343,42 @@
       transition: opacity 0.5s; font-weight: 600; letter-spacing: 0.06em;
     }
 
+    /* ========== AUTENTICAÇÃO / SINCRONIZAÇÃO SUPABASE ========== */
+    #sigrAuthGate {
+      position: fixed; inset: 0; z-index: 10000;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      background: radial-gradient(circle at 50% 20%, #172554 0%, #0f172a 42%, #020617 100%);
+      color: #e2e8f0; font-family: 'Exo 2', system-ui, sans-serif;
+    }
+    #sigrAuthGate.hidden-auth { display: none; }
+    .sigr-auth-card {
+      width: min(400px, 100%); padding: 28px; border-radius: 18px;
+      background: rgba(15, 23, 42, .94); border: 1px solid rgba(56, 189, 248, .22);
+      box-shadow: 0 24px 80px rgba(0,0,0,.48), 0 0 32px rgba(37,99,235,.12);
+    }
+    .sigr-auth-logo {
+      width: 54px; height: 54px; margin: 0 auto 14px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(145deg, #1d4ed8, #0284c7); color: #fff;
+      font-size: 14px; font-weight: 800; letter-spacing: .06em;
+    }
+    .sigr-auth-card input {
+      width: 100%; padding: 10px 12px; border-radius: 9px;
+      background: #0b1220; border: 1px solid #334155; color: #f8fafc; outline: none;
+    }
+    .sigr-auth-card input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,.12); }
+    .sigr-auth-submit {
+      width: 100%; padding: 10px 14px; margin-top: 4px; border-radius: 9px;
+      background: #2563eb; color: #fff; font-weight: 700;
+    }
+    .sigr-auth-submit:hover { background: #1d4ed8; }
+    .sigr-auth-submit:disabled { opacity: .55; cursor: wait; }
+    #sigrAuthMessage { min-height: 18px; margin-top: 10px; color: #fda4af; font-size: 11px; text-align: center; }
+    .sigr-sync-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; background: #94a3b8; }
+    .sigr-sync-dot.online { background: #10b981; box-shadow: 0 0 7px rgba(16,185,129,.55); }
+    .sigr-sync-dot.syncing { background: #f59e0b; }
+    .sigr-sync-dot.error { background: #f43f5e; }
+
     /* ========== MICRO ANIMAÇÕES / POLISH ========== */
     .view-panel { animation: viewFadeIn 0.28s ease; }
     @keyframes viewFadeIn {
@@ -409,6 +446,27 @@
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans text-sm" data-theme="light">
+  <!-- ACESSO PROTEGIDO PELO SUPABASE AUTH -->
+  <div id="sigrAuthGate" class="no-print">
+    <div class="sigr-auth-card">
+      <div class="sigr-auth-logo">SIGR</div>
+      <h1 class="text-center text-lg font-bold text-white">Acesso ao SIGR</h1>
+      <p class="text-center text-[11px] text-slate-400 mt-1 mb-5">CFSd 2ª/2026 · Área restrita a usuários autorizados</p>
+      <form id="sigrLoginForm" onsubmit="handleSigrLogin(event)" class="space-y-3">
+        <div>
+          <label for="sigrLoginEmail" class="block text-[11px] text-slate-400 mb-1">E-mail</label>
+          <input id="sigrLoginEmail" type="email" autocomplete="username" required placeholder="seu@email.com" />
+        </div>
+        <div>
+          <label for="sigrLoginPassword" class="block text-[11px] text-slate-400 mb-1">Senha</label>
+          <input id="sigrLoginPassword" type="password" autocomplete="current-password" required placeholder="Sua senha" />
+        </div>
+        <button id="sigrLoginButton" type="submit" class="sigr-auth-submit">Entrar</button>
+        <div id="sigrAuthMessage"></div>
+      </form>
+    </div>
+  </div>
+
   <!-- BOOT SPLASH -->
   <div id="sigrBoot" class="no-print">
     <div class="boot-logo">SIGR</div>
@@ -454,7 +512,12 @@
           <span id="themeToggleIcon">🌙</span>
           <span id="themeToggleLabel">Escuro</span>
         </button>
-        <span class="text-slate-500 hidden sm:inline">Usuário: <strong class="text-slate-700">INSTRUTOR</strong></span>
+        <span class="hidden sm:inline-flex items-center gap-1.5 text-slate-500">
+          <span id="sigrSyncDot" class="sigr-sync-dot"></span>
+          <span id="sigrSyncText">Conectando</span>
+        </span>
+        <span class="text-slate-500 hidden sm:inline">Usuário: <strong id="sigrUserLabel" class="text-slate-700">INSTRUTOR</strong></span>
+        <button type="button" onclick="handleSigrLogout()" class="hidden sm:inline text-[10px] px-2 py-1 rounded border border-slate-200 hover:bg-slate-50">Sair</button>
       </div>
     </div>
 
@@ -1283,8 +1346,19 @@
     const AI_CHAT_KEY = 'sigr_ai_chat_v3';
     const AVATAR_COLORS = ['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#0891b2','#4f46e5','#be185d'];
 
+    const SUPABASE_URL = 'https://lysrlscoycomqxmzicw.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_GhEO9R4Imjw4BFdEipvTKw_och9ZgYV';
+    const sigrSupabase = window.supabase && window.supabase.createClient
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+      : null;
+    let sigrSession = null;
+    let sigrMetadata = {};
+    let sigrSyncTimer = null;
+    let sigrSyncInFlight = false;
+    let sigrSyncQueued = false;
+
     const DEFAULT_CONFIG = {
-      baseScore: 1000,
+      baseScore: 100,
       courseStart: '2026-08-03',
       courseEnd: '2026-11-27',
       phaseMultipliers: [1.0, 1.15, 1.40, 1.75],
@@ -1404,7 +1478,10 @@
       } catch (e) {}
       return JSON.parse(JSON.stringify(DEFAULT_CONFIG));
     }
-    function saveConfig() { localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); }
+    function saveConfig() {
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+      queueSupabaseSync();
+    }
     let config = loadConfig();
 
     function ensureRecruitExtras(r) {
@@ -1437,6 +1514,249 @@
     }
     function saveData() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ recruits, occurrences, events, medicalLeaves }));
+      queueSupabaseSync();
+    }
+
+    function setSigrSyncStatus(state, text) {
+      const dot = document.getElementById('sigrSyncDot');
+      const label = document.getElementById('sigrSyncText');
+      if (dot) dot.className = `sigr-sync-dot ${state || ''}`.trim();
+      if (label) label.textContent = text || '';
+    }
+
+    function setSigrAuthMessage(message, isError = true) {
+      const el = document.getElementById('sigrAuthMessage');
+      if (!el) return;
+      el.textContent = message || '';
+      el.style.color = isError ? '#fda4af' : '#86efac';
+    }
+
+    function showSigrAuthGate(message = '') {
+      const gate = document.getElementById('sigrAuthGate');
+      if (gate) gate.classList.remove('hidden-auth');
+      setSigrAuthMessage(message);
+    }
+
+    function hideSigrAuthGate() {
+      const gate = document.getElementById('sigrAuthGate');
+      if (gate) gate.classList.add('hidden-auth');
+      setSigrAuthMessage('');
+    }
+
+    function buildRecruitExtras() {
+      return Object.fromEntries(recruits.map(r => [String(r.id), {
+        provas: Array.isArray(r.provas) ? r.provas : [],
+        taf: Array.isArray(r.taf) ? r.taf : [],
+        instrucoes: Array.isArray(r.instrucoes) ? r.instrucoes : [],
+        observacoes: Array.isArray(r.observacoes) ? r.observacoes : []
+      }]));
+    }
+
+    async function syncTableSnapshot(tableName, rows, deleteStale = true) {
+      if (!sigrSupabase || !sigrSession) return;
+      if (rows.length) {
+        const { error } = await sigrSupabase.from(tableName).upsert(rows, { onConflict: 'id' });
+        if (error) throw error;
+      }
+      if (!deleteStale) return;
+      const { data: existing, error: listError } = await sigrSupabase.from(tableName).select('id');
+      if (listError) throw listError;
+      const liveIds = new Set(rows.map(row => String(row.id)));
+      const staleIds = (existing || []).map(row => row.id).filter(id => !liveIds.has(String(id)));
+      if (staleIds.length) {
+        const { error: deleteError } = await sigrSupabase.from(tableName).delete().in('id', staleIds);
+        if (deleteError) throw deleteError;
+      }
+    }
+
+    function queueSupabaseSync() {
+      if (!sigrSession || !sigrSupabase) return;
+      clearTimeout(sigrSyncTimer);
+      sigrSyncTimer = setTimeout(() => syncAllToSupabase(), 350);
+    }
+
+    async function syncAllToSupabase() {
+      if (!sigrSession || !sigrSupabase) return;
+      if (sigrSyncInFlight) { sigrSyncQueued = true; return; }
+      sigrSyncInFlight = true;
+      setSigrSyncStatus('syncing', 'Sincronizando');
+      try {
+        const recruitRows = recruits.map(r => {
+          const allOccs = occurrences.filter(o => String(o.recruitId) === String(r.id));
+          const fullScore = config.baseScore + allOccs.reduce((sum, o) => sum + Number(o.points || 0), 0);
+          return {
+            id: String(r.id), name: r.name || '', warName: r.warName || '', saram: r.saram || '',
+            platoon: r.platoon || '', squad: r.squad || '', score: fullScore,
+            pontuacaoParcial: fullScore, condicao: statusFor(fullScore), totalOcorrencias: allOccs.length
+          };
+        });
+        const occurrenceRows = occurrences.map(o => ({
+          id: Number(o.id), recruitId: String(o.recruitId), date: o.date, type: o.type,
+          gravidade: o.gravidade, text: o.text || '', basePoints: Number(o.basePoints || 0),
+          phaseIdx: Number(o.phaseIdx || 1), phaseMult: Number(o.phaseMult || 1),
+          recidNumber: Number(o.recidNumber || 1), recidMult: Number(o.recidMult || 1), points: Number(o.points || 0)
+        }));
+        const eventRows = events.map(e => ({
+          id: String(e.id), date: e.date, time: e.time || null, type: e.type,
+          recruitId: e.recruitId ? String(e.recruitId) : null, title: e.title || '', notes: e.notes || ''
+        }));
+        const medicalRows = (medicalLeaves || []).map(b => ({
+          id: String(b.id), recruitId: String(b.recruitId), motivo: b.motivo || '',
+          inicio: b.inicio, fim: b.fim, dias: Number(b.dias || 0), notes: b.notes || ''
+        }));
+
+        await syncTableSnapshot('recruits', recruitRows, false);
+        await syncTableSnapshot('occurrences', occurrenceRows);
+        await syncTableSnapshot('events', eventRows);
+        await syncTableSnapshot('medicalLeaves', medicalRows);
+
+        sigrMetadata = {
+          ...sigrMetadata,
+          recruitExtras: buildRecruitExtras(),
+          lastSyncAt: new Date().toISOString()
+        };
+        const { error: configError } = await sigrSupabase.from('sigr_config').upsert({
+          id: 'principal', config, metadata: sigrMetadata, updated_at: new Date().toISOString()
+        }, { onConflict: 'id' });
+        if (configError) throw configError;
+
+        // Recrutas são removidos por último para respeitar as referências das tabelas filhas.
+        const { data: existingRecruits, error: existingError } = await sigrSupabase.from('recruits').select('id');
+        if (existingError) throw existingError;
+        const liveRecruitIds = new Set(recruitRows.map(row => String(row.id)));
+        const staleRecruitIds = (existingRecruits || []).map(row => row.id).filter(id => !liveRecruitIds.has(String(id)));
+        if (staleRecruitIds.length) {
+          const { error: deleteRecruitError } = await sigrSupabase.from('recruits').delete().in('id', staleRecruitIds);
+          if (deleteRecruitError) throw deleteRecruitError;
+        }
+        setSigrSyncStatus('online', 'Online');
+      } catch (error) {
+        console.error('SIGR Supabase: falha ao sincronizar', error);
+        setSigrSyncStatus('error', 'Erro de sincronização');
+        showToast('Dados mantidos localmente; falha ao sincronizar com o Supabase');
+      } finally {
+        sigrSyncInFlight = false;
+        if (sigrSyncQueued) {
+          sigrSyncQueued = false;
+          queueSupabaseSync();
+        }
+      }
+    }
+
+    async function loadDataFromSupabase() {
+      if (!sigrSupabase || !sigrSession) throw new Error('Sessão do Supabase indisponível.');
+      setSigrSyncStatus('syncing', 'Carregando');
+      const [recRes, occRes, eventRes, medicalRes, cfgRes] = await Promise.all([
+        sigrSupabase.from('recruits').select('*').order('id'),
+        sigrSupabase.from('occurrences').select('*').order('id', { ascending: false }),
+        sigrSupabase.from('events').select('*').order('date'),
+        sigrSupabase.from('medicalLeaves').select('*').order('inicio', { ascending: false }),
+        sigrSupabase.from('sigr_config').select('config, metadata').eq('id', 'principal').maybeSingle()
+      ]);
+      for (const result of [recRes, occRes, eventRes, medicalRes, cfgRes]) {
+        if (result.error) throw result.error;
+      }
+
+      const remoteConfig = cfgRes.data && cfgRes.data.config;
+      config = remoteConfig
+        ? Object.assign({}, DEFAULT_CONFIG, remoteConfig)
+        : JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+      sigrMetadata = (cfgRes.data && cfgRes.data.metadata) || {};
+      const extras = sigrMetadata.recruitExtras || {};
+      const remoteOccurrences = occRes.data || [];
+      recruits = (recRes.data || []).map(row => {
+        const { pontuacaoParcial, condicao, totalOcorrencias, ...rec } = row;
+        const allOccs = remoteOccurrences.filter(o => String(o.recruitId) === String(rec.id));
+        rec.score = config.baseScore + allOccs.reduce((sum, o) => sum + Number(o.points || 0), 0);
+        Object.assign(rec, extras[String(rec.id)] || {});
+        return ensureRecruitExtras(rec);
+      });
+      occurrences = remoteOccurrences;
+      events = eventRes.data || [];
+      medicalLeaves = medicalRes.data || [];
+
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ recruits, occurrences, events, medicalLeaves }));
+      document.getElementById('dateStart').value = config.courseStart || '';
+      document.getElementById('dateEnd').value = config.courseEnd || '';
+      updatePeriodLabel();
+      renderAll();
+      if (!document.getElementById('view-calendario').classList.contains('hidden')) renderCalendar();
+      if (!document.getElementById('view-baixa').classList.contains('hidden')) renderBaixaModule();
+      setSigrSyncStatus('online', 'Online');
+      if (!cfgRes.data) queueSupabaseSync();
+    }
+
+    async function activateSigrSession(session) {
+      sigrSession = session;
+      const user = session && session.user;
+      const label = document.getElementById('sigrUserLabel');
+      if (label) label.textContent = user && user.email ? user.email : 'INSTRUTOR';
+      await loadDataFromSupabase();
+      hideSigrAuthGate();
+    }
+
+    async function handleSigrLogin(event) {
+      event.preventDefault();
+      if (!sigrSupabase) {
+        setSigrAuthMessage('Não foi possível carregar a conexão segura com o Supabase.');
+        return;
+      }
+      const email = document.getElementById('sigrLoginEmail').value.trim();
+      const password = document.getElementById('sigrLoginPassword').value;
+      const button = document.getElementById('sigrLoginButton');
+      button.disabled = true;
+      button.textContent = 'Entrando...';
+      setSigrAuthMessage('Verificando acesso...', false);
+      try {
+        const { data, error } = await sigrSupabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        await activateSigrSession(data.session);
+        document.getElementById('sigrLoginPassword').value = '';
+      } catch (error) {
+        console.error('SIGR Supabase: falha de autenticação', error);
+        setSigrAuthMessage(error && error.message === 'Invalid login credentials'
+          ? 'E-mail ou senha inválidos.'
+          : 'Não foi possível entrar. Verifique sua conexão e tente novamente.');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Entrar';
+      }
+    }
+
+    async function handleSigrLogout() {
+      if (!sigrSupabase) return;
+      await sigrSupabase.auth.signOut();
+      sigrSession = null;
+      setSigrSyncStatus('', 'Desconectado');
+      document.getElementById('sigrUserLabel').textContent = 'INSTRUTOR';
+      showSigrAuthGate('Sessão encerrada.');
+    }
+
+    async function initializeSupabase() {
+      if (!sigrSupabase) {
+        showSigrAuthGate('Falha ao carregar o Supabase. Atualize a página e tente novamente.');
+        setSigrSyncStatus('error', 'Offline');
+        return;
+      }
+      try {
+        const { data, error } = await sigrSupabase.auth.getSession();
+        if (error) throw error;
+        if (!data.session) {
+          showSigrAuthGate();
+          setSigrSyncStatus('', 'Aguardando login');
+          return;
+        }
+        const { data: userData, error: userError } = await sigrSupabase.auth.getUser();
+        if (userError || !userData.user) throw userError || new Error('Usuário não validado.');
+        await activateSigrSession(data.session);
+      } catch (error) {
+        console.error('SIGR Supabase: sessão inválida', error);
+        try { await sigrSupabase.auth.signOut(); } catch (_) {}
+        sigrSession = null;
+        showSigrAuthGate('Faça login para continuar.');
+        setSigrSyncStatus('error', 'Sem sessão');
+      }
     }
 
     let { recruits, occurrences, events, medicalLeaves } = loadData();
@@ -2041,6 +2361,8 @@
       if (!currentSelectedId || !confirm(`Remover o recruta Nº ${currentSelectedId}?`)) return;
       recruits = recruits.filter(r => String(r.id) !== String(currentSelectedId));
       occurrences = occurrences.filter(o => String(o.recruitId) !== String(currentSelectedId));
+      events = events.map(ev => String(ev.recruitId) === String(currentSelectedId) ? { ...ev, recruitId: null } : ev);
+      medicalLeaves = (medicalLeaves || []).filter(b => String(b.recruitId) !== String(currentSelectedId));
       saveData();
       closeModal();
       renderAll();
@@ -4385,38 +4707,7 @@
     renderAll();
     showView('dashboard');
     try { if (typeof cciSelectCat === 'function') cciSelectCat(cciCurrentCat || 'recruta'); } catch(e) {}
+    initializeSupabase();
   </script>
 </body>
 </html>
-<body>
-  <!-- aqui fica o conteúdo da sua página -->
-
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-    const supabaseUrl = 'https://SEU-PROJETO.supabase.co'   // coloque sua URL real
-    const supabaseKey = 'SUA-CHAVE-PUBLICA'                 // coloque sua chave pública
-    const supabase = createClient(supabaseUrl, supabaseKey)
-
-    // Exemplo: buscar dados da tabela "produtos"
-    const { data, error } = await supabase
-      .from('produtos')
-      .select('*')
-
-    console.log(data)
-  </script>
-</body>
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-  const supabaseUrl = 'https://SEU-PROJETO.supabase.co'
-  const supabaseKey = 'sb_publishable_GhE09R4Imjw4BFdEipvTKw_och9Z...' // sua anon key
-  const supabase = createClient(supabaseUrl, supabaseKey)
-
-  const { data, error } = await supabase
-    .from('Recrutas') // ou o nome da sua tabela
-    .select('*')
-
-  console.log(data)
-</script>
-
