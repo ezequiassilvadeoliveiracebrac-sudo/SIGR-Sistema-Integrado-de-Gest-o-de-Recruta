@@ -4406,4 +4406,17 @@
     console.log(data)
   </script>
 </body>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const supabaseUrl = 'https://SEU-PROJETO.supabase.co'
+  const supabaseKey = 'sb_publishable_GhE09R4Imjw4BFdEipvTKw_och9Z...' // sua anon key
+  const supabase = createClient(supabaseUrl, supabaseKey)
+
+  const { data, error } = await supabase
+    .from('Recrutas') // ou o nome da sua tabela
+    .select('*')
+
+  console.log(data)
+</script>
 
