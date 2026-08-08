@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v1';
-const STATIC_CACHE = 'sigr-static-v1';
+const APP_CACHE = 'sigr-pwa-v3';
+const STATIC_CACHE = 'sigr-static-v3';
 
 const APP_SHELL = [
   './',
@@ -90,4 +90,37 @@ self.addEventListener('fetch', (event) => {
       }))
     );
   }
+});
+
+// Web Push: exibe alertas do SIGR mesmo com o aplicativo fechado.
+self.addEventListener('push', (event) => {
+  let payload = {};
+  try { payload = event.data ? event.data.json() : {}; }
+  catch (_) { payload = { body: event.data ? event.data.text() : '' }; }
+  const title = payload.title || 'SIGR | Notificação';
+  const options = {
+    body: payload.body || '',
+    icon: './icons/sigr-192.png',
+    badge: './icons/sigr-192.png',
+    tag: payload.tag || 'sigr-notification',
+    renotify: Boolean(payload.renotify),
+    silent: false,
+    data: { url: payload.url || './' }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || './', self.registration.scope).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const openClient = clients.find(client => client.url.startsWith(self.location.origin));
+      if (openClient) {
+        openClient.navigate(target);
+        return openClient.focus();
+      }
+      return self.clients.openWindow(target);
+    })
+  );
 });
