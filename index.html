@@ -4388,3 +4388,22 @@
   </script>
 </body>
 </html>
+<body>
+  <!-- aqui fica o conteúdo da sua página -->
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabaseUrl = 'https://SEU-PROJETO.supabase.co'   // coloque sua URL real
+    const supabaseKey = 'SUA-CHAVE-PUBLICA'                 // coloque sua chave pública
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    // Exemplo: buscar dados da tabela "produtos"
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('*')
+
+    console.log(data)
+  </script>
+</body>
+
