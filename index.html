@@ -15,6 +15,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/sigr-180.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -660,6 +661,7 @@
         SIGR IA
       </button>
       <div class="flex-1"></div>
+      <button onclick="openReportModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white hover:shadow-sm transition text-emerald-700 font-medium">Relatórios PDF</button>
       <button onclick="openSettingsModal()" class="requires-admin flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white hover:shadow-sm transition">Configurações</button>
       <button onclick="openAddRecruitModal()" class="requires-write flex items-center gap-1.5 px-3 py-1.5 rounded bg-brand-600 text-white hover:bg-brand-700 transition font-medium">
         + Recruta
@@ -770,7 +772,7 @@
       </nav>
 
       <div class="p-3 border-t border-slate-100 text-[10px] text-slate-400">
-        SIGR v3.0 • CFSd 2ª/2026<br>Base Aérea de Anápolis
+        SIGR v3.1 • CFSd 2ª/2026<br>Base Aérea de Anápolis
       </div>
     </aside>
 
@@ -1155,7 +1157,7 @@
 
   <!-- FOOTER -->
   <footer class="bg-white border-t border-slate-200 px-4 py-1.5 text-[10px] text-slate-400 flex justify-between no-print">
-    <span>SIGR v3.0 • CFSd 2ª/2026 • Base Aérea de Anápolis</span>
+    <span>SIGR v3.1 • CFSd 2ª/2026 • Base Aérea de Anápolis</span>
     <span>Sincronização segura com Supabase</span>
   </footer>
 
@@ -1184,6 +1186,7 @@
 
       <div class="px-6 py-3 flex gap-2 flex-wrap border-b border-slate-50">
         <button onclick="printOfficialSheet()" class="text-[11px] font-medium text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-100">Imprimir Ficha</button>
+        <button onclick="generateRecruitPDF()" class="text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 hover:bg-emerald-100">PDF Individual</button>
         <button onclick="openEditRecruitModal()" class="requires-write text-[11px] font-medium text-brand-700 bg-brand-50 border border-brand-200 rounded-lg px-3 py-1.5 hover:bg-brand-100">Editar</button>
         <button onclick="deleteRecruit()" class="requires-admin text-[11px] font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-1.5 hover:bg-rose-100">Remover</button>
         <button onclick="quickAsk('Elabore um parecer técnico detalhado do recruta ' + currentSelectedId + ': evolução temporal, reincidências, gravidade das ocorrências, fase do curso em que ocorreram, comparação com a média da turma e recomendações de acompanhamento.'); showView('ai'); closeModal();" class="text-[11px] font-medium text-violet-700 bg-violet-50 border border-violet-200 rounded-lg px-3 py-1.5 hover:bg-violet-100">Parecer IA</button>
@@ -3091,6 +3094,205 @@
       renderAll();
       showToast('Configurações salvas');
     }
+
+
+    // ========== RELATÓRIOS PDF VETORIAIS — PWA v3.1 ==========
+    function openReportModal() {
+      let m = document.getElementById('reportModal');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'reportModal';
+        m.className = 'fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[80] flex items-center justify-center p-4 no-print';
+        m.innerHTML = `<div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+          <h2 class="text-sm font-semibold text-slate-800 mb-1">Relatórios PDF — Alta Qualidade</h2>
+          <p class="text-[11px] text-slate-500 mb-4">Relatórios vetoriais, com texto nítido e paginação automática.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button onclick="generateTop10PeriodPDF('worst',7)" class="w-full text-left px-4 py-3 rounded-xl border border-rose-200 hover:bg-rose-50 text-xs font-semibold">⚠ 10 Piores da Semana</button>
+            <button onclick="generateTop10PeriodPDF('worst',30)" class="w-full text-left px-4 py-3 rounded-xl border border-rose-200 hover:bg-rose-50 text-xs font-semibold">⚠ 10 Piores do Mês</button>
+            <button onclick="generateTop10PeriodPDF('best',7)" class="w-full text-left px-4 py-3 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-xs font-semibold">🏅 10 Melhores da Semana</button>
+            <button onclick="generateTop10PeriodPDF('best',30)" class="w-full text-left px-4 py-3 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-xs font-semibold">🏅 10 Melhores do Mês</button>
+          </div>
+          <div class="mt-4 pt-4 border-t border-slate-200">
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Ficha Individual</label>
+            <div class="flex gap-2">
+              <select id="reportRecruitSelect" class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white text-slate-700"></select>
+              <button onclick="generateRecruitPDFFromReportModal()" class="px-4 py-2 rounded-lg bg-brand-600 text-white hover:bg-brand-700 text-xs font-semibold whitespace-nowrap">📄 Gerar Ficha</button>
+            </div>
+          </div>
+          <button onclick="closeReportModal()" class="w-full mt-4 bg-slate-100 text-slate-600 font-semibold py-2.5 rounded-lg text-xs">Fechar</button>
+        </div>`;
+        document.body.appendChild(m);
+      }
+      const sel = document.getElementById('reportRecruitSelect');
+      if (sel) {
+        const prev = sel.value;
+        sel.innerHTML = [...recruits].sort((a,b)=>String(a.id).localeCompare(String(b.id))).map(r =>
+          `<option value="${escapeHTML(String(r.id))}">Nº ${String(r.id).padStart(3,'0')} — ${escapeHTML(r.warName || r.name)}</option>`
+        ).join('');
+        if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+        else if (currentSelectedId != null && [...sel.options].some(o => String(o.value) === String(currentSelectedId))) sel.value = String(currentSelectedId);
+      }
+      m.classList.remove('hidden');
+      m.style.display = 'flex';
+    }
+    function closeReportModal() {
+      const m = document.getElementById('reportModal');
+      if (m) { m.classList.add('hidden'); m.style.display = 'none'; }
+    }
+
+
+    // ---------- PDF VETORIAL — TOP 10 SEMANA / MÊS ----------
+    function sigrLocalISODate(d) {
+      const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+    function sigrPeriodLastDays(days) {
+      const end = new Date(); end.setHours(12,0,0,0);
+      const start = new Date(end); start.setDate(start.getDate()-(days-1));
+      return { start:sigrLocalISODate(start), end:sigrLocalISODate(end) };
+    }
+    function sigrFmtDate(v) {
+      const s=String(v||''); return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s.split('-').reverse().join('/') : s;
+    }
+    function sigrOccsBetween(recruitId,start,end) {
+      return getRecruitOccurrences(recruitId).filter(o => o.date >= start && o.date <= end).sort((a,b)=>a.date.localeCompare(b.date) || Number(a.id||0)-Number(b.id||0));
+    }
+    function sigrTop10Data(mode,days) {
+      const period=sigrPeriodLastDays(days);
+      const data=recruits.map(rec=>{
+        const occs=sigrOccsBetween(rec.id,period.start,period.end);
+        const neg=occs.filter(o=>Number(o.points)<0), pos=occs.filter(o=>Number(o.points)>0);
+        const saldo=occs.reduce((s,o)=>s+(Number(o.points)||0),0);
+        return {rec,occs,neg,pos,saldo};
+      }).filter(x=>x.occs.length>0);
+      data.sort((a,b)=> mode==='best'
+        ? (b.saldo-a.saldo || b.pos.length-a.pos.length || a.neg.length-b.neg.length || String(a.rec.id).localeCompare(String(b.rec.id)))
+        : (a.saldo-b.saldo || b.neg.length-a.neg.length || a.pos.length-b.pos.length || String(a.rec.id).localeCompare(String(b.rec.id))));
+      return {period, ranking:data.slice(0,10)};
+    }
+
+    async function generateTop10PeriodPDF(mode, days) {
+      closeReportModal();
+      const JsPDF=window.jspdf && window.jspdf.jsPDF;
+      if(!JsPDF){ showToast('Biblioteca jsPDF não carregada'); return; }
+      const {period,ranking}=sigrTop10Data(mode,days);
+      const isBest=mode==='best';
+      const accent=isBest?[5,150,105]:[225,29,72];
+      const accentSoft=isBest?[236,253,245]:[255,241,242];
+      const BLUE=[30,58,138],DARK=[15,23,42],MID=[71,85,105],GRID=[203,213,225],LIGHT=[248,250,252],GREEN=[5,150,105],RED=[225,29,72];
+      const pdf=new JsPDF({unit:'mm',format:'a4',orientation:'portrait',compress:true});
+      const PW=210,PH=297,ML=14,MR=14,MT=12,MB=15,W=PW-ML-MR; let y=MT;
+      const setText=(sz=9,st='normal',c=DARK)=>{pdf.setFont('helvetica',st);pdf.setFontSize(sz);pdf.setTextColor(...c)};
+      const line=(x1,y1,x2,y2,c=GRID,w=.25)=>{pdf.setDrawColor(...c);pdf.setLineWidth(w);pdf.line(x1,y1,x2,y2)};
+      function header(first=false){
+        y=MT;setText(8.3,'bold',BLUE);pdf.text('MINISTÉRIO DA DEFESA - COMANDO DA AERONÁUTICA',ML,y);
+        setText(7,'normal',[100,116,139]);pdf.text('Base Aérea de Anápolis - CFSd 2ª/2026',ML,y+4.5);
+        setText(13,'bold',BLUE);pdf.text('SIGR',PW-MR,y,{align:'right'});
+        setText(5.8,'normal',[148,163,184]);pdf.text('Sistema Integrado de Gestão de Recrutas',PW-MR,y+4.5,{align:'right'});
+        line(ML,y+8,PW-MR,y+8,BLUE,.65);y+=15;
+        if(first){
+          setText(15.5,'bold',DARK);pdf.text(`${isBest?'10 MELHORES':'10 PIORES'} ${days===7?'DA SEMANA':'DO MÊS'}`,ML,y);y+=6;
+          setText(8.4,'normal',MID);pdf.text(`Período: ${sigrFmtDate(period.start)} a ${sigrFmtDate(period.end)} | Critério: saldo de pontos no período`,ML,y);y+=7;
+        }
+      }
+      function addPage(){pdf.addPage();header(false)}
+      function ensure(h){if(y+h>PH-MB)addPage()}
+      function section(title){ensure(9);setText(9.8,'bold',accent);pdf.text(title,ML,y);y+=2;line(ML,y,PW-MR,y,accent,.35);y+=5}
+      function summaryBox(){
+        ensure(27); const totalOcc=ranking.reduce((s,x)=>s+x.occs.length,0), totalNeg=ranking.reduce((s,x)=>s+x.neg.length,0), totalPos=ranking.reduce((s,x)=>s+x.pos.length,0), totalSaldo=ranking.reduce((s,x)=>s+x.saldo,0);
+        pdf.setFillColor(...accentSoft);pdf.setDrawColor(...GRID);pdf.roundedRect(ML,y,W,23,2,2,'FD');
+        const vals=[['Selecionados',ranking.length],['Ocorrências',totalOcc],['Negativas',totalNeg],['Positivas',totalPos],['Saldo',`${totalSaldo>0?'+':''}${totalSaldo} pts`]];
+        const cw=W/5; vals.forEach((v,i)=>{const x=ML+i*cw;if(i)line(x,y+3,x,y+20,GRID,.2);setText(6.2,'bold',MID);pdf.text(v[0],x+3,y+6);setText(12,'bold',i===4?accent:DARK);pdf.text(String(v[1]),x+3,y+15)}); y+=28;
+      }
+      function recruitHeading(x,index,cont=false){
+        ensure(16);setText(10.2,'bold',DARK);let name=String(x.rec.name||'').toUpperCase();let war=String(x.rec.warName||'').toUpperCase();let title=`${String(index+1).padStart(2,'0')} | Recruta ${String(x.rec.id).padStart(3,'0')} — ${name}`;if(war&&war!==name)title+=` (${war})`;if(cont)title+=' — CONTINUAÇÃO';
+        const tl=pdf.splitTextToSize(title,W);pdf.text(tl,ML,y);y+=tl.length*4.2+1;
+        setText(8,'normal',MID);pdf.text(`Ocorrências: ${x.occs.length}  |  Negativas: ${x.neg.length}  |  Positivas: ${x.pos.length}`,ML,y);
+        setText(8.2,'bold',x.saldo<0?RED:x.saldo>0?GREEN:MID);pdf.text(`Saldo: ${x.saldo>0?'+':''}${x.saldo} pts`,PW-MR,y,{align:'right'}); y+=5;
+      }
+      const widths=[25,104,28,25];
+      function occHeader(){
+        const hh=7;pdf.setFillColor(...BLUE);pdf.rect(ML,y,W,hh,'F');setText(7,'bold',[255,255,255]);let x=ML;['Data','Registro','Tipo','Pontos'].forEach((tt,i)=>{pdf.text(tt,i===3?x+widths[i]-2:x+2,y+4.7,i===3?{align:'right'}:{});x+=widths[i]});y+=hh;
+      }
+      function drawOcc(o){
+        setText(7.2,'normal',DARK);const desc=pdf.splitTextToSize(String(o.text||''),widths[1]-4);const typ=Number(o.points)<0?'Negativa':Number(o.points)>0?'Positiva':String(o.type||'Neutra');const typLines=pdf.splitTextToSize(typ,widths[2]-4);const rh=Math.max(7.2,Math.max(desc.length,typLines.length)*3.35+3);
+        pdf.setDrawColor(...GRID);pdf.rect(ML,y,W,rh);let xx=ML;widths.slice(0,-1).forEach(w=>{xx+=w;line(xx,y,xx,y+rh,GRID,.25)});
+        let x=ML;setText(7.1,'normal',DARK);pdf.text(sigrFmtDate(o.date),x+2,y+4.5);x+=widths[0];pdf.text(desc,x+2,y+4.5);x+=widths[1];pdf.text(typLines,x+2,y+4.5);x+=widths[2];setText(7.3,'bold',Number(o.points)<0?RED:Number(o.points)>0?GREEN:MID);pdf.text(`${Number(o.points)>0?'+':''}${Number(o.points)||0} pts`,x+widths[3]-2,y+4.5,{align:'right'});y+=rh;
+      }
+      header(true); summaryBox();
+      if(!ranking.length){ensure(22);pdf.setDrawColor(...GRID);pdf.roundedRect(ML,y,W,18,2,2,'S');setText(9,'normal',MID);pdf.text('Nenhum registro encontrado no período.',PW/2,y+10,{align:'center'});y+=24;}
+      else ranking.forEach((x,index)=>{
+        ensure(27);recruitHeading(x,index,false);occHeader();
+        x.occs.forEach(o=>{setText(7.2,'normal',DARK);const desc=pdf.splitTextToSize(String(o.text||''),widths[1]-4);const rh=Math.max(7.2,desc.length*3.35+3);if(y+rh>PH-MB){addPage();recruitHeading(x,index,true);occHeader()}drawOcc(o)});y+=7;
+      });
+      ensure(35);section('SÍNTESE DO PERÍODO');
+      setText(8.1,'normal',[55,65,81]);const synth=isBest
+        ? `O relatório apresenta os recrutas com melhor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e, em caso de empate, prioriza maior número de registros positivos e menor número de registros negativos.`
+        : `O relatório apresenta os recrutas com menor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e serve como apoio à identificação de casos que merecem maior atenção.`;
+      const sl=pdf.splitTextToSize(synth,W);pdf.text(sl,ML,y,{maxWidth:W});y+=sl.length*4+8;line(ML,y,PW-MR,y,[229,231,235],.25);y+=7;setText(6.4,'normal',[148,163,184]);pdf.text('Documento gerado pelo SIGR — uso interno',ML,y);pdf.text('Não substitui julgamento do instrutor',PW-MR,y,{align:'right'});y+=11;line(PW/2-27,y,PW/2+27,y,[148,163,184],.25);y+=5;setText(7.2,'normal',MID);pdf.text('Encarregado / Comandante da Esquadrilha',PW/2,y,{align:'center'});
+      const pages=pdf.getNumberOfPages();for(let p=1;p<=pages;p++){pdf.setPage(p);setText(6.3,'normal',[148,163,184]);pdf.text(`Página ${p} de ${pages}`,PW-MR,PH-5,{align:'right'})}
+      const label=`${isBest?'Melhores':'Piores'}_${days===7?'Semana':'Mes'}`;const filename=`SIGR_10_${label}_${sigrLocalISODate(new Date())}.pdf`;pdf.save(filename);showToast(`PDF ${isBest?'dos melhores':'dos piores'} gerado com sucesso (${pages} pág.)`);
+    }
+
+    async function generateRecruitPDFVector(rec, filename) {
+      const JsPDF = window.jspdf && window.jspdf.jsPDF;
+      if (!JsPDF) throw new Error('jsPDF não carregado');
+      const dS = document.getElementById('dateStart').value || config.courseStart;
+      const dE = document.getElementById('dateEnd').value || config.courseEnd;
+      const partial = getRecruitPartialScore(rec.id), partialStatus = statusFor(partial), generalStatus = statusFor(rec.score);
+      const periodOccs = getRecruitOccurrencesInPeriod(rec.id,dS,dE), allOccs=getRecruitOccurrences(rec.id);
+      const neg=periodOccs.filter(o=>Number(o.points)<0), pos=periodOccs.filter(o=>Number(o.points)>0);
+      const avg=recruits.length?recruits.reduce((a,r)=>a+getRecruitPartialScore(r.id),0)/recruits.length:config.baseScore;
+      const fmt=v=>String(v||'').split('-').reverse().join('/');
+      let posText = pos.length ? `Foram registradas ${pos.length} ocorrência(s) positiva(s) no período. Destaques: ${pos.slice(-5).map(o=>`${o.text} (${fmt(o.date)}, ${Number(o.points)>0?'+':''}${o.points} pts)`).join('; ')}.` : (partial>=config.baseScore?'Não foram registradas ocorrências positivas formais no período. A pontuação parcial permanece em nível igual ou superior à base.':'Não há registros de ocorrências positivas no período selecionado.');
+      let negText='Não foram registradas ocorrências negativas no período selecionado.';
+      if(neg.length){ const cats={}; neg.forEach(o=>{const c=classifyCategory(o.text);cats[c]=(cats[c]||0)+1}); const top=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,3); negText=`Foram registradas ${neg.length} ocorrência(s) negativa(s) no período. Categorias mais frequentes: ${top.map(([c,n])=>`${c} (${n})`).join(', ')}. Últimos registros: ${neg.slice(-4).map(o=>`${fmt(o.date)} — ${o.text} (${o.points} pts)`).join('; ')}.`; if(partialStatus==='Regular') negText+=' A condição Regular recomenda observação preventiva para evitar escalada.'; if(['Crítica','Insatisfatória'].includes(partialStatus)) negText+=' A condição parcial exige acompanhamento prioritário pelo instrutor.'; }
+      const pdf=new JsPDF({unit:'mm',format:'a4',orientation:'portrait',compress:true});
+      const PW=210,PH=297,ML=14,MR=14,MT=12,MB=15,W=PW-ML-MR; let y=MT;
+      const BLUE=[30,58,138], DARK=[15,23,42], MID=[71,85,105], GRID=[203,213,225], LIGHT=[248,250,252], RED=[225,29,72], GREEN=[5,150,105], AMBER=[217,119,6];
+      const txt=(sz=9,st='normal',c=DARK)=>{pdf.setFont('helvetica',st);pdf.setFontSize(sz);pdf.setTextColor(...c)};
+      const line=(x1,y1,x2,y2,c=GRID,w=.25)=>{pdf.setDrawColor(...c);pdf.setLineWidth(w);pdf.line(x1,y1,x2,y2)};
+      const statusColor=s=>({'Destaque':[8,145,178],'Ótima':GREEN,'Boa':[37,99,235],'Regular':AMBER,'Insatisfatória':[234,88,12],'Crítica':RED}[s]||MID);
+      function header(first=false){y=MT;txt(8.3,'bold',BLUE);pdf.text('MINISTÉRIO DA DEFESA - COMANDO DA AERONÁUTICA',ML,y);txt(7,'normal',[100,116,139]);pdf.text('Base Aérea de Anápolis - CFSd 2ª/2026',ML,y+4.5);txt(13,'bold',BLUE);pdf.text('SIGR',PW-MR,y,{align:'right'});txt(5.8,'normal',[148,163,184]);pdf.text('Sistema Integrado de Gestão de Recrutas',PW-MR,y+4.5,{align:'right'});line(ML,y+8,PW-MR,y+8,BLUE,.65);y+=15;if(first){txt(16,'bold',DARK);pdf.text('FICHA INDIVIDUAL DO RECRUTA',ML,y);y+=6;txt(9,'normal',MID);pdf.text(`Nº ${String(rec.id).padStart(3,'0')} — ${String(rec.warName||rec.name).toUpperCase()}`,ML,y);y+=4.5;txt(7.5,'normal',[100,116,139]);pdf.text(`Período: ${fmt(dS)} a ${fmt(dE)}  |  Emitido: ${new Date().toLocaleString('pt-BR')}`,ML,y);y+=7;}}
+      function addPage(){pdf.addPage();header(false)} function ensure(h){if(y+h>PH-MB)addPage()}
+      function paragraph(text,color=DARK){txt(8.5,'normal',color);const ls=pdf.splitTextToSize(String(text),W);ensure(ls.length*4+3);pdf.text(ls,ML,y,{maxWidth:W});y+=ls.length*4+3}
+      function section(title,color=BLUE){ensure(10);txt(10,'bold',color);pdf.text(title,ML,y);y+=2;line(ML,y,PW-MR,y,color,.35);y+=5}
+      header(true);
+      const cols=[33,77,37,35], rh=12; pdf.setFillColor(...LIGHT);pdf.rect(ML,y,W,rh*2,'F');pdf.setDrawColor(...GRID);pdf.rect(ML,y,W,rh*2);let xx=ML;cols.slice(0,-1).forEach(w=>{xx+=w;line(xx,y,xx,y+rh,GRID)});line(ML,y+rh,PW-MR,y+rh,GRID);line(ML+110,y+rh,ML+110,y+rh*2,GRID);line(ML+147,y+rh,ML+147,y+rh*2,GRID);
+      const cell=(x,yy,label,val,accent=false)=>{txt(6.5,'bold',MID);pdf.text(label,x+2,yy+4);txt(accent?11:7.5,accent?'bold':'normal',accent?BLUE:DARK);const l=pdf.splitTextToSize(String(val),accent?29:70);pdf.text(l,x+2,yy+8)};
+      cell(ML,y,'Nº',String(rec.id).padStart(3,'0'),true);cell(ML+33,y,'Nome completo',rec.name);cell(ML+110,y,'Nome de guerra',rec.warName||'—');cell(ML+147,y,'SARAM',rec.saram||'N/I');cell(ML,y+rh,'Pelotão / Esquadrão',`${rec.platoon} Pelotão · ${rec.squad}`);cell(ML+110,y+rh,'Total de registros',`${allOccs.length} (período: ${periodOccs.length})`);cell(ML+147,y+rh,'Média da turma',avg.toFixed(1));y+=rh*2+5;
+      const gap=4,cw=(W-gap*2)/3,ch=23;[[`PONTUAÇÃO PARCIAL (PERÍODO)`,partial,partialStatus,partial<config.baseScore?RED:DARK],[`PONTUAÇÃO GERAL (ACUMULADA)`,rec.score,generalStatus,rec.score<config.baseScore?RED:DARK],[`DIFERENÇA VS. MÉDIA`,`${partial-avg>=0?'+':''}${(partial-avg).toFixed(1)}`,'pts em relação à turma',partial-avg>=0?GREEN:RED]].forEach((c,i)=>{const x=ML+i*(cw+gap);pdf.setFillColor(...LIGHT);pdf.setDrawColor(...GRID);pdf.roundedRect(x,y,cw,ch,2,2,'FD');txt(6.2,'bold',MID);pdf.text(c[0],x+3,y+5);txt(17,'bold',c[3]);pdf.text(String(c[1]),x+3,y+13);txt(7.2,'bold',i<2?statusColor(c[2]):MID);pdf.text(c[2],x+3,y+19)});y+=ch+7;
+      section('PONTOS POSITIVOS NO PERÍODO',GREEN);paragraph(posText);
+      section('PONTOS NEGATIVOS NO PERÍODO',RED);paragraph(negText);
+      section(`REGISTROS DO PERÍODO (${fmt(dS)} a ${fmt(dE)})`,BLUE);
+      const widths=[25,25,27,87,18];
+      function occHead(){const hh=7;pdf.setFillColor(...BLUE);pdf.rect(ML,y,W,hh,'F');txt(7,'bold',[255,255,255]);let x=ML;['Data','Tipo','Gravidade','Descrição','Pts'].forEach((tt,i)=>{pdf.text(tt,i===4?x+widths[i]-2:x+2,y+4.7,i===4?{align:'right'}:{});x+=widths[i]});y+=hh}
+      occHead(); if(!periodOccs.length){paragraph('Nenhuma ocorrência no período selecionado.',MID)} else periodOccs.forEach(o=>{txt(7,'normal',DARK);const desc=pdf.splitTextToSize(String(o.text||''),widths[3]-4), hh=Math.max(7,desc.length*3.2+3);if(y+hh>PH-MB){addPage();section('REGISTROS DO PERÍODO — CONTINUAÇÃO',BLUE);occHead()}pdf.setDrawColor(...GRID);pdf.rect(ML,y,W,hh);let x=ML; widths.slice(0,-1).forEach(w=>{x+=w;line(x,y,x,y+hh)});x=ML;txt(6.8,'normal',DARK);pdf.text(fmt(o.date),x+2,y+4.5);x+=widths[0];pdf.text(String(o.type||''),x+2,y+4.5);x+=widths[1];pdf.text(String(o.gravidade||''),x+2,y+4.5);x+=widths[2];pdf.text(desc,x+2,y+4.5);x+=widths[3];txt(7,'bold',Number(o.points)<0?RED:Number(o.points)>0?GREEN:MID);pdf.text(`${Number(o.points)>0?'+':''}${o.points}`,x+widths[4]-2,y+4.5,{align:'right'});y+=hh});
+      ensure(31);y+=5;line(ML,y,PW-MR,y,[226,232,240]);y+=5;txt(6.5,'normal',[148,163,184]);const note='Documento gerado pelo SIGR v2.2 com base exclusiva nos dados cadastrados. Não constitui proposta de sanção nem substitui o julgamento do instrutor.';pdf.text(pdf.splitTextToSize(note,W),ML,y);y+=12;line(PW/2-28,y,PW/2+28,y,[148,163,184]);y+=5;txt(7.2,'normal',MID);pdf.text('Encarregado / Comandante da Esquadrilha',PW/2,y,{align:'center'});
+      const pages=pdf.getNumberOfPages();for(let p=1;p<=pages;p++){pdf.setPage(p);txt(6.3,'normal',[148,163,184]);pdf.text(`Página ${p} de ${pages}`,PW-MR,PH-5,{align:'right'})}
+      const blob=pdf.output('blob');if(!blob||blob.size<1000)throw new Error('PDF individual inválido');pdf.save(filename);showToast(`Ficha individual em alta qualidade gerada (${pages} pág.)`);return true;
+    }
+
+    async function generateRecruitPDFById(id) {
+      if(id===null||id===undefined||String(id).trim()===''){showToast('Selecione um recruta antes de gerar o PDF');return}
+      const rec=getRecruitById(id);if(!rec){showToast('Recruta selecionado não foi encontrado');return}
+      const safeName=String(rec.warName||rec.name||rec.id).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_');
+      const filename=`SIGR_Ficha_${String(rec.id).padStart(3,'0')}_${safeName}_${new Date().toISOString().slice(0,10)}.pdf`;
+      showToast('Preparando ficha individual em alta qualidade...');
+      try{await generateRecruitPDFVector(rec,filename)}catch(e){console.error(e);showToast('Falha ao gerar ficha individual: '+(e.message||e))}
+    }
+    async function generateRecruitPDF() {
+      const btn=document.querySelector('button[onclick="generateRecruitPDF()"]');if(btn){btn.disabled=true;btn.style.opacity='0.6'}
+      try{await generateRecruitPDFById(currentSelectedId)}finally{if(btn){btn.disabled=false;btn.style.opacity='1'}}
+    }
+    async function generateRecruitPDFFromReportModal() {
+      const sel=document.getElementById('reportRecruitSelect');
+      if(!sel||!sel.value){showToast('Selecione um recruta');return}
+      closeReportModal();
+      await generateRecruitPDFById(sel.value);
+    }
+
+
 
 
     // ---------- SIGR IA — MOTOR ANALÍTICO CORPORATIVO v4 (LOCAL / OFFLINE) ----------
