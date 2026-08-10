@@ -52,6 +52,8 @@
     }
   </script>
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    .hidden { display: none !important; }
     /* ========== TEMA CLARO (padrão — comportamento original preservado) ========== */
     :root, [data-theme="light"] {
       --bg-main: #f1f5f9;
@@ -490,6 +492,128 @@
     body[data-sigr-role="viewer"] .requires-admin,
     body[data-sigr-role="operator"] .requires-admin { display: none !important; }
 
+    /* ========== IDENTIFICAÇÃO OPERACIONAL E COMUNICAÇÃO ========== */
+    .sigr-password-wrap { position: relative; }
+    .sigr-password-wrap input { padding-right: 48px; }
+    .sigr-password-toggle {
+      position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+      min-width: 36px; min-height: 34px; border-radius: 8px; color: #94a3b8;
+      font-size: 10px; font-weight: 800; letter-spacing: .04em;
+    }
+    .sigr-password-toggle:hover { color: #38bdf8; background: rgba(56,189,248,.08); }
+    .sigr-session-note {
+      display: flex; align-items: flex-start; gap: 8px; margin-top: 13px; padding: 10px 11px;
+      border: 1px solid rgba(56,189,248,.14); border-radius: 10px; background: rgba(30,41,59,.56);
+      color: #94a3b8; font-size: 10px; line-height: 1.45;
+    }
+    #sigrOperatorGate {
+      position: fixed; inset: 0; z-index: 9990; display: none; align-items: center; justify-content: center;
+      padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+      background: radial-gradient(circle at 50% 15%, rgba(30,64,175,.96), rgba(15,23,42,.98) 48%, #020617 100%);
+      color: #e2e8f0; overflow-y: auto;
+    }
+    #sigrOperatorGate.visible { display: flex; }
+    .operator-gate-card {
+      width: min(760px, 100%); max-height: min(820px, calc(100dvh - 36px)); overflow-y: auto;
+      background: rgba(15,23,42,.96); border: 1px solid rgba(56,189,248,.22); border-radius: 22px;
+      box-shadow: 0 28px 90px rgba(0,0,0,.48); padding: 22px;
+    }
+    .operator-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+    .operator-choice {
+      display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px; text-align: left;
+      border: 1px solid #334155; border-radius: 12px; background: #0b1220; color: #e2e8f0;
+    }
+    .operator-choice:hover { border-color: #38bdf8; background: #0f1b31; }
+    .operator-avatar {
+      width: 40px; height: 40px; flex: 0 0 40px; display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 13px; color: white; font-weight: 900; font-size: 12px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+    .operator-avatar.small { width: 30px; height: 30px; flex-basis: 30px; border-radius: 10px; font-size: 10px; }
+    .operator-avatar.large { width: 64px; height: 64px; flex-basis: 64px; border-radius: 18px; font-size: 18px; }
+    .operator-form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+    .operator-form-grid label { display: block; color: #94a3b8; font-size: 10px; font-weight: 700; margin-bottom: 5px; }
+    .operator-form-grid input, .operator-form-grid select {
+      width: 100%; min-height: 44px; padding: 9px 11px; border-radius: 10px; border: 1px solid #334155;
+      background: #0b1220; color: #f8fafc; outline: none; font-size: 14px;
+    }
+    .operator-form-grid input:focus, .operator-form-grid select:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,.10); }
+    .operator-status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 800; color: #059669; }
+    .operator-status-pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 7px rgba(16,185,129,.55); }
+
+    .comm-shell {
+      display: grid; grid-template-columns: 292px minmax(0,1fr); min-height: calc(100dvh - 174px);
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-card);
+    }
+    .comm-directory { border-right: 1px solid var(--border); background: var(--bg-muted); min-width: 0; }
+    .comm-directory-head { padding: 14px; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+    .comm-tab-row { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px; }
+    .comm-tab {
+      min-height: 36px; border: 1px solid var(--border); border-radius: 10px; font-size: 11px; font-weight: 800;
+      color: var(--text-secondary); background: var(--bg-card);
+    }
+    .comm-tab.active { color: var(--brand); border-color: var(--brand); background: var(--brand-soft); }
+    .comm-list { max-height: calc(100dvh - 300px); overflow-y: auto; padding: 7px; }
+    .comm-list-item {
+      width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px;
+      color: var(--text-primary); text-align: left; border: 1px solid transparent;
+    }
+    .comm-list-item:hover, .comm-list-item.active { background: var(--bg-card); border-color: var(--border); box-shadow: 0 4px 16px rgba(15,23,42,.05); }
+    .comm-list-item .unread-dot { min-width: 20px; height: 20px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: #2563eb; color: white; font-size: 9px; font-weight: 800; }
+    .comm-main { min-width: 0; display: flex; flex-direction: column; background: var(--bg-card); }
+    .comm-chat-head {
+      min-height: 64px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--bg-card) 96%, var(--brand-soft));
+    }
+    .comm-message-list {
+      flex: 1; min-height: 340px; max-height: calc(100dvh - 330px); overflow-y: auto; padding: 18px;
+      background:
+        radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--brand-soft) 48%, transparent), transparent 28%),
+        var(--bg-muted);
+    }
+    .comm-message-row { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 10px; }
+    .comm-message-row.mine { justify-content: flex-end; }
+    .comm-message-bubble {
+      max-width: min(76%, 680px); padding: 9px 11px 7px; border: 1px solid var(--border); border-radius: 6px 15px 15px 15px;
+      background: var(--bg-card); color: var(--text-primary); box-shadow: 0 3px 10px rgba(15,23,42,.05); overflow-wrap: anywhere;
+    }
+    .comm-message-row.mine .comm-message-bubble { background: var(--brand); color: white; border-color: var(--brand); border-radius: 15px 6px 15px 15px; }
+    .comm-message-author { font-size: 10px; font-weight: 900; color: var(--brand); margin-bottom: 3px; }
+    .comm-message-row.mine .comm-message-author { color: rgba(255,255,255,.8); }
+    .comm-message-text { font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
+    .comm-message-meta { margin-top: 5px; display: flex; align-items: center; justify-content: flex-end; gap: 5px; font-size: 9px; opacity: .68; }
+    .comm-compose { padding: 10px; border-top: 1px solid var(--border); background: var(--bg-card); }
+    .comm-compose form { display: flex; align-items: flex-end; gap: 8px; }
+    .comm-compose textarea {
+      flex: 1; min-height: 44px; max-height: 132px; resize: none; padding: 11px 13px; border: 1px solid var(--border);
+      border-radius: 14px; outline: none; background: var(--bg-muted); color: var(--text-primary); font-size: 15px; line-height: 1.4;
+    }
+    .comm-compose textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+    .comm-send-btn { width: 46px; height: 46px; border-radius: 14px; background: var(--brand); color: white; display: inline-flex; align-items: center; justify-content: center; }
+    .comm-empty { min-height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; color: var(--text-muted); }
+    .comm-profile-actions { display: flex; gap: 6px; }
+    .comm-icon-btn {
+      min-width: 40px; height: 40px; padding: 0 11px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border-radius: 12px; border: 1px solid var(--border); color: var(--text-secondary); background: var(--bg-card); font-size: 11px; font-weight: 800;
+    }
+    .comm-icon-btn:hover { color: var(--brand); border-color: var(--brand); background: var(--brand-soft); }
+    .comm-online-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px rgba(16,185,129,.55); }
+    .comm-offline-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
+    .comm-typing { min-height: 17px; padding: 0 14px; color: var(--text-muted); font-size: 10px; background: var(--bg-card); }
+    #incomingCallModal, #activeCallPanel { z-index: 10020; }
+    .call-card {
+      width: min(390px, 100%); padding: 25px; border-radius: 24px; text-align: center;
+      background: linear-gradient(160deg,#0f172a,#172554); border: 1px solid rgba(56,189,248,.25); color: white;
+      box-shadow: 0 30px 100px rgba(0,0,0,.58);
+    }
+    .call-pulse { animation: callPulse 1.7s ease-in-out infinite; }
+    @keyframes callPulse { 0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,.28)} 50%{box-shadow:0 0 0 18px rgba(56,189,248,0)} }
+    .call-action { width: 58px; height: 58px; border-radius: 50%; color: white; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; }
+    .call-action.accept { background: #16a34a; }
+    .call-action.reject { background: #dc2626; }
+    .call-action.neutral { background: #334155; }
+    .mobile-operator-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 145px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-card); }
+    .mobile-operator-chip span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
     @media (max-width: 1023px) {
       body { padding-bottom: 66px; overflow-x: hidden; }
       .sigr-topbar { min-height: 58px; height: auto !important; padding: 8px 12px !important; gap: 7px; flex-wrap: wrap; }
@@ -542,6 +666,20 @@
       .mobile-bottom-nav svg { width: 20px; height: 20px; }
       footer { display: none !important; }
       .notification-drawer { top: 64px; right: 10px; width: calc(100vw - 20px); max-height: calc(100dvh - 140px); }
+      .mobile-hide-period { display: none !important; }
+      .comm-shell { display: flex; flex-direction: column; min-height: calc(100dvh - 200px); border-radius: 14px; }
+      .comm-directory { border-right: 0; border-bottom: 1px solid var(--border); }
+      .comm-directory-head { padding: 8px 10px; }
+      .comm-list { display: flex; gap: 7px; max-height: none; overflow-x: auto; padding: 7px 9px; scrollbar-width: none; }
+      .comm-list::-webkit-scrollbar { display: none; }
+      .comm-list-item { min-width: 210px; max-width: 260px; background: var(--bg-card); border-color: var(--border); }
+      .comm-main { min-height: calc(100dvh - 336px); }
+      .comm-chat-head { min-height: 58px; padding: 8px 10px; }
+      .comm-message-list { min-height: 300px; max-height: none; height: calc(100dvh - 470px); padding: 12px 9px; }
+      .comm-message-bubble { max-width: 87%; }
+      .comm-compose { position: sticky; bottom: calc(60px + env(safe-area-inset-bottom)); z-index: 5; padding: 8px; }
+      .operator-gate-card { padding: 17px; border-radius: 18px; }
+      .operator-list { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 520px) {
@@ -550,6 +688,11 @@
       .today-strip { grid-template-columns: 1fr 1fr; }
       #view-dashboard h2, #view-ai h2 { font-size: 18px !important; }
       .metric-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+      .operator-form-grid { grid-template-columns: 1fr; }
+      .comm-profile-actions .comm-icon-btn span { display: none; }
+      .comm-chat-head h3 { font-size: 13px; }
+      .comm-message-text { font-size: 14px; }
+      .sigr-auth-card { padding: 22px 18px; border-radius: 16px; }
     }
 
   </style>
@@ -560,21 +703,73 @@
     <div class="sigr-auth-card">
       <div class="sigr-auth-logo">SIGR</div>
       <h1 class="text-center text-lg font-bold text-white">Acesso ao SIGR</h1>
-      <p class="text-center text-[11px] text-slate-400 mt-1 mb-5">CFSd 2ª/2026 · Área restrita a usuários autorizados</p>
+      <p class="text-center text-[11px] text-slate-400 mt-1 mb-5">CFSd 2ª/2026 · Acesso operacional protegido</p>
       <form id="sigrLoginForm" onsubmit="handleSigrLogin(event)" class="space-y-3">
         <div>
-          <label for="sigrLoginEmail" class="block text-[11px] text-slate-400 mb-1">E-mail</label>
-          <input id="sigrLoginEmail" type="email" autocomplete="username" required placeholder="seu@email.com" />
+          <label for="sigrLoginUsername" class="block text-[11px] text-slate-400 mb-1">Usuário ou e-mail</label>
+          <input id="sigrLoginUsername" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="equipe.sigr" />
         </div>
         <div>
           <label for="sigrLoginPassword" class="block text-[11px] text-slate-400 mb-1">Senha</label>
-          <input id="sigrLoginPassword" type="password" autocomplete="current-password" required placeholder="Sua senha" />
+          <div class="sigr-password-wrap">
+            <input id="sigrLoginPassword" type="password" autocomplete="current-password" required placeholder="Sua senha" />
+            <button type="button" class="sigr-password-toggle" onclick="togglePasswordVisibility('sigrLoginPassword', this)" aria-label="Mostrar ou ocultar senha">VER</button>
+          </div>
         </div>
-        <button id="sigrLoginButton" type="submit" class="sigr-auth-submit">Entrar</button>
+        <button id="sigrLoginButton" type="submit" class="sigr-auth-submit">Entrar no SIGR</button>
         <div id="sigrAuthMessage"></div>
       </form>
+      <div class="sigr-session-note"><span aria-hidden="true">✓</span><span>Depois do primeiro acesso, este aparelho permanecerá conectado com renovação segura da sessão.</span></div>
     </div>
   </div>
+
+  <!-- IDENTIFICAÇÃO INDIVIDUAL APÓS O LOGIN COMPARTILHADO -->
+  <section id="sigrOperatorGate" class="no-print" aria-label="Identificação do integrante">
+    <div class="operator-gate-card">
+      <div class="flex items-start justify-between gap-3 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="sigr-auth-logo !m-0">SIGR</div>
+          <div>
+            <div class="text-[10px] uppercase tracking-[.18em] text-cyan-300 font-bold">Identificação operacional</div>
+            <h2 class="text-xl font-bold text-white">Quem está utilizando o SIGR?</h2>
+            <p class="text-xs text-slate-400 mt-1">Selecione seu perfil e confirme o PIN individual.</p>
+          </div>
+        </div>
+        <button type="button" onclick="handleSigrLogout()" class="text-[11px] border border-slate-700 rounded-lg px-3 py-2 text-slate-300 hover:border-rose-400 hover:text-rose-300">Trocar conta</button>
+      </div>
+      <div id="operatorSelectPanel">
+        <div id="operatorGateMessage" class="text-xs text-slate-400 mb-3">Carregando integrantes...</div>
+        <div id="operatorChoiceList" class="operator-list"></div>
+        <div class="flex items-center gap-3 my-5"><div class="h-px bg-slate-700 flex-1"></div><span class="text-[10px] uppercase tracking-widest text-slate-500">ou</span><div class="h-px bg-slate-700 flex-1"></div></div>
+        <button type="button" onclick="showOperatorRegisterPanel()" class="w-full min-h-11 rounded-xl border border-cyan-700/60 bg-cyan-950/30 text-cyan-200 font-bold text-sm hover:bg-cyan-900/40">Criar minha identificação</button>
+      </div>
+      <form id="operatorPinPanel" class="hidden" onsubmit="confirmOperatorPin(event)">
+        <button type="button" onclick="showOperatorSelectPanel()" class="text-xs text-slate-400 hover:text-white mb-4">← Voltar aos integrantes</button>
+        <div id="operatorPinIdentity" class="flex items-center gap-3 p-3 rounded-xl border border-slate-700 bg-slate-900/70 mb-4"></div>
+        <label for="operatorPinInput" class="block text-[11px] text-slate-400 mb-1">PIN individual de 6 números</label>
+        <div class="sigr-password-wrap">
+          <input id="operatorPinInput" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" required placeholder="••••••" class="w-full min-h-12 px-3 rounded-xl border border-slate-700 bg-slate-950 text-white text-center tracking-[.4em] text-lg outline-none focus:border-cyan-400" />
+          <button type="button" class="sigr-password-toggle" onclick="togglePasswordVisibility('operatorPinInput', this)">VER</button>
+        </div>
+        <button id="operatorPinButton" type="submit" class="sigr-auth-submit mt-3">Iniciar sessão operacional</button>
+        <div id="operatorPinMessage" class="min-h-5 mt-2 text-center text-xs text-rose-300"></div>
+      </form>
+      <form id="operatorRegisterPanel" class="hidden" onsubmit="registerSigrOperator(event)">
+        <button type="button" onclick="showOperatorSelectPanel()" class="text-xs text-slate-400 hover:text-white mb-4">← Voltar aos integrantes</button>
+        <div class="mb-4"><h3 class="text-lg font-bold text-white">Criar identificação</h3><p class="text-xs text-slate-400 mt-1">Este cadastro identifica suas mensagens e alterações dentro do SIGR.</p></div>
+        <div class="operator-form-grid">
+          <div><label for="operatorRankInput">Graduação</label><input id="operatorRankInput" maxlength="20" required placeholder="Ex.: S2" autocomplete="off" /></div>
+          <div><label for="operatorNameInput">Nome de guerra</label><input id="operatorNameInput" maxlength="50" required placeholder="Ex.: Ezequias" autocomplete="off" /></div>
+          <div><label for="operatorFunctionInput">Função</label><input id="operatorFunctionInput" maxlength="60" placeholder="Ex.: Operador" autocomplete="off" /></div>
+          <div><label for="operatorPinCreate">PIN pessoal</label><input id="operatorPinCreate" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="6 números" autocomplete="new-password" /></div>
+          <div><label for="operatorPinConfirm">Confirmar PIN</label><input id="operatorPinConfirm" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="Repita o PIN" autocomplete="new-password" /></div>
+          <div><label for="operatorAvatarColor">Cor do perfil</label><select id="operatorAvatarColor"><option value="#2563eb">Azul</option><option value="#059669">Verde</option><option value="#7c3aed">Violeta</option><option value="#dc2626">Vermelho</option><option value="#d97706">Âmbar</option><option value="#0891b2">Ciano</option></select></div>
+        </div>
+        <button id="operatorRegisterButton" type="submit" class="sigr-auth-submit mt-4">Cadastrar e entrar</button>
+        <div id="operatorRegisterMessage" class="min-h-5 mt-2 text-center text-xs text-rose-300"></div>
+      </form>
+    </div>
+  </section>
 
   <!-- BOOT SPLASH -->
   <div id="sigrBoot" class="no-print">
@@ -605,12 +800,12 @@
         </div>
       </div>
       <div class="flex items-center gap-2 text-xs text-slate-600 flex-wrap">
-        <span class="hidden md:inline text-slate-400">Período:</span>
-        <input type="date" id="dateStart" value="2026-08-03" onchange="onFilterChange()" class="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
-        <span class="date-separator text-slate-400">até</span>
-        <input type="date" id="dateEnd" value="2026-11-27" onchange="onFilterChange()" class="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
-        <button onclick="clearDateFilter()" class="text-slate-400 hover:text-slate-600 px-1" title="Limpar">✕</button>
-        <div class="hidden sm:flex items-center gap-1 ml-1">
+        <span class="hidden md:inline text-slate-400 mobile-hide-period">Período:</span>
+        <input type="date" id="dateStart" value="2026-08-03" onchange="onFilterChange()" class="mobile-hide-period border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
+        <span class="date-separator text-slate-400 mobile-hide-period">até</span>
+        <input type="date" id="dateEnd" value="2026-11-27" onchange="onFilterChange()" class="mobile-hide-period border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
+        <button onclick="clearDateFilter()" class="mobile-hide-period text-slate-400 hover:text-slate-600 px-1" title="Limpar">✕</button>
+        <div class="hidden sm:flex items-center gap-1 ml-1 mobile-hide-period">
           <button onclick="setPeriodPreset('semana')" class="text-[10px] px-2 py-0.5 rounded-full border border-slate-200 hover:bg-brand-50 hover:border-brand-300 text-slate-600" title="Últimos 7 dias">7 dias</button>
           <button onclick="setPeriodPreset('quinzena')" class="text-[10px] px-2 py-0.5 rounded-full border border-slate-200 hover:bg-brand-50 hover:border-brand-300 text-slate-600" title="Últimos 15 dias">15 dias</button>
           <button onclick="setPeriodPreset('mes')" class="text-[10px] px-2 py-0.5 rounded-full border border-slate-200 hover:bg-brand-50 hover:border-brand-300 text-slate-600" title="Últimos 30 dias">30 dias</button>
@@ -628,7 +823,10 @@
           <span id="sigrSyncDot" class="sigr-sync-dot"></span>
           <span id="sigrSyncText">Conectando</span>
         </span>
-        <span class="text-slate-500 hidden sm:inline">Usuário: <strong id="sigrUserLabel" class="text-slate-700">INSTRUTOR</strong></span>
+        <button type="button" onclick="openCurrentOperatorProfile()" class="mobile-operator-chip" title="Perfil operacional">
+          <span id="sigrOperatorMiniAvatar" class="operator-avatar small" style="background:#334155">?</span>
+          <span id="sigrUserLabel" class="text-[10px] font-bold text-slate-700">EQUIPE SIGR</span>
+        </button>
         <span id="sigrRoleBadge" class="role-badge hidden sm:inline-flex">ADMIN</span>
         <button type="button" onclick="handleSigrLogout()" class="hidden sm:inline text-[10px] px-2 py-1 rounded border border-slate-200 hover:bg-slate-50">Sair</button>
       </div>
@@ -655,6 +853,10 @@
       <button onclick="showView('baixa')" class="toolbar-btn flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white hover:shadow-sm transition" data-view="baixa">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
         Baixa Médica
+      </button>
+      <button onclick="showView('comunicacao')" class="toolbar-btn flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white hover:shadow-sm transition" data-view="comunicacao">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12a8 8 0 01-9 7.94A8.66 8.66 0 018 21l-1.3-2.6A8 8 0 1121 12z"/></svg>
+        Chat da Equipe
       </button>
       <button onclick="showView('ai')" class="toolbar-btn flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white hover:shadow-sm transition" data-view="ai">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
@@ -713,6 +915,10 @@
             </a>
             <a href="#" onclick="showView('baixa'); return false;" class="sidebar-item flex items-center gap-2 px-4 py-2 text-slate-700" data-nav="baixa">
               <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Baixa Médica
+            </a>
+            <a href="#" onclick="showView('comunicacao'); return false;" class="sidebar-item flex items-center gap-2 px-4 py-2 text-slate-700" data-nav="comunicacao">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> Chat da Equipe
+              <span id="sidebarChatUnread" class="ml-auto hidden min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[9px] font-bold items-center justify-center">0</span>
             </a>
           </div>
         </div>
@@ -1034,6 +1240,61 @@
         </div>
       </div>
 
+      <!-- VIEW: COMUNICAÇÃO -->
+      <div id="view-comunicacao" class="view-panel hidden space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>Comunicação SIGR</h2>
+            <p class="text-[11px] text-slate-500 mt-0.5">Chat geral, mensagens privadas e chamadas entre integrantes.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="commConnectionStatus" class="text-[10px] text-slate-500 border border-slate-200 rounded-full px-2.5 py-1">Conectando...</span>
+            <button type="button" onclick="enableSigrNotifications()" class="text-[10px] font-bold text-brand-700 border border-brand-200 bg-brand-50 rounded-lg px-3 py-2">Ativar notificações</button>
+          </div>
+        </div>
+        <div class="comm-shell">
+          <aside class="comm-directory" aria-label="Conversas e integrantes">
+            <div class="comm-directory-head">
+              <div class="comm-tab-row">
+                <button id="commConversationsTab" type="button" class="comm-tab active" onclick="setCommDirectoryTab('conversations')">Conversas</button>
+                <button id="commPeopleTab" type="button" class="comm-tab" onclick="setCommDirectoryTab('people')">Integrantes</button>
+              </div>
+              <div class="mt-2 relative">
+                <input id="commSearchInput" type="search" oninput="renderCommDirectory()" placeholder="Pesquisar..." class="w-full min-h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs outline-none focus:border-brand-500" />
+              </div>
+            </div>
+            <div id="commDirectoryList" class="comm-list"></div>
+          </aside>
+          <section class="comm-main" aria-label="Mensagens">
+            <header class="comm-chat-head">
+              <button id="commChatIdentity" type="button" onclick="openSelectedCommProfile()" class="min-w-0 flex items-center gap-2 text-left">
+                <span id="commChatAvatar" class="operator-avatar small" style="background:#2563eb">EQ</span>
+                <span class="min-w-0"><span id="commChatTitle" class="block text-sm font-bold text-slate-800 truncate">Equipe SIGR</span><span id="commChatSubtitle" class="flex items-center gap-1 text-[10px] text-slate-500"><span class="comm-online-dot"></span> Chat geral da equipe</span></span>
+              </button>
+              <div class="comm-profile-actions">
+                <button id="commCallButton" type="button" onclick="callSelectedOperator()" class="comm-icon-btn hidden" title="Ligação de voz">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 5a2 2 0 012-2h3l2 5-2 1a16 16 0 007 7l1-2 5 2v3a2 2 0 01-2 2C10.16 21 3 13.84 3 5z"/></svg><span>Ligar</span>
+                </button>
+                <button type="button" onclick="refreshCommunications(true)" class="comm-icon-btn" title="Atualizar mensagens">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 4v6h6M20 20v-6h-6M5.1 15A8 8 0 0018 18.9M18.9 9A8 8 0 006 5.1"/></svg><span>Atualizar</span>
+                </button>
+              </div>
+            </header>
+            <div id="commMessageList" class="comm-message-list"><div class="comm-empty"><div class="text-3xl mb-2">💬</div><strong>Carregando comunicação...</strong></div></div>
+            <div id="commTypingStatus" class="comm-typing"></div>
+            <div class="comm-compose">
+              <form id="commMessageForm" onsubmit="sendCommMessage(event)">
+                <textarea id="commMessageInput" rows="1" maxlength="2000" placeholder="Digite uma mensagem..." oninput="autoResizeCommInput(this); notifyCommTyping()" onkeydown="handleCommComposerKey(event)"></textarea>
+                <button id="commSendButton" type="submit" class="comm-send-btn" aria-label="Enviar mensagem">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l17 8-17 8 4-8-4-8zm4 8h13"/></svg>
+                </button>
+              </form>
+              <div class="text-[9px] text-slate-400 mt-1 px-1">Enter envia · Shift + Enter quebra a linha</div>
+            </div>
+          </section>
+        </div>
+      </div>
+
       <!-- VIEW: AI -->
       <div id="view-ai" class="view-panel hidden space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1133,8 +1394,8 @@
     <button type="button" data-mobile-view="efetivo" onclick="showView('efetivo')">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 20v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m7-10a4 4 0 100-8 4 4 0 000 8zm13 10v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg><span>Efetivo</span>
     </button>
-    <button type="button" data-mobile-view="calendario" onclick="showView('calendario')">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14H3V6a2 2 0 012-2z"/></svg><span>Calendário</span>
+    <button type="button" data-mobile-view="comunicacao" onclick="showView('comunicacao')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 10h.01M12 10h.01M16 10h.01M21 12a8 8 0 01-9 7.94A8.66 8.66 0 018 21l-1.3-2.6A8 8 0 1121 12z"/></svg><span id="mobileChatLabel">Chat</span>
     </button>
     <button type="button" data-mobile-view="ai" onclick="showView('ai')">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3a7 7 0 00-4 12.74V20l4-2 4 2v-4.26A7 7 0 0012 3zm-2 7h.01M14 10h.01M9 13h6"/></svg><span>SIGR IA</span>
@@ -1521,6 +1782,48 @@
     </div>
   </div>
 
+  <!-- PERFIL DO INTEGRANTE -->
+  <div id="operatorProfileModal" class="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[95] hidden items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200">
+      <div class="p-5 bg-gradient-to-br from-slate-900 to-blue-950 text-white">
+        <div class="flex items-start justify-between gap-3"><div id="operatorProfileHeader" class="flex items-center gap-3"></div><button type="button" onclick="closeOperatorProfile()" class="w-9 h-9 rounded-full border border-white/20">✕</button></div>
+      </div>
+      <div id="operatorProfileBody" class="p-5"></div>
+      <div id="operatorProfileActions" class="p-4 border-t border-slate-100 flex gap-2"></div>
+    </div>
+  </div>
+
+  <!-- CHAMADA RECEBIDA -->
+  <div id="incomingCallModal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4 no-print">
+    <div class="call-card">
+      <div id="incomingCallAvatar" class="operator-avatar large call-pulse mx-auto" style="background:#2563eb">?</div>
+      <div class="text-[10px] uppercase tracking-[.18em] text-cyan-300 font-bold mt-5">Chamada de voz SIGR</div>
+      <h2 id="incomingCallName" class="text-xl font-bold mt-2">Integrante</h2>
+      <p class="text-xs text-slate-400 mt-1">está ligando...</p>
+      <div class="flex items-center justify-center gap-12 mt-8">
+        <div><button type="button" onclick="rejectIncomingCall()" class="call-action reject">✕</button><div class="text-[10px] text-slate-400 mt-2">Recusar</div></div>
+        <div><button type="button" onclick="acceptIncomingCall()" class="call-action accept">✓</button><div class="text-[10px] text-slate-400 mt-2">Atender</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAMADA ATIVA -->
+  <div id="activeCallPanel" class="fixed inset-0 bg-black/75 backdrop-blur-md hidden items-center justify-center p-4 no-print">
+    <div class="call-card">
+      <div id="activeCallAvatar" class="operator-avatar large mx-auto" style="background:#2563eb">?</div>
+      <h2 id="activeCallName" class="text-xl font-bold mt-5">Chamada SIGR</h2>
+      <p id="activeCallStatus" class="text-xs text-cyan-300 mt-2">Conectando...</p>
+      <div id="activeCallTimer" class="text-2xl font-mono mt-4">00:00</div>
+      <div class="flex items-center justify-center gap-7 mt-8">
+        <div><button id="muteCallButton" type="button" onclick="toggleCallMute()" class="call-action neutral">MIC</button><div class="text-[10px] text-slate-400 mt-2">Silenciar</div></div>
+        <div><button type="button" onclick="endVoiceCall()" class="call-action reject">✕</button><div class="text-[10px] text-slate-400 mt-2">Encerrar</div></div>
+      </div>
+      <p class="text-[10px] text-slate-500 mt-7">A chamada utiliza a internet e requer permissão para o microfone.</p>
+    </div>
+  </div>
+  <audio id="sigrRemoteAudio" autoplay playsinline></audio>
+  <audio id="sigrCallRingtone" loop preload="none"></audio>
+
   <div id="printArea" class="hidden"></div>
   <div id="toast" class="toast"></div>
 
@@ -1533,7 +1836,9 @@
   const SUPABASE_URL = 'https://lyslrlscoycomqxmzicw.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_GhEO9R4Imjw4BFdEipvTKw_och9ZgYV';
     const sigrSupabase = window.supabase && window.supabase.createClient
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        })
       : null;
     let sigrSession = null;
     let sigrMetadata = {};
@@ -1542,6 +1847,25 @@
     let sigrSyncQueued = false;
     let sigrUserRole = 'admin';
     let sigrNotifications = [];
+    const SIGR_SHARED_USERNAME = 'equipe.sigr';
+    const SIGR_COMM_FUNCTION = 'sigr-communications';
+    const SIGR_OPERATOR_TOKEN_KEY = 'sigr_operator_session_v1';
+    const SIGR_OPERATOR_PROFILE_KEY = 'sigr_operator_profile_v1';
+    let sigrOperators = [];
+    let sigrActiveOperator = null;
+    let sigrOperatorToken = localStorage.getItem(SIGR_OPERATOR_TOKEN_KEY) || '';
+    let sigrSelectedOperator = null;
+    let sigrCommDirectoryTab = 'conversations';
+    let sigrConversation = { type: 'group', operatorId: null };
+    let sigrCommMessages = [];
+    let sigrCommUnread = {};
+    let sigrCommChannel = null;
+    let sigrCommRefreshTimer = null;
+    let sigrTypingTimer = null;
+    let sigrCall = null;
+    let sigrCallStartedAt = null;
+    let sigrCallTimer = null;
+    const SIGR_ICE_SERVERS = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }];
 
     const DEFAULT_CONFIG = {
       baseScore: 100,
@@ -1729,6 +2053,660 @@
       setSigrAuthMessage('');
     }
 
+    function togglePasswordVisibility(inputId, button) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      input.type = input.type === 'password' ? 'text' : 'password';
+      if (button) button.textContent = input.type === 'password' ? 'VER' : 'OCULTAR';
+    }
+
+    function normalizeSigrUsername(value) {
+      return String(value || '').trim().toLowerCase().replace(/\s+/g, '.');
+    }
+
+    async function invokeSigrCommunications(action, payload = {}) {
+      if (!sigrSupabase) throw new Error('Conexão segura indisponível.');
+      const { data, error } = await sigrSupabase.functions.invoke(SIGR_COMM_FUNCTION, { body: { action, ...payload } });
+      if (error) {
+        let detail = '';
+        try { detail = (await error.context?.json())?.error || ''; } catch (_) {}
+        throw new Error(detail || error.message || 'Falha na comunicação com o SIGR.');
+      }
+      if (data?.error) throw new Error(data.error);
+      return data || {};
+    }
+
+    function operatorFullName(operator) {
+      if (!operator) return 'Integrante';
+      return [operator.rank, operator.war_name].filter(Boolean).join(' ').trim() || operator.display_name || 'Integrante';
+    }
+
+    function operatorInitials(operator) {
+      const text = operatorFullName(operator).replace(/[^\p{L}\p{N} ]/gu, ' ').trim();
+      const parts = text.split(/\s+/).filter(Boolean);
+      return (parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : (parts[0] || 'SI').slice(0, 2)).toUpperCase();
+    }
+
+    function operatorAvatarHTML(operator, size = '') {
+      const color = operator?.avatar_color || '#2563eb';
+      return `<span class="operator-avatar ${size}" style="background:${escapeHTML(color)}">${escapeHTML(operatorInitials(operator))}</span>`;
+    }
+
+    function setOperatorGatePanel(panel) {
+      ['operatorSelectPanel','operatorPinPanel','operatorRegisterPanel'].forEach(id => document.getElementById(id)?.classList.toggle('hidden', id !== panel));
+    }
+
+    function showOperatorSelectPanel() {
+      sigrSelectedOperator = null;
+      setOperatorGatePanel('operatorSelectPanel');
+      const pin = document.getElementById('operatorPinInput');
+      if (pin) pin.value = '';
+      renderOperatorChoices();
+    }
+
+    function showOperatorRegisterPanel() {
+      setOperatorGatePanel('operatorRegisterPanel');
+      setTimeout(() => document.getElementById('operatorRankInput')?.focus(), 80);
+    }
+
+    function selectSigrOperator(operatorId) {
+      const operator = sigrOperators.find(item => String(item.id) === String(operatorId));
+      if (!operator) return;
+      sigrSelectedOperator = operator;
+      const target = document.getElementById('operatorPinIdentity');
+      if (target) target.innerHTML = `${operatorAvatarHTML(operator)}<div class="min-w-0"><div class="font-bold text-white">${escapeHTML(operatorFullName(operator))}</div><div class="text-[11px] text-slate-400">${escapeHTML(operator.duty_function || 'Integrante da equipe')}</div></div>`;
+      setOperatorGatePanel('operatorPinPanel');
+      setTimeout(() => document.getElementById('operatorPinInput')?.focus(), 80);
+    }
+
+    function renderOperatorChoices() {
+      const list = document.getElementById('operatorChoiceList');
+      const message = document.getElementById('operatorGateMessage');
+      if (!list) return;
+      if (!sigrOperators.length) {
+        list.innerHTML = '';
+        if (message) message.textContent = 'Ainda não existe identificação cadastrada. Crie a primeira abaixo.';
+        return;
+      }
+      if (message) message.textContent = `${sigrOperators.length} integrante${sigrOperators.length === 1 ? '' : 's'} cadastrado${sigrOperators.length === 1 ? '' : 's'}.`;
+      list.innerHTML = sigrOperators.map(operator => `<button type="button" class="operator-choice" onclick="selectSigrOperator('${escapeHTML(String(operator.id))}')">${operatorAvatarHTML(operator)}<span class="min-w-0 flex-1"><strong class="block text-sm truncate">${escapeHTML(operatorFullName(operator))}</strong><span class="block text-[10px] text-slate-400 truncate">${escapeHTML(operator.duty_function || 'Integrante da equipe')}</span></span><span class="text-cyan-300">›</span></button>`).join('');
+    }
+
+    async function loadSigrOperators() {
+      const result = await invokeSigrCommunications('operators-list');
+      sigrOperators = Array.isArray(result.operators) ? result.operators : [];
+      renderOperatorChoices();
+      renderCommDirectory();
+      return sigrOperators;
+    }
+
+    function updateActiveOperatorUI() {
+      const label = document.getElementById('sigrUserLabel');
+      const avatar = document.getElementById('sigrOperatorMiniAvatar');
+      if (label) label.textContent = sigrActiveOperator ? operatorFullName(sigrActiveOperator) : 'EQUIPE SIGR';
+      if (avatar) {
+        avatar.textContent = sigrActiveOperator ? operatorInitials(sigrActiveOperator) : '?';
+        avatar.style.background = sigrActiveOperator?.avatar_color || '#334155';
+      }
+    }
+
+    async function activateOperatorIdentity(operator, token, options = {}) {
+      sigrActiveOperator = operator;
+      sigrOperatorToken = token || sigrOperatorToken;
+      if (sigrOperatorToken) localStorage.setItem(SIGR_OPERATOR_TOKEN_KEY, sigrOperatorToken);
+      localStorage.setItem(SIGR_OPERATOR_PROFILE_KEY, JSON.stringify(operator || {}));
+      document.getElementById('sigrOperatorGate')?.classList.remove('visible');
+      updateActiveOperatorUI();
+      await setupCommRealtime();
+      await refreshCommunications(false);
+      await registerCommunicationPushSubscriptionSilently();
+      await checkPendingVoiceCalls();
+      if (!options.restored) showToast(`Identificação ativa: ${operatorFullName(operator)}`);
+      const requestedParams = new URLSearchParams(location.search);
+      if (requestedParams.get('view') === 'comunicacao') {
+        const requestedOperator = requestedParams.get('operator');
+        if (requestedOperator && sigrOperators.some(item => String(item.id) === requestedOperator)) openPrivateConversation(requestedOperator);
+        else showView('comunicacao');
+      }
+    }
+
+    async function initializeOperatorIdentity() {
+      if (!sigrSession) return;
+      try {
+        await loadSigrOperators();
+        if (sigrOperatorToken) {
+          try {
+            const restored = await invokeSigrCommunications('operator-session', { operatorToken: sigrOperatorToken });
+            if (restored.operator) {
+              await activateOperatorIdentity(restored.operator, sigrOperatorToken, { restored: true });
+              return;
+            }
+          } catch (_) {
+            localStorage.removeItem(SIGR_OPERATOR_TOKEN_KEY);
+            localStorage.removeItem(SIGR_OPERATOR_PROFILE_KEY);
+            sigrOperatorToken = '';
+          }
+        }
+        document.getElementById('sigrOperatorGate')?.classList.add('visible');
+        showOperatorSelectPanel();
+      } catch (error) {
+        console.warn('SIGR Comunicação: configuração pendente', error);
+        document.getElementById('sigrOperatorGate')?.classList.remove('visible');
+        updateActiveOperatorUI();
+        showToast('O módulo de identificação ainda precisa ser ativado no Supabase');
+      }
+    }
+
+    async function confirmOperatorPin(event) {
+      event.preventDefault();
+      if (!sigrSelectedOperator) return;
+      const pin = document.getElementById('operatorPinInput').value;
+      const button = document.getElementById('operatorPinButton');
+      const message = document.getElementById('operatorPinMessage');
+      button.disabled = true; button.textContent = 'Confirmando...'; if (message) message.textContent = '';
+      try {
+        const result = await invokeSigrCommunications('operator-login', { operatorId: sigrSelectedOperator.id, pin });
+        document.getElementById('operatorPinInput').value = '';
+        await activateOperatorIdentity(result.operator, result.operatorToken);
+      } catch (error) {
+        if (message) message.textContent = error.message || 'PIN inválido.';
+      } finally { button.disabled = false; button.textContent = 'Iniciar sessão operacional'; }
+    }
+
+    async function registerSigrOperator(event) {
+      event.preventDefault();
+      const pin = document.getElementById('operatorPinCreate').value;
+      const confirmPin = document.getElementById('operatorPinConfirm').value;
+      const message = document.getElementById('operatorRegisterMessage');
+      if (!/^\d{6}$/.test(pin)) { if (message) message.textContent = 'O PIN precisa ter exatamente 6 números.'; return; }
+      if (pin !== confirmPin) { if (message) message.textContent = 'Os dois PINs não são iguais.'; return; }
+      const button = document.getElementById('operatorRegisterButton');
+      button.disabled = true; button.textContent = 'Cadastrando...'; if (message) message.textContent = '';
+      try {
+        const profile = {
+          rank: document.getElementById('operatorRankInput').value.trim().toUpperCase(),
+          warName: document.getElementById('operatorNameInput').value.trim(),
+          dutyFunction: document.getElementById('operatorFunctionInput').value.trim() || 'Operador',
+          avatarColor: document.getElementById('operatorAvatarColor').value
+        };
+        const result = await invokeSigrCommunications('operator-register', { profile, pin });
+        event.target.reset();
+        await loadSigrOperators();
+        await activateOperatorIdentity(result.operator, result.operatorToken);
+      } catch (error) {
+        if (message) message.textContent = error.message || 'Não foi possível cadastrar a identificação.';
+      } finally { button.disabled = false; button.textContent = 'Cadastrar e entrar'; }
+    }
+
+    async function endOperatorIdentity() {
+      try { if (sigrOperatorToken) await invokeSigrCommunications('operator-logout', { operatorToken: sigrOperatorToken }); } catch (_) {}
+      localStorage.removeItem(SIGR_OPERATOR_TOKEN_KEY);
+      localStorage.removeItem(SIGR_OPERATOR_PROFILE_KEY);
+      sigrOperatorToken = ''; sigrActiveOperator = null;
+      updateActiveOperatorUI();
+      await initializeOperatorIdentity();
+    }
+
+    function commBroadcast(event, payload = {}) {
+      if (!sigrCommChannel || !sigrActiveOperator) return Promise.resolve();
+      return sigrCommChannel.send({ type: 'broadcast', event, payload: { ...payload, senderOperatorId: sigrActiveOperator.id } });
+    }
+
+    async function setupCommRealtime() {
+      if (!sigrSupabase || !sigrActiveOperator) return;
+      if (sigrCommChannel) {
+        try { await sigrSupabase.removeChannel(sigrCommChannel); } catch (_) {}
+      }
+      sigrCommChannel = sigrSupabase.channel('sigr-communications-v1', { config: { presence: { key: String(sigrActiveOperator.id) } } });
+      sigrCommChannel
+        .on('broadcast', { event: 'chat-refresh' }, ({ payload }) => {
+          if (String(payload?.senderOperatorId) === String(sigrActiveOperator?.id)) return;
+          refreshCommunications(false);
+        })
+        .on('broadcast', { event: 'typing' }, ({ payload }) => handleRemoteTyping(payload))
+        .on('broadcast', { event: 'call-signal' }, ({ payload }) => handleVoiceCallSignal(payload))
+        .on('presence', { event: 'sync' }, () => { renderCommDirectory(); updateCommChatHeader(); })
+        .subscribe(async status => {
+          const statusEl = document.getElementById('commConnectionStatus');
+          if (statusEl) statusEl.textContent = status === 'SUBSCRIBED' ? 'Tempo real ativo' : 'Conectando...';
+          if (status === 'SUBSCRIBED') {
+            await sigrCommChannel.track({ operatorId: sigrActiveOperator.id, name: operatorFullName(sigrActiveOperator), onlineAt: new Date().toISOString() });
+          }
+        });
+      clearInterval(sigrCommRefreshTimer);
+      sigrCommRefreshTimer = setInterval(() => {
+        if (document.visibilityState === 'visible' && sigrActiveOperator) refreshCommunications(false);
+      }, 15000);
+    }
+
+    function onlineOperatorIds() {
+      if (!sigrCommChannel) return new Set();
+      const state = sigrCommChannel.presenceState() || {};
+      const ids = new Set();
+      Object.values(state).flat().forEach(item => { if (item?.operatorId) ids.add(String(item.operatorId)); });
+      return ids;
+    }
+
+    function setCommDirectoryTab(tab) {
+      sigrCommDirectoryTab = tab === 'people' ? 'people' : 'conversations';
+      document.getElementById('commConversationsTab')?.classList.toggle('active', sigrCommDirectoryTab === 'conversations');
+      document.getElementById('commPeopleTab')?.classList.toggle('active', sigrCommDirectoryTab === 'people');
+      renderCommDirectory();
+    }
+
+    function updateCommUnreadBadges() {
+      const total = Object.values(sigrCommUnread || {}).reduce((sum, value) => sum + Number(value || 0), 0);
+      const side = document.getElementById('sidebarChatUnread');
+      if (side) {
+        side.textContent = total > 99 ? '99+' : String(total);
+        side.classList.toggle('hidden', total < 1);
+        side.classList.toggle('flex', total > 0);
+      }
+      const mobile = document.getElementById('mobileChatLabel');
+      if (mobile) mobile.textContent = total > 0 ? `Chat (${total > 9 ? '9+' : total})` : 'Chat';
+    }
+
+    function renderCommDirectory() {
+      const list = document.getElementById('commDirectoryList');
+      if (!list) return;
+      const query = String(document.getElementById('commSearchInput')?.value || '').trim().toLowerCase();
+      const online = onlineOperatorIds();
+      let operators = sigrOperators.filter(operator => String(operator.id) !== String(sigrActiveOperator?.id));
+      if (query) operators = operators.filter(operator => `${operatorFullName(operator)} ${operator.duty_function || ''}`.toLowerCase().includes(query));
+      const items = [];
+      if (sigrCommDirectoryTab === 'conversations') {
+        const groupUnread = Number(sigrCommUnread.group || 0);
+        items.push(`<button type="button" class="comm-list-item ${sigrConversation.type === 'group' ? 'active' : ''}" onclick="openGroupConversation()"><span class="operator-avatar small" style="background:linear-gradient(145deg,#2563eb,#0891b2)">EQ</span><span class="min-w-0 flex-1"><strong class="block text-xs truncate">Equipe SIGR</strong><span class="block text-[10px] text-slate-500 truncate">Grupo geral · ${sigrOperators.length} integrantes</span></span>${groupUnread ? `<span class="unread-dot">${groupUnread > 99 ? '99+' : groupUnread}</span>` : ''}</button>`);
+      }
+      operators.forEach(operator => {
+        const unread = Number(sigrCommUnread[`private:${operator.id}`] || 0);
+        const isActive = sigrConversation.type === 'private' && String(sigrConversation.operatorId) === String(operator.id);
+        items.push(`<button type="button" class="comm-list-item ${isActive ? 'active' : ''}" onclick="${sigrCommDirectoryTab === 'people' ? `openOperatorProfile('${escapeHTML(String(operator.id))}')` : `openPrivateConversation('${escapeHTML(String(operator.id))}')`}">${operatorAvatarHTML(operator,'small')}<span class="min-w-0 flex-1"><strong class="block text-xs truncate">${escapeHTML(operatorFullName(operator))}</strong><span class="flex items-center gap-1 text-[10px] text-slate-500 truncate"><span class="${online.has(String(operator.id)) ? 'comm-online-dot' : 'comm-offline-dot'}"></span>${online.has(String(operator.id)) ? 'Online' : escapeHTML(operator.duty_function || 'Offline')}</span></span>${unread ? `<span class="unread-dot">${unread > 99 ? '99+' : unread}</span>` : ''}</button>`);
+      });
+      list.innerHTML = items.join('') || '<div class="p-5 text-center text-xs text-slate-400">Nenhum integrante encontrado.</div>';
+      updateCommUnreadBadges();
+    }
+
+    function openGroupConversation() {
+      sigrConversation = { type: 'group', operatorId: null };
+      updateCommChatHeader();
+      refreshCommunications(true);
+    }
+
+    function openPrivateConversation(operatorId) {
+      const operator = sigrOperators.find(item => String(item.id) === String(operatorId));
+      if (!operator || String(operator.id) === String(sigrActiveOperator?.id)) return;
+      sigrConversation = { type: 'private', operatorId: operator.id };
+      updateCommChatHeader();
+      refreshCommunications(true);
+      showView('comunicacao');
+    }
+
+    function updateCommChatHeader() {
+      const title = document.getElementById('commChatTitle');
+      const subtitle = document.getElementById('commChatSubtitle');
+      const avatar = document.getElementById('commChatAvatar');
+      const callButton = document.getElementById('commCallButton');
+      if (!title || !subtitle || !avatar) return;
+      if (sigrConversation.type === 'group') {
+        title.textContent = 'Equipe SIGR'; avatar.textContent = 'EQ'; avatar.style.background = 'linear-gradient(145deg,#2563eb,#0891b2)';
+        subtitle.innerHTML = '<span class="comm-online-dot"></span> Chat geral da equipe';
+        callButton?.classList.add('hidden');
+      } else {
+        const operator = sigrOperators.find(item => String(item.id) === String(sigrConversation.operatorId));
+        title.textContent = operatorFullName(operator); avatar.textContent = operatorInitials(operator); avatar.style.background = operator?.avatar_color || '#2563eb';
+        const isOnline = onlineOperatorIds().has(String(operator?.id));
+        subtitle.innerHTML = `<span class="${isOnline ? 'comm-online-dot' : 'comm-offline-dot'}"></span>${isOnline ? 'Online agora' : escapeHTML(operator?.duty_function || 'Mensagem privada')}`;
+        callButton?.classList.remove('hidden');
+      }
+      renderCommDirectory();
+    }
+
+    async function refreshCommunications(scrollToEnd = false) {
+      if (!sigrActiveOperator || !sigrOperatorToken) return;
+      try {
+        const result = await invokeSigrCommunications('messages-list', {
+          operatorToken: sigrOperatorToken,
+          conversationType: sigrConversation.type,
+          otherOperatorId: sigrConversation.operatorId,
+          limit: 200
+        });
+        if (Array.isArray(result.operators)) sigrOperators = result.operators;
+        sigrCommMessages = Array.isArray(result.messages) ? result.messages : [];
+        sigrCommUnread = result.unread || {};
+        renderCommMessages(scrollToEnd);
+        renderCommDirectory();
+        await markCurrentConversationRead();
+      } catch (error) {
+        const list = document.getElementById('commMessageList');
+        if (list && !sigrCommMessages.length) list.innerHTML = `<div class="comm-empty"><strong>Comunicação indisponível</strong><span class="text-xs mt-1">${escapeHTML(error.message || 'Tente novamente.')}</span></div>`;
+      }
+    }
+
+    function renderCommMessages(scrollToEnd = false) {
+      const list = document.getElementById('commMessageList');
+      if (!list) return;
+      if (!sigrCommMessages.length) {
+        list.innerHTML = `<div class="comm-empty"><div class="text-3xl mb-2">${sigrConversation.type === 'group' ? '👥' : '💬'}</div><strong>${sigrConversation.type === 'group' ? 'Chat da Equipe SIGR' : 'Conversa privada'}</strong><span class="text-xs mt-1">Envie a primeira mensagem.</span></div>`;
+        return;
+      }
+      const shouldStick = scrollToEnd || list.scrollHeight - list.scrollTop - list.clientHeight < 90;
+      list.innerHTML = sigrCommMessages.map(message => {
+        const mine = String(message.sender_operator_id) === String(sigrActiveOperator?.id);
+        const sender = message.sender || sigrOperators.find(item => String(item.id) === String(message.sender_operator_id));
+        const when = new Date(message.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        const deleted = Boolean(message.deleted_at);
+        return `<article class="comm-message-row ${mine ? 'mine' : ''}" data-message-id="${escapeHTML(String(message.id))}">${mine ? '' : operatorAvatarHTML(sender,'small')}<div class="comm-message-bubble">${sigrConversation.type === 'group' ? `<div class="comm-message-author">${escapeHTML(operatorFullName(sender))}</div>` : ''}<div class="comm-message-text ${deleted ? 'italic opacity-60' : ''}">${deleted ? 'Mensagem excluída' : escapeHTML(message.body || '')}</div><div class="comm-message-meta"><span>${escapeHTML(when)}</span>${mine && !deleted ? `<button type="button" onclick="deleteCommMessage('${escapeHTML(String(message.id))}')" title="Excluir mensagem" class="opacity-70 hover:opacity-100">⋮</button>` : ''}</div></div></article>`;
+      }).join('');
+      if (shouldStick) requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
+    }
+
+    async function sendCommMessage(event) {
+      event.preventDefault();
+      const input = document.getElementById('commMessageInput');
+      const body = String(input?.value || '').trim();
+      if (!body || !sigrActiveOperator || !sigrOperatorToken) return;
+      const button = document.getElementById('commSendButton');
+      button.disabled = true;
+      try {
+        await invokeSigrCommunications('message-send', {
+          operatorToken: sigrOperatorToken,
+          conversationType: sigrConversation.type,
+          recipientOperatorId: sigrConversation.operatorId,
+          body
+        });
+        input.value = ''; autoResizeCommInput(input);
+        await commBroadcast('chat-refresh', { conversationType: sigrConversation.type, recipientOperatorId: sigrConversation.operatorId });
+        await refreshCommunications(true);
+      } catch (error) { showToast(error.message || 'Não foi possível enviar a mensagem'); }
+      finally { button.disabled = false; input.focus(); }
+    }
+
+    async function deleteCommMessage(messageId) {
+      if (!confirm('Excluir esta mensagem?')) return;
+      try {
+        await invokeSigrCommunications('message-delete', { operatorToken: sigrOperatorToken, messageId });
+        await commBroadcast('chat-refresh');
+        await refreshCommunications(false);
+      } catch (error) { showToast(error.message || 'Não foi possível excluir a mensagem'); }
+    }
+
+    async function markCurrentConversationRead() {
+      if (!sigrOperatorToken || !sigrActiveOperator) return;
+      try {
+        await invokeSigrCommunications('messages-read', { operatorToken: sigrOperatorToken, conversationType: sigrConversation.type, otherOperatorId: sigrConversation.operatorId });
+      } catch (_) {}
+    }
+
+    function autoResizeCommInput(input) {
+      if (!input) return;
+      input.style.height = 'auto';
+      input.style.height = `${Math.min(input.scrollHeight, 132)}px`;
+    }
+
+    function handleCommComposerKey(event) {
+      if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); document.getElementById('commMessageForm')?.requestSubmit(); }
+    }
+
+    function notifyCommTyping() {
+      if (!sigrActiveOperator) return;
+      clearTimeout(sigrTypingTimer);
+      commBroadcast('typing', { conversationType: sigrConversation.type, recipientOperatorId: sigrConversation.operatorId, name: operatorFullName(sigrActiveOperator) });
+      sigrTypingTimer = setTimeout(() => commBroadcast('typing', { stopped: true, conversationType: sigrConversation.type, recipientOperatorId: sigrConversation.operatorId }), 1400);
+    }
+
+    function handleRemoteTyping(payload) {
+      if (!payload || String(payload.senderOperatorId) === String(sigrActiveOperator?.id)) return;
+      const relevant = sigrConversation.type === 'group'
+        ? payload.conversationType === 'group'
+        : payload.conversationType === 'private' && String(payload.senderOperatorId) === String(sigrConversation.operatorId) && String(payload.recipientOperatorId) === String(sigrActiveOperator?.id);
+      if (!relevant) return;
+      const el = document.getElementById('commTypingStatus');
+      if (!el) return;
+      el.textContent = payload.stopped ? '' : `${payload.name || 'Integrante'} está digitando...`;
+      clearTimeout(el._typingTimeout);
+      el._typingTimeout = setTimeout(() => { el.textContent = ''; }, 1800);
+    }
+
+    function openOperatorProfile(operatorId) {
+      const operator = sigrOperators.find(item => String(item.id) === String(operatorId));
+      if (!operator) return;
+      sigrSelectedOperator = operator;
+      const header = document.getElementById('operatorProfileHeader');
+      const body = document.getElementById('operatorProfileBody');
+      const actions = document.getElementById('operatorProfileActions');
+      const online = onlineOperatorIds().has(String(operator.id));
+      if (header) header.innerHTML = `${operatorAvatarHTML(operator,'large')}<div><div class="text-xl font-bold">${escapeHTML(operatorFullName(operator))}</div><div class="text-xs text-slate-300 mt-1">${escapeHTML(operator.duty_function || 'Integrante da equipe')}</div><div class="flex items-center gap-1.5 text-[10px] mt-2 ${online ? 'text-emerald-300' : 'text-slate-400'}"><span class="${online ? 'comm-online-dot' : 'comm-offline-dot'}"></span>${online ? 'Online agora' : 'Offline'}</div></div>`;
+      if (body) body.innerHTML = `<div class="grid grid-cols-2 gap-3 text-xs"><div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><span class="block text-[9px] uppercase tracking-wider text-slate-400">Graduação</span><strong class="block mt-1 text-slate-800">${escapeHTML(operator.rank || '—')}</strong></div><div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><span class="block text-[9px] uppercase tracking-wider text-slate-400">Nome de guerra</span><strong class="block mt-1 text-slate-800">${escapeHTML(operator.war_name || '—')}</strong></div></div>`;
+      const mine = String(operator.id) === String(sigrActiveOperator?.id);
+      if (actions) actions.innerHTML = mine
+        ? `<button type="button" onclick="closeOperatorProfile(); endOperatorIdentity()" class="w-full min-h-11 rounded-xl border border-slate-200 font-bold text-slate-600">Trocar identificação</button>`
+        : `<button type="button" onclick="closeOperatorProfile(); openPrivateConversation('${escapeHTML(String(operator.id))}')" class="flex-1 min-h-11 rounded-xl bg-blue-600 text-white font-bold">Mensagem privada</button><button type="button" onclick="closeOperatorProfile(); startVoiceCall('${escapeHTML(String(operator.id))}')" class="flex-1 min-h-11 rounded-xl bg-emerald-600 text-white font-bold">Ligar</button>`;
+      const modal = document.getElementById('operatorProfileModal');
+      modal?.classList.remove('hidden'); modal?.classList.add('flex');
+    }
+
+    function closeOperatorProfile() {
+      const modal = document.getElementById('operatorProfileModal');
+      modal?.classList.add('hidden'); modal?.classList.remove('flex');
+    }
+
+    function openCurrentOperatorProfile() { if (sigrActiveOperator) openOperatorProfile(sigrActiveOperator.id); else initializeOperatorIdentity(); }
+    function openSelectedCommProfile() { if (sigrConversation.type === 'private') openOperatorProfile(sigrConversation.operatorId); }
+    function callSelectedOperator() { if (sigrConversation.type === 'private') startVoiceCall(sigrConversation.operatorId); }
+
+    async function registerCommunicationPushSubscriptionSilently() {
+      if (!sigrOperatorToken || !('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window) || Notification.permission !== 'granted') return;
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) await invokeSigrCommunications('push-subscribe', { operatorToken: sigrOperatorToken, subscription: subscription.toJSON() });
+      } catch (_) {}
+    }
+
+    function recordOperatorActivity(activity, entityType = null, entityId = null, details = {}) {
+      if (!sigrOperatorToken || !sigrActiveOperator) return;
+      invokeSigrCommunications('activity-log', { operatorToken: sigrOperatorToken, activity, entityType, entityId, details }).catch(() => {});
+    }
+
+    function showActiveCall(operator, status = 'Conectando...') {
+      const panel = document.getElementById('activeCallPanel');
+      const avatar = document.getElementById('activeCallAvatar');
+      const name = document.getElementById('activeCallName');
+      if (avatar) { avatar.textContent = operatorInitials(operator); avatar.style.background = operator?.avatar_color || '#2563eb'; }
+      if (name) name.textContent = operatorFullName(operator);
+      const statusEl = document.getElementById('activeCallStatus'); if (statusEl) statusEl.textContent = status;
+      panel?.classList.remove('hidden'); panel?.classList.add('flex');
+    }
+
+    function hideActiveCall() {
+      const panel = document.getElementById('activeCallPanel');
+      panel?.classList.add('hidden'); panel?.classList.remove('flex');
+      const incoming = document.getElementById('incomingCallModal');
+      incoming?.classList.add('hidden'); incoming?.classList.remove('flex');
+    }
+
+    function startCallTimer() {
+      if (!sigrCallStartedAt) sigrCallStartedAt = Date.now();
+      clearInterval(sigrCallTimer);
+      sigrCallTimer = setInterval(() => {
+        const seconds = Math.max(0, Math.floor((Date.now() - sigrCallStartedAt) / 1000));
+        const el = document.getElementById('activeCallTimer');
+        if (el) el.textContent = `${String(Math.floor(seconds / 60)).padStart(2,'0')}:${String(seconds % 60).padStart(2,'0')}`;
+      }, 1000);
+    }
+
+    async function createVoicePeer() {
+      if (!sigrCall) throw new Error('Chamada não iniciada.');
+      if (sigrCall.peer) return sigrCall.peer;
+      const peer = new RTCPeerConnection({ iceServers: SIGR_ICE_SERVERS });
+      sigrCall.peer = peer;
+      (sigrCall.localStream?.getTracks() || []).forEach(track => peer.addTrack(track, sigrCall.localStream));
+      peer.ontrack = event => {
+        const audio = document.getElementById('sigrRemoteAudio');
+        if (audio) { audio.srcObject = event.streams[0]; audio.play().catch(() => {}); }
+      };
+      peer.onicecandidate = event => { if (event.candidate) sendVoiceCallSignal('ice', event.candidate.toJSON()); };
+      peer.onconnectionstatechange = () => {
+        const status = document.getElementById('activeCallStatus');
+        if (peer.connectionState === 'connected') { if (status) status.textContent = 'Chamada conectada'; startCallTimer(); }
+        if (['failed','disconnected'].includes(peer.connectionState) && status) status.textContent = 'Reconectando...';
+        if (peer.connectionState === 'closed') hideActiveCall();
+      };
+      return peer;
+    }
+
+    async function sendVoiceCallSignal(kind, signalPayload) {
+      if (!sigrCall || !sigrOperatorToken) return;
+      const payload = {
+        callId: sigrCall.id,
+        toOperatorId: sigrCall.otherOperator.id,
+        kind,
+        signal: signalPayload
+      };
+      try { await invokeSigrCommunications('call-signal', { operatorToken: sigrOperatorToken, ...payload }); } catch (_) {}
+      await commBroadcast('call-signal', payload);
+    }
+
+    async function startVoiceCall(operatorId) {
+      const operator = sigrOperators.find(item => String(item.id) === String(operatorId));
+      if (!operator || !sigrActiveOperator || sigrCall) return;
+      if (!navigator.mediaDevices?.getUserMedia || !window.RTCPeerConnection) { showToast('Este navegador não oferece chamada de voz'); return; }
+      try {
+        const localStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
+        const result = await invokeSigrCommunications('call-start', { operatorToken: sigrOperatorToken, recipientOperatorId: operator.id });
+        sigrCall = { id: result.call.id, direction: 'outgoing', otherOperator: operator, localStream, peer: null, pendingIce: [], seenSignals: new Set() };
+        showActiveCall(operator, 'Chamando...');
+        const peer = await createVoicePeer();
+        const offer = await peer.createOffer({ offerToReceiveAudio: true });
+        await peer.setLocalDescription(offer);
+        await sendVoiceCallSignal('offer', { type: offer.type, sdp: offer.sdp });
+        pollVoiceCallSignals();
+      } catch (error) {
+        console.warn('SIGR chamada:', error);
+        if (sigrCall?.localStream) sigrCall.localStream.getTracks().forEach(track => track.stop());
+        sigrCall = null; hideActiveCall(); showToast(error.message || 'Não foi possível iniciar a chamada');
+      }
+    }
+
+    function showIncomingCall(call, caller, offer = null) {
+      if (sigrCall || !caller) return;
+      sigrCall = { id: call.id || call.callId, direction: 'incoming', otherOperator: caller, localStream: null, peer: null, remoteOffer: offer, pendingIce: [], seenSignals: new Set() };
+      const avatar = document.getElementById('incomingCallAvatar');
+      const name = document.getElementById('incomingCallName');
+      if (avatar) { avatar.textContent = operatorInitials(caller); avatar.style.background = caller.avatar_color || '#2563eb'; }
+      if (name) name.textContent = operatorFullName(caller);
+      const modal = document.getElementById('incomingCallModal'); modal?.classList.remove('hidden'); modal?.classList.add('flex');
+      try { navigator.vibrate?.([220,120,220,120,420]); } catch (_) {}
+    }
+
+    async function acceptIncomingCall() {
+      if (!sigrCall || sigrCall.direction !== 'incoming') return;
+      try {
+        sigrCall.localStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
+        hideActiveCall(); showActiveCall(sigrCall.otherOperator, 'Conectando...');
+        const peer = await createVoicePeer();
+        if (!sigrCall.remoteOffer) await fetchVoiceCallSignals();
+        if (!sigrCall.remoteOffer) throw new Error('O convite da chamada ainda não chegou. Tente novamente.');
+        await peer.setRemoteDescription(new RTCSessionDescription(sigrCall.remoteOffer));
+        const answer = await peer.createAnswer();
+        await peer.setLocalDescription(answer);
+        await sendVoiceCallSignal('answer', { type: answer.type, sdp: answer.sdp });
+        for (const candidate of sigrCall.pendingIce.splice(0)) await peer.addIceCandidate(candidate).catch(() => {});
+        await invokeSigrCommunications('call-update', { operatorToken: sigrOperatorToken, callId: sigrCall.id, status: 'accepted' });
+        pollVoiceCallSignals();
+      } catch (error) { showToast(error.message || 'Não foi possível atender'); await endVoiceCall(); }
+    }
+
+    async function rejectIncomingCall() {
+      if (!sigrCall) return;
+      try {
+        await invokeSigrCommunications('call-update', { operatorToken: sigrOperatorToken, callId: sigrCall.id, status: 'rejected' });
+        await sendVoiceCallSignal('hangup', { reason: 'rejected' });
+      } catch (_) {}
+      cleanupVoiceCall();
+    }
+
+    async function endVoiceCall() {
+      if (!sigrCall) { cleanupVoiceCall(); return; }
+      try {
+        await sendVoiceCallSignal('hangup', { reason: 'ended' });
+        await invokeSigrCommunications('call-update', { operatorToken: sigrOperatorToken, callId: sigrCall.id, status: 'ended' });
+      } catch (_) {}
+      cleanupVoiceCall();
+    }
+
+    function cleanupVoiceCall() {
+      clearInterval(sigrCall?.pollTimer); clearInterval(sigrCallTimer); sigrCallTimer = null; sigrCallStartedAt = null;
+      try { sigrCall?.peer?.close(); } catch (_) {}
+      try { sigrCall?.localStream?.getTracks().forEach(track => track.stop()); } catch (_) {}
+      const audio = document.getElementById('sigrRemoteAudio'); if (audio) audio.srcObject = null;
+      sigrCall = null; hideActiveCall();
+      const timer = document.getElementById('activeCallTimer'); if (timer) timer.textContent = '00:00';
+    }
+
+    function toggleCallMute() {
+      if (!sigrCall?.localStream) return;
+      const tracks = sigrCall.localStream.getAudioTracks();
+      const muted = tracks.some(track => track.enabled);
+      tracks.forEach(track => { track.enabled = !muted; });
+      const button = document.getElementById('muteCallButton'); if (button) button.textContent = muted ? 'OFF' : 'MIC';
+    }
+
+    async function handleVoiceCallSignal(payload) {
+      if (!payload || String(payload.toOperatorId) !== String(sigrActiveOperator?.id)) return;
+      const sender = sigrOperators.find(item => String(item.id) === String(payload.senderOperatorId));
+      if (payload.kind === 'offer') {
+        if (!sigrCall) showIncomingCall({ id: payload.callId }, sender, payload.signal);
+        else if (String(sigrCall.id) === String(payload.callId)) sigrCall.remoteOffer = payload.signal;
+        return;
+      }
+      if (!sigrCall || String(sigrCall.id) !== String(payload.callId)) return;
+      if (payload.kind === 'answer' && sigrCall.peer && !sigrCall.peer.remoteDescription) {
+        await sigrCall.peer.setRemoteDescription(new RTCSessionDescription(payload.signal)).catch(() => {});
+      } else if (payload.kind === 'ice' && payload.signal) {
+        const candidate = new RTCIceCandidate(payload.signal);
+        if (sigrCall.peer?.remoteDescription) await sigrCall.peer.addIceCandidate(candidate).catch(() => {});
+        else sigrCall.pendingIce.push(candidate);
+      } else if (payload.kind === 'hangup') {
+        showToast(payload.signal?.reason === 'rejected' ? 'Chamada recusada' : 'Chamada encerrada');
+        cleanupVoiceCall();
+      }
+    }
+
+    async function fetchVoiceCallSignals() {
+      if (!sigrCall) return;
+      try {
+        const result = await invokeSigrCommunications('call-signals-list', { operatorToken: sigrOperatorToken, callId: sigrCall.id });
+        for (const row of result.signals || []) {
+          if (sigrCall.seenSignals.has(String(row.id)) || String(row.sender_operator_id) === String(sigrActiveOperator.id)) continue;
+          sigrCall.seenSignals.add(String(row.id));
+          await handleVoiceCallSignal({ callId: sigrCall.id, senderOperatorId: row.sender_operator_id, toOperatorId: sigrActiveOperator.id, kind: row.kind, signal: row.payload });
+        }
+      } catch (_) {}
+    }
+
+    function pollVoiceCallSignals() {
+      if (!sigrCall) return;
+      clearInterval(sigrCall.pollTimer);
+      sigrCall.pollTimer = setInterval(fetchVoiceCallSignals, 2400);
+      fetchVoiceCallSignals();
+    }
+
+    async function checkPendingVoiceCalls() {
+      if (!sigrOperatorToken || sigrCall) return;
+      try {
+        const result = await invokeSigrCommunications('call-pending', { operatorToken: sigrOperatorToken });
+        const call = result.call;
+        if (!call) return;
+        const caller = sigrOperators.find(item => String(item.id) === String(call.caller_operator_id)) || call.caller;
+        if (caller) {
+          showIncomingCall(call, caller);
+          await fetchVoiceCallSignals();
+        }
+      } catch (_) {}
+    }
+
     function roleLabel(role) {
       return ({ admin: 'ADMIN', operator: 'OPERADOR', viewer: 'CONSULTA' })[role] || String(role || 'CONSULTA').toUpperCase();
     }
@@ -1818,14 +2796,20 @@
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') throw new Error('Permissão de notificação não concedida.');
         const registration = await navigator.serviceWorker.ready;
-        const { data: keyData, error: keyError } = await sigrSupabase.functions.invoke('sigr-notify', { body: { action: 'public-key' } });
-        if (keyError || !keyData?.publicKey) throw keyError || new Error('Chave pública de notificações indisponível.');
+        let keyData = null;
+        try { keyData = await invokeSigrCommunications('push-public-key'); }
+        catch (_) {
+          const legacy = await sigrSupabase.functions.invoke('sigr-notify', { body: { action: 'public-key' } });
+          if (legacy.error) throw legacy.error;
+          keyData = legacy.data;
+        }
+        if (!keyData?.publicKey) throw new Error('Chave pública de notificações indisponível.');
         let subscription = await registration.pushManager.getSubscription();
         if (!subscription) {
           subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(keyData.publicKey) });
         }
-        const { error: subError } = await sigrSupabase.functions.invoke('sigr-notify', { body: { action: 'subscribe', subscription: subscription.toJSON() } });
-        if (subError) throw subError;
+        if (sigrOperatorToken) await invokeSigrCommunications('push-subscribe', { operatorToken: sigrOperatorToken, subscription: subscription.toJSON() });
+        try { await sigrSupabase.functions.invoke('sigr-notify', { body: { action: 'subscribe', subscription: subscription.toJSON() } }); } catch (_) {}
         if (btn) btn.textContent = 'Notificações ativas';
         showToast('Notificações ativadas neste aparelho');
       } catch (error) {
@@ -1857,6 +2841,18 @@
       list.innerHTML = '<div class="text-xs text-slate-400">Carregando registros...</div>';
       if (!sigrSupabase || !sigrSession) { list.innerHTML = '<div class="text-xs text-slate-500">Entre no SIGR para consultar o histórico.</div>'; return; }
       try {
+        if (sigrOperatorToken) {
+          const result = await invokeSigrCommunications('activity-list', { operatorToken: sigrOperatorToken });
+          const activityLabel = {
+            OCCURRENCE_CREATED: 'registrou uma ocorrência', RECRUIT_CREATED: 'cadastrou um recruta', RECRUIT_UPDATED: 'alterou o cadastro de um recruta',
+            RECRUIT_DELETED: 'removeu um recruta', PDF_RANKING_GENERATED: 'gerou um relatório de ranking', PDF_INDIVIDUAL_GENERATED: 'gerou uma ficha individual',
+            MEDICAL_LEAVE_CREATED: 'registrou uma baixa médica', MEDICAL_LEAVE_UPDATED: 'atualizou uma baixa médica'
+          };
+          if (result.activities?.length) {
+            list.innerHTML = result.activities.map(row => `<div class="py-3 border-b border-slate-100 last:border-0"><div class="flex items-start justify-between gap-3"><div class="text-xs text-slate-700"><strong>${escapeHTML(operatorFullName(row.operator))}</strong> ${escapeHTML(activityLabel[row.action] || row.action)}${row.entity_id ? ` <span class="text-slate-400">(${escapeHTML(String(row.entity_id))})</span>` : ''}.</div><time class="text-[10px] text-slate-400 whitespace-nowrap">${new Date(row.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</time></div></div>`).join('');
+            return;
+          }
+        }
         const { data, error } = await sigrSupabase.from('sigr_audit_log').select('id,actor_email,action,table_name,record_id,created_at').order('created_at', { ascending: false }).limit(100);
         if (error) throw error;
         if (!data?.length) { list.innerHTML = '<div class="text-xs text-slate-500">Ainda não há atividades registradas.</div>'; return; }
@@ -2022,13 +3018,12 @@
 
     async function activateSigrSession(session) {
       sigrSession = session;
-      const user = session && session.user;
-      const label = document.getElementById('sigrUserLabel');
-      if (label) label.textContent = user && user.email ? user.email : 'INSTRUTOR';
       await loadDataFromSupabase();
       await loadSigrProfile();
       await loadSigrNotifications();
       hideSigrAuthGate();
+      updateActiveOperatorUI();
+      await initializeOperatorIdentity();
     }
 
     async function handleSigrLogin(event) {
@@ -2037,34 +3032,52 @@
         setSigrAuthMessage('Não foi possível carregar a conexão segura com o Supabase.');
         return;
       }
-      const email = document.getElementById('sigrLoginEmail').value.trim();
+      const identifier = document.getElementById('sigrLoginUsername').value.trim();
       const password = document.getElementById('sigrLoginPassword').value;
       const button = document.getElementById('sigrLoginButton');
       button.disabled = true;
       button.textContent = 'Entrando...';
       setSigrAuthMessage('Verificando acesso...', false);
       try {
-        const { data, error } = await sigrSupabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        await activateSigrSession(data.session);
+        let session = null;
+        if (identifier.includes('@')) {
+          const { data, error } = await sigrSupabase.auth.signInWithPassword({ email: identifier, password });
+          if (error) throw error;
+          session = data.session;
+        } else {
+          const username = normalizeSigrUsername(identifier);
+          const result = await invokeSigrCommunications('login', { username, password });
+          if (!result.session?.access_token || !result.session?.refresh_token) throw new Error('Acesso não autorizado.');
+          const { data, error } = await sigrSupabase.auth.setSession({ access_token: result.session.access_token, refresh_token: result.session.refresh_token });
+          if (error) throw error;
+          session = data.session;
+        }
+        await activateSigrSession(session);
         document.getElementById('sigrLoginPassword').value = '';
       } catch (error) {
         console.error('SIGR Supabase: falha de autenticação', error);
-        setSigrAuthMessage(error && error.message === 'Invalid login credentials'
-          ? 'E-mail ou senha inválidos.'
+        setSigrAuthMessage(error && /invalid|autorizado|credential/i.test(error.message || '')
+          ? 'Usuário ou senha inválidos.'
           : 'Não foi possível entrar. Verifique sua conexão e tente novamente.');
       } finally {
         button.disabled = false;
-        button.textContent = 'Entrar';
+        button.textContent = 'Entrar no SIGR';
       }
     }
 
     async function handleSigrLogout() {
       if (!sigrSupabase) return;
+      try { await endVoiceCall(); } catch (_) {}
+      if (sigrCommRefreshTimer) clearInterval(sigrCommRefreshTimer);
+      if (sigrCommChannel) { try { await sigrSupabase.removeChannel(sigrCommChannel); } catch (_) {} }
+      localStorage.removeItem(SIGR_OPERATOR_TOKEN_KEY);
+      localStorage.removeItem(SIGR_OPERATOR_PROFILE_KEY);
+      sigrOperatorToken = ''; sigrActiveOperator = null; sigrOperators = [];
       await sigrSupabase.auth.signOut();
       sigrSession = null;
       setSigrSyncStatus('', 'Desconectado');
-      document.getElementById('sigrUserLabel').textContent = 'INSTRUTOR';
+      document.getElementById('sigrOperatorGate')?.classList.remove('visible');
+      updateActiveOperatorUI();
       showSigrAuthGate('Sessão encerrada.');
     }
 
@@ -2266,6 +3279,7 @@
       if (name === 'ranking') renderFullRanking();
       if (name === 'calendario') renderCalendar();
       if (name === 'baixa') renderBaixaModule();
+      if (name === 'comunicacao') { updateCommChatHeader(); refreshCommunications(true); try { navigator.clearAppBadge?.(); } catch (_) {} }
       if (name === 'ai') { if (typeof onAIViewOpen === 'function') onAIViewOpen(); }
       if (window.innerWidth < 1024) closeSidebarMobile();
     }
@@ -2662,6 +3676,7 @@
       openModal(currentSelectedId);
       renderAll();
       showToast('Ocorrência lançada');
+      recordOperatorActivity('OCCURRENCE_CREATED', 'recruit', currentSelectedId, { type, gravidade, points: finalPts });
       requestOccurrenceMilestoneCheck();
     }
 
@@ -2757,6 +3772,8 @@
       const saram = document.getElementById('formSaram').value.trim();
       const platoon = document.getElementById('formPlatoon').value;
       const squad = document.getElementById('formSquad').value;
+      const wasEditing = Boolean(editingRecruitId);
+      const savedRecruitId = editingRecruitId || id;
       if (editingRecruitId) {
         const rec = getRecruitById(editingRecruitId);
         if (!rec) { showToast('Recruta não encontrado para edição'); return; }
@@ -2770,10 +3787,12 @@
       saveData();
       closeFormModal();
       renderAll();
-      if (editingRecruitId) openModal(editingRecruitId);
+      recordOperatorActivity(wasEditing ? 'RECRUIT_UPDATED' : 'RECRUIT_CREATED', 'recruit', savedRecruitId);
+      if (wasEditing) openModal(savedRecruitId);
     }
     function deleteRecruit() {
       if (!currentSelectedId || !confirm(`Remover o recruta Nº ${currentSelectedId}?`)) return;
+      const deletedRecruitId = currentSelectedId;
       recruits = recruits.filter(r => String(r.id) !== String(currentSelectedId));
       occurrences = occurrences.filter(o => String(o.recruitId) !== String(currentSelectedId));
       events = events.map(ev => String(ev.recruitId) === String(currentSelectedId) ? { ...ev, recruitId: null } : ev);
@@ -2782,6 +3801,7 @@
       closeModal();
       renderAll();
       showToast('Recruta removido');
+      recordOperatorActivity('RECRUIT_DELETED', 'recruit', deletedRecruitId);
     }
 
     // ---------- CALENDÁRIO DE AVISOS ----------
@@ -3231,7 +4251,7 @@
         : `O relatório apresenta os recrutas com menor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e serve como apoio à identificação de casos que merecem maior atenção.`;
       const sl=pdf.splitTextToSize(synth,W);pdf.text(sl,ML,y,{maxWidth:W});y+=sl.length*4+8;line(ML,y,PW-MR,y,[229,231,235],.25);y+=7;setText(6.4,'normal',[148,163,184]);pdf.text('Documento gerado pelo SIGR — uso interno',ML,y);pdf.text('Não substitui julgamento do instrutor',PW-MR,y,{align:'right'});y+=11;line(PW/2-27,y,PW/2+27,y,[148,163,184],.25);y+=5;setText(7.2,'normal',MID);pdf.text('Encarregado / Comandante da Esquadrilha',PW/2,y,{align:'center'});
       const pages=pdf.getNumberOfPages();for(let p=1;p<=pages;p++){pdf.setPage(p);setText(6.3,'normal',[148,163,184]);pdf.text(`Página ${p} de ${pages}`,PW-MR,PH-5,{align:'right'})}
-      const label=`${isBest?'Melhores':'Piores'}_${days===7?'Semana':'Mes'}`;const filename=`SIGR_10_${label}_${sigrLocalISODate(new Date())}.pdf`;pdf.save(filename);showToast(`PDF ${isBest?'dos melhores':'dos piores'} gerado com sucesso (${pages} pág.)`);
+      const label=`${isBest?'Melhores':'Piores'}_${days===7?'Semana':'Mes'}`;const filename=`SIGR_10_${label}_${sigrLocalISODate(new Date())}.pdf`;pdf.save(filename);showToast(`PDF ${isBest?'dos melhores':'dos piores'} gerado com sucesso (${pages} pág.)`);recordOperatorActivity('PDF_RANKING_GENERATED','report',label,{days,mode,pages});
     }
 
     async function generateRecruitPDFVector(rec, filename) {
@@ -3270,7 +4290,7 @@
       occHead(); if(!periodOccs.length){paragraph('Nenhuma ocorrência no período selecionado.',MID)} else periodOccs.forEach(o=>{txt(7,'normal',DARK);const desc=pdf.splitTextToSize(String(o.text||''),widths[3]-4), hh=Math.max(7,desc.length*3.2+3);if(y+hh>PH-MB){addPage();section('REGISTROS DO PERÍODO — CONTINUAÇÃO',BLUE);occHead()}pdf.setDrawColor(...GRID);pdf.rect(ML,y,W,hh);let x=ML; widths.slice(0,-1).forEach(w=>{x+=w;line(x,y,x,y+hh)});x=ML;txt(6.8,'normal',DARK);pdf.text(fmt(o.date),x+2,y+4.5);x+=widths[0];pdf.text(String(o.type||''),x+2,y+4.5);x+=widths[1];pdf.text(String(o.gravidade||''),x+2,y+4.5);x+=widths[2];pdf.text(desc,x+2,y+4.5);x+=widths[3];txt(7,'bold',Number(o.points)<0?RED:Number(o.points)>0?GREEN:MID);pdf.text(`${Number(o.points)>0?'+':''}${o.points}`,x+widths[4]-2,y+4.5,{align:'right'});y+=hh});
       ensure(31);y+=5;line(ML,y,PW-MR,y,[226,232,240]);y+=5;txt(6.5,'normal',[148,163,184]);const note='Documento gerado pelo SIGR v2.2 com base exclusiva nos dados cadastrados. Não constitui proposta de sanção nem substitui o julgamento do instrutor.';pdf.text(pdf.splitTextToSize(note,W),ML,y);y+=12;line(PW/2-28,y,PW/2+28,y,[148,163,184]);y+=5;txt(7.2,'normal',MID);pdf.text('Encarregado / Comandante da Esquadrilha',PW/2,y,{align:'center'});
       const pages=pdf.getNumberOfPages();for(let p=1;p<=pages;p++){pdf.setPage(p);txt(6.3,'normal',[148,163,184]);pdf.text(`Página ${p} de ${pages}`,PW-MR,PH-5,{align:'right'})}
-      const blob=pdf.output('blob');if(!blob||blob.size<1000)throw new Error('PDF individual inválido');pdf.save(filename);showToast(`Ficha individual em alta qualidade gerada (${pages} pág.)`);return true;
+      const blob=pdf.output('blob');if(!blob||blob.size<1000)throw new Error('PDF individual inválido');pdf.save(filename);showToast(`Ficha individual em alta qualidade gerada (${pages} pág.)`);recordOperatorActivity('PDF_INDIVIDUAL_GENERATED','recruit',rec.id,{pages});return true;
     }
 
     async function generateRecruitPDFById(id) {
@@ -4561,6 +5581,7 @@
       renderBaixaModule();
       if (!document.getElementById('view-calendario').classList.contains('hidden')) renderCalendar();
       showToast('Baixa médica salva');
+      recordOperatorActivity(id ? 'MEDICAL_LEAVE_UPDATED' : 'MEDICAL_LEAVE_CREATED', 'recruit', payload.recruitId, { inicio, fim });
     }
     function deleteBaixaFromModal() {
       const id = document.getElementById('baixaId').value;

@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v4';
-const STATIC_CACHE = 'sigr-static-v4';
+const APP_CACHE = 'sigr-pwa-v5';
+const STATIC_CACHE = 'sigr-static-v5';
 
 const APP_SHELL = [
   './',
@@ -19,43 +19,46 @@ const STATIC_HOSTS = new Set([
   'fonts.gstatic.com'
 ]);
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(APP_CACHE)
-      .then((cache) => cache.addAll(APP_SHELL))
+      .then(cache => cache.addAll(APP_SHELL))
       .then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(
+      .then(keys => Promise.all(
         keys
-          .filter((key) => (key.startsWith('sigr-pwa-') || key.startsWith('sigr-static-')) && key !== APP_CACHE && key !== STATIC_CACHE)
-          .map((key) => caches.delete(key))
+          .filter(key => (key.startsWith('sigr-pwa-') || key.startsWith('sigr-static-')) && key !== APP_CACHE && key !== STATIC_CACHE)
+          .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
-
   const url = new URL(request.url);
 
-  // Dados e autenticação sempre vão direto ao Supabase.
-  if (url.hostname.endsWith('.supabase.co')) return;
+  // Dados, autenticação, Realtime e Edge Functions nunca entram no cache.
+  if (url.hostname.endsWith('.supabase.co') || url.hostname.endsWith('.supabase.in')) return;
 
-  // A página principal usa rede primeiro para receber atualizações do GitHub.
+  // Navegação usa rede primeiro para receber imediatamente a versão publicada no GitHub.
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
-        .then((response) => {
-          if (response && response.ok) {
+        .then(response => {
+          if (response?.ok) {
             const copy = response.clone();
-            caches.open(APP_CACHE).then((cache) => cache.put('./index.html', copy));
+            caches.open(APP_CACHE).then(cache => cache.put('./index.html', copy));
           }
           return response;
         })
@@ -64,57 +67,68 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Arquivos locais do PWA podem ser servidos do cache.
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(request).then((cached) => cached || fetch(request).then((response) => {
-        if (response && response.ok) {
-          const copy = response.clone();
-          caches.open(APP_CACHE).then((cache) => cache.put(request, copy));
-        }
+      caches.match(request).then(cached => cached || fetch(request).then(response => {
+        if (response?.ok) caches.open(APP_CACHE).then(cache => cache.put(request, response.clone()));
         return response;
       }))
     );
     return;
   }
 
-  // Dependências visuais já carregadas ficam disponíveis no cache do aplicativo.
   if (STATIC_HOSTS.has(url.hostname)) {
     event.respondWith(
-      caches.match(request).then((cached) => cached || fetch(request).then((response) => {
-        if (response && (response.ok || response.type === 'opaque')) {
-          const copy = response.clone();
-          caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy));
-        }
+      caches.match(request).then(cached => cached || fetch(request).then(response => {
+        if (response && (response.ok || response.type === 'opaque')) caches.open(STATIC_CACHE).then(cache => cache.put(request, response.clone()));
         return response;
       }))
     );
   }
 });
 
-// Web Push: exibe alertas do SIGR mesmo com o aplicativo fechado.
-self.addEventListener('push', (event) => {
+// Web Push: mensagens, chamadas e alertas mesmo com o SIGR fechado.
+self.addEventListener('push', event => {
   let payload = {};
   try { payload = event.data ? event.data.json() : {}; }
   catch (_) { payload = { body: event.data ? event.data.text() : '' }; }
-  const title = payload.title || 'SIGR | Notificação';
+
+  const kind = payload.kind || payload.data?.kind || 'notification';
+  const title = payload.title || (kind === 'call' ? 'SIGR | Chamada recebida' : kind === 'chat' ? 'SIGR | Nova mensagem' : 'SIGR | Notificação');
   const options = {
     body: payload.body || '',
     icon: './icons/sigr-192.png',
     badge: './icons/sigr-192.png',
-    tag: payload.tag || 'sigr-notification',
-    renotify: Boolean(payload.renotify),
+    tag: payload.tag || `${kind}-${payload.data?.id || Date.now()}`,
+    renotify: payload.renotify !== false,
+    requireInteraction: kind === 'call',
     silent: false,
-    data: { url: payload.url || './' }
+    vibrate: kind === 'call' ? [250,120,250,120,500] : [120,60,120],
+    data: {
+      url: payload.url || payload.data?.url || (kind === 'chat' || kind === 'call' ? './?view=comunicacao' : './'),
+      kind,
+      ...(payload.data || {})
+    }
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+  if (kind === 'call') options.actions = [
+    { action: 'open-call', title: 'Atender' },
+    { action: 'dismiss', title: 'Agora não' }
+  ];
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(title, options),
+      kind === 'chat' && 'setAppBadge' in self.navigator ? self.navigator.setAppBadge() : Promise.resolve()
+    ])
+  );
 });
 
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener('notificationclick', event => {
   event.notification.close();
-  const target = new URL(event.notification.data?.url || './', self.registration.scope).href;
+  if (event.action === 'dismiss') return;
+  const rawTarget = event.notification.data?.url || './';
+  const target = new URL(rawTarget, self.registration.scope).href;
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
       const openClient = clients.find(client => client.url.startsWith(self.location.origin));
       if (openClient) {
         openClient.navigate(target);
@@ -124,3 +138,4 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
