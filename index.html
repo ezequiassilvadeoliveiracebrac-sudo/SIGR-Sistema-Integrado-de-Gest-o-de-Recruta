@@ -695,6 +695,39 @@
       .sigr-auth-card { padding: 22px 18px; border-radius: 16px; }
     }
 
+
+    /* ========== SIGR IA 2.0 — INTERFACE FUTURISTA ========== */
+    .sigr-ai-shell{position:relative;min-height:calc(100dvh - 190px);border-radius:24px;overflow:hidden;border:1px solid color-mix(in srgb,var(--brand) 24%,var(--border));background:linear-gradient(145deg,color-mix(in srgb,var(--bg-card) 92%,#071426),color-mix(in srgb,var(--bg-main) 94%,#04111d));box-shadow:0 24px 70px rgba(2,6,23,.15)}
+    .sigr-ai-shell::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 8% 0%,rgba(56,189,248,.12),transparent 28%),radial-gradient(circle at 92% 14%,rgba(139,92,246,.10),transparent 26%)}
+    .sigr-ai-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg-card) 80%,transparent);backdrop-filter:blur(18px)}
+    .sigr-ai-orb{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#67e8f9,#2563eb 48%,#312e81 100%);box-shadow:0 0 28px rgba(56,189,248,.34),inset 0 0 18px rgba(255,255,255,.16);position:relative;overflow:hidden}
+    .sigr-ai-orb::after{content:'';position:absolute;width:58%;height:58%;border:1px solid rgba(255,255,255,.45);border-radius:50%;animation:aiOrb 3s ease-in-out infinite}
+    @keyframes aiOrb{0%,100%{transform:scale(.7);opacity:.35}50%{transform:scale(1.25);opacity:.9}}
+    .sigr-ai-live{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#10b981}.sigr-ai-live::before{content:'';width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981}
+    .sigr-ai-engine-pill{font-size:9px;font-weight:800;padding:5px 8px;border:1px solid var(--border);border-radius:999px;color:var(--text-secondary);background:var(--bg-muted)}
+    .sigr-ai-main{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 245px;min-height:580px}
+    .sigr-ai-conversation{min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--border)}
+    .sigr-ai-welcome{padding:22px 20px 4px;display:flex;flex-wrap:wrap;gap:8px}
+    .sigr-ai-chip{border:1px solid var(--border);background:color-mix(in srgb,var(--bg-card) 82%,transparent);color:var(--text-secondary);padding:7px 10px;border-radius:999px;font-size:10px;font-weight:700;transition:.2s}.sigr-ai-chip:hover{color:var(--brand);border-color:var(--brand);box-shadow:0 0 16px var(--glow-blue)}
+    #aiChatWindow{flex:1;min-height:360px;max-height:none!important;overflow-y:auto;padding:18px 20px 130px!important;display:flex;flex-direction:column;gap:12px}
+    #aiChatWindow .ai-message{max-width:min(86%,820px)!important;border-radius:18px!important;padding:13px 15px!important;box-shadow:0 6px 24px rgba(2,6,23,.05)}
+    #aiChatWindow .ai-bubble-user{border-bottom-right-radius:5px!important}
+    #aiChatWindow .ai-bubble-assistant{border-bottom-left-radius:5px!important}
+    .sigr-ai-compose-wrap{position:absolute;left:0;right:245px;bottom:0;padding:14px 18px 18px;background:linear-gradient(180deg,transparent 0%,color-mix(in srgb,var(--bg-card) 96%,transparent) 26%);backdrop-filter:blur(12px)}
+    .sigr-ai-compose{display:flex;align-items:flex-end;gap:8px;padding:8px;border:1px solid color-mix(in srgb,var(--brand) 25%,var(--border));border-radius:20px;background:var(--bg-input);box-shadow:0 14px 40px rgba(2,6,23,.10),0 0 0 1px rgba(56,189,248,.04)}
+    .sigr-ai-compose textarea{flex:1;min-height:46px;max-height:148px;resize:none;border:0!important;background:transparent!important;padding:12px 9px!important;outline:none!important;box-shadow:none!important;color:var(--text-primary);font-size:14px;line-height:1.45}
+    .sigr-ai-icon-btn,.sigr-ai-send{width:44px;height:44px;flex:0 0 44px;border-radius:14px;display:grid;place-items:center;transition:.2s}.sigr-ai-icon-btn{border:1px solid var(--border);color:var(--text-secondary);background:var(--bg-muted)}.sigr-ai-icon-btn:hover,.sigr-ai-icon-btn.active{color:var(--brand);border-color:var(--brand);box-shadow:0 0 16px var(--glow-blue)}.sigr-ai-send{background:linear-gradient(145deg,#2563eb,#06b6d4);color:white;box-shadow:0 7px 20px rgba(37,99,235,.25)}
+    .sigr-ai-side{padding:16px;background:color-mix(in srgb,var(--bg-muted) 72%,transparent)}
+    .sigr-ai-side-card{border:1px solid var(--border);background:color-mix(in srgb,var(--bg-card) 82%,transparent);border-radius:16px;padding:13px;margin-bottom:10px}
+    .sigr-ai-side-title{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:900;color:var(--text-muted);margin-bottom:8px}
+    .sigr-ai-context-value{font-size:12px;font-weight:800;color:var(--text-primary)}
+    .sigr-ai-cap{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;font-size:10px;color:var(--text-secondary);border-bottom:1px dashed var(--border)}.sigr-ai-cap:last-child{border-bottom:0}.sigr-ai-cap b{color:#10b981;font-size:9px}
+    .sigr-ai-status{min-height:18px;font:600 9px/1.4 ui-monospace,monospace;color:var(--text-muted);padding:5px 4px 0 8px}
+    .sigr-ai-action-toast{margin-top:8px;padding:9px 10px;border:1px solid rgba(16,185,129,.25);border-radius:11px;background:rgba(16,185,129,.08);color:#059669;font-size:10px;font-weight:700}
+    [data-theme="dark"] .sigr-ai-shell{box-shadow:0 0 0 1px rgba(56,189,248,.06),0 30px 100px rgba(0,0,0,.45)}
+    [data-theme="dark"] .sigr-ai-compose{box-shadow:0 18px 55px rgba(0,0,0,.38),0 0 30px rgba(56,189,248,.06)}
+    @media(max-width:1023px){.sigr-ai-shell{min-height:calc(100dvh - 175px);border-radius:16px}.sigr-ai-main{display:flex;min-height:calc(100dvh - 245px)}.sigr-ai-conversation{border-right:0;width:100%}.sigr-ai-side{display:none}.sigr-ai-compose-wrap{position:fixed;left:8px;right:8px;bottom:calc(62px + env(safe-area-inset-bottom));z-index:58;padding:8px;background:color-mix(in srgb,var(--bg-card) 88%,transparent);border-radius:18px 18px 0 0}.sigr-ai-top{padding:11px 12px}.sigr-ai-orb{width:40px;height:40px;border-radius:14px}.sigr-ai-welcome{padding:12px 10px 0;overflow-x:auto;flex-wrap:nowrap}.sigr-ai-chip{white-space:nowrap}#aiChatWindow{padding:12px 10px 120px!important;min-height:58dvh!important}#aiChatWindow .ai-message{max-width:94%!important;font-size:14px!important}.sigr-ai-compose textarea{font-size:16px}.sigr-ai-engine-pill.hide-mobile{display:none}}
+
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans text-sm" data-theme="light">
@@ -978,7 +1011,7 @@
       </nav>
 
       <div class="p-3 border-t border-slate-100 text-[10px] text-slate-400">
-        SIGR v3.1 • CFSd 2ª/2026<br>Base Aérea de Anápolis
+        SIGR v4.0 • IA 2.0 • CFSd 2ª/2026<br>Base Aérea de Anápolis
       </div>
     </aside>
 
@@ -1295,73 +1328,67 @@
         </div>
       </div>
 
-      <!-- VIEW: AI -->
-      <div id="view-ai" class="view-panel hidden space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-violet-500 animate-pulse"></span>
-            SIGR IA | Análise Inteligente
-          </h2>
-          <div class="flex flex-wrap gap-1.5">
-            <button onclick="quickAsk('Quem está em condição crítica ou insatisfatória e merece atenção prioritária? Analise reincidência, gravidade e evolução temporal.')" class="text-[11px] px-2.5 py-1 rounded-full border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100">Críticos</button>
-            <button onclick="quickAsk('Gere um ranking positivo destacando os líderes da turma, com análise de evolução e contribuições positivas.')" class="text-[11px] px-2.5 py-1 rounded-full border border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100">Líderes</button>
-            <button onclick="quickAsk('Elabore um parecer técnico completo da turma no período filtrado: distribuição de condições, principais ocorrências, padrões de reincidência, evolução coletiva e recomendações ao instrutor.')" class="text-[11px] px-2.5 py-1 rounded-full border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100">Parecer Turma</button>
-            <button onclick="quickAsk('Identifique padrões de reincidência, intervalos entre faltas iguais, evolução ou regressão por recruta. Destaque casos de melhora sustentada e de piora progressiva.')" class="text-[11px] px-2.5 py-1 rounded-full border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100">Reincidências</button>
-            <button onclick="quickAsk('piores')" class="text-[11px] px-2.5 py-1 rounded-full border border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100">Ranking Piores</button>
-            <button onclick="quickAsk('Analise a evolução temporal da turma, comparando a primeira e a segunda metade do período filtrado, com destaque para melhorias e regressões.')" class="text-[11px] px-2.5 py-1 rounded-full border border-cyan-200 text-cyan-700 bg-cyan-50 hover:bg-cyan-100">Evolução</button>
-            <button onclick="quickAsk('Compare os dois períodos dentro do intervalo filtrado e apresente a síntese comparativa.')" class="text-[11px] px-2.5 py-1 rounded-full border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100">Comparar Períodos</button>
-            <button onclick="quickAsk('Analise o desempenho por pelotão, comparando médias e casos de atenção prioritária.')" class="text-[11px] px-2.5 py-1 rounded-full border border-teal-200 text-teal-700 bg-teal-50 hover:bg-teal-100">Pelotões</button>
-            <button onclick="quickAsk('Analise o desempenho por esquadrão, comparando médias e casos de atenção prioritária.')" class="text-[11px] px-2.5 py-1 rounded-full border border-fuchsia-200 text-fuchsia-700 bg-fuchsia-50 hover:bg-fuchsia-100">Esquadrões</button>
-            <button onclick="quickAsk('Gere a análise semanal do período filtrado: liste todas as anotações, destaque os pontos mais recorrentes, quem precisou de atendimento médico e os principais destaques positivos e negativos.')" class="text-[11px] px-2.5 py-1 rounded-full border border-violet-200 text-violet-700 bg-violet-50 hover:bg-violet-100">Análise Semanal</button>
-            <button onclick="clearAIChat()" class="text-[11px] px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">Limpar</button>
-          </div>
-        </div>
-
-
-        <!-- CENTRO DE COMANDOS INTELIGENTE (CCI) -->
-        <div class="cci-panel" id="cciPanel">
-          <div class="px-4 py-2.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 bg-slate-50/80">
+      <!-- VIEW: AI 2.0 -->
+      <div id="view-ai" class="view-panel hidden">
+        <section class="sigr-ai-shell" aria-label="SIGR IA 2.0">
+          <header class="sigr-ai-top">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="sigr-ai-orb"><span class="text-white font-black text-[11px] relative z-10">IA</span></div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap"><h2 class="text-[15px] font-black tracking-wide text-slate-800">SIGR IA 2.0</h2><span class="sigr-ai-live">online</span></div>
+                <p class="text-[10px] text-slate-500 truncate">Assistente operacional, analista de dados e pesquisa inteligente</p>
+              </div>
+            </div>
             <div class="flex items-center gap-2">
-              <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Centro de Comandos Inteligente</span>
-              <span class="text-[9px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 font-semibold">CCI</span>
+              <span id="aiProviderBadge" class="sigr-ai-engine-pill hide-mobile">Motor híbrido</span>
+              <button type="button" onclick="toggleAISpeech()" id="aiVoiceOutputBtn" class="sigr-ai-engine-pill" title="Ativar/desativar resposta falada">🔊 Voz</button>
+              <button type="button" onclick="clearAIChat()" class="sigr-ai-engine-pill">Limpar</button>
             </div>
-            <button type="button" onclick="toggleCCI()" id="cciToggleBtn" class="text-[10px] text-slate-500 hover:text-brand-600 font-medium">Recolher ▴</button>
+          </header>
+          <div class="sigr-ai-main">
+            <div class="sigr-ai-conversation">
+              <div class="sigr-ai-welcome">
+                <button class="sigr-ai-chip" onclick="quickAsk('Analise a turma e me diga o que mais merece atenção hoje.')">Analisar turma</button>
+                <button class="sigr-ai-chip" onclick="quickAsk('Quais recrutas mais evoluíram recentemente?')">Evolução</button>
+                <button class="sigr-ai-chip" onclick="quickAsk('Mostre os próximos compromissos e consultas dos recrutas.')">Agenda</button>
+                <button class="sigr-ai-chip" onclick="quickAsk('Pesquise na web as informações atuais que eu pedir e cite as fontes.')">Web</button>
+              </div>
+              <div id="aiChatWindow"></div>
+              <div class="sigr-ai-compose-wrap">
+                <form onsubmit="handleAskAI(event)" class="sigr-ai-compose">
+                  <button type="button" id="aiMicBtn" onclick="toggleAIMicrophone()" class="sigr-ai-icon-btn" title="Falar com a SIGR IA" aria-label="Falar com a SIGR IA">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3a3 3 0 00-3 3v6a3 3 0 006 0V6a3 3 0 00-3-3zm-7 9a7 7 0 0014 0M12 19v3m-4 0h8"/></svg>
+                  </button>
+                  <textarea id="aiQuestion" rows="1" placeholder="Pergunte qualquer coisa ou peça uma ação no SIGR..." oninput="autoResizeAIInput(this)" onkeydown="handleAIComposerKey(event)"></textarea>
+                  <input type="hidden" id="aiRecruitFocus" value="" />
+                  <button type="submit" id="aiSubmitBtn" class="sigr-ai-send" aria-label="Enviar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l17 8-17 8 4-8-4-8zm4 8h13"/></svg>
+                  </button>
+                </form>
+                <div id="aiStatusLine" class="sigr-ai-status">Pronta para conversar, consultar dados e executar ações autorizadas.</div>
+              </div>
+            </div>
+            <aside class="sigr-ai-side">
+              <div class="sigr-ai-side-card">
+                <div class="sigr-ai-side-title">Contexto ativo</div>
+                <div id="aiActiveContext" class="sigr-ai-context-value">Turma completa</div>
+                <div class="text-[9px] text-slate-500 mt-1">Ao abrir um recruta, a IA pode continuar a conversa sobre ele.</div>
+              </div>
+              <div class="sigr-ai-side-card">
+                <div class="sigr-ai-side-title">Capacidades</div>
+                <div class="sigr-ai-cap"><span>Dados SIGR</span><b>ATIVO</b></div>
+                <div class="sigr-ai-cap"><span>IA online</span><b id="aiOnlineCap">AUTO</b></div>
+                <div class="sigr-ai-cap"><span>Busca web</span><b>AUTO</b></div>
+                <div class="sigr-ai-cap"><span>Ações no sistema</span><b>ATIVO</b></div>
+                <div class="sigr-ai-cap"><span>Voz</span><b>ATIVO</b></div>
+              </div>
+              <div class="sigr-ai-side-card">
+                <div class="sigr-ai-side-title">Exemplos</div>
+                <div class="text-[10px] leading-relaxed text-slate-500">“Analisa o 002 pra mim”<br>“Marque consulta do 035 dia 15 às 14h por dor no joelho”<br>“Adicione uma observação no 010”<br>“Pesquise isso na internet”</div>
+              </div>
+            </aside>
           </div>
-          <div id="cciBody" class="p-3 space-y-3">
-            <div class="flex flex-wrap gap-1.5" id="cciCats">
-              <button type="button" class="cci-cat-btn active" data-cat="recruta" onclick="cciSelectCat('recruta')">Recruta</button>
-              <button type="button" class="cci-cat-btn" data-cat="turma" onclick="cciSelectCat('turma')">Turma</button>
-              <button type="button" class="cci-cat-btn" data-cat="relatorios" onclick="cciSelectCat('relatorios')">Relatórios</button>
-              <button type="button" class="cci-cat-btn" data-cat="pesquisa" onclick="cciSelectCat('pesquisa')">Pesquisa</button>
-              <button type="button" class="cci-cat-btn" data-cat="comparacoes" onclick="cciSelectCat('comparacoes')">Comparações</button>
-              <button type="button" class="cci-cat-btn" data-cat="estatisticas" onclick="cciSelectCat('estatisticas')">Estatísticas</button>
-            </div>
-            <div id="cciCommands" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 max-h-36 overflow-y-auto"></div>
-            <div id="cciFields" class="grid grid-cols-2 md:grid-cols-4 gap-2 hidden"></div>
-            <div class="flex flex-wrap items-center gap-2">
-              <button type="button" id="cciRunBtn" onclick="cciExecute()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs px-4 py-2 rounded-lg transition disabled:opacity-40" disabled>Executar consulta</button>
-              <span id="cciSelectedLabel" class="text-[10px] text-slate-400"></span>
-            </div>
-          </div>
-        </div>
-        <div class="ai-status-line px-1" id="aiStatusLine"></div>
-
-        <div class="bg-white border border-slate-200 rounded-xl p-4 flex flex-col" style="min-height: 420px;">
-          <div id="aiChatWindow" class="flex-1 flex flex-col gap-2.5 overflow-y-auto max-h-[480px] pr-1 mb-4"></div>
-          <form onsubmit="handleAskAI(event)" class="flex flex-wrap gap-2 items-end border-t border-slate-100 pt-3">
-            <div class="w-28">
-              <label class="block text-[10px] text-slate-500 mb-1 font-medium">Nº (opcional)</label>
-              <input type="text" id="aiRecruitFocus" placeholder="Ex: 035" class="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
-            </div>
-            <div class="flex-1 min-w-[200px] relative">
-              <label class="block text-[10px] text-slate-500 mb-1 font-medium">Pergunta ao Analista</label>
-              <input type="text" id="aiQuestion" placeholder="Ex: Analise a evolução do recruta 35 com foco em reincidência e fase do curso..." oninput="cciOnTypeSuggest(this.value)" onfocus="cciOnTypeSuggest(this.value)" onblur="setTimeout(()=>{const b=document.getElementById('aiSuggestBox');if(b)b.style.display='none';},180)" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" autocomplete="off" />
-              <div id="aiSuggestBox"></div>
-            </div>
-            <button type="submit" id="aiSubmitBtn" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs px-4 py-2 rounded-lg transition disabled:opacity-50">Analisar</button>
-          </form>
-          <p class="text-[10px] text-slate-400 mt-2">Motor 100% local — funciona offline, sem erros de API. Baseia-se só nos dados cadastrados. Não decide punições.</p>
-        </div>
+        </section>
       </div>
     </main>
   </div>
@@ -1418,7 +1445,7 @@
 
   <!-- FOOTER -->
   <footer class="bg-white border-t border-slate-200 px-4 py-1.5 text-[10px] text-slate-400 flex justify-between no-print">
-    <span>SIGR v3.1 • CFSd 2ª/2026 • Base Aérea de Anápolis</span>
+    <span>SIGR v4.0 • IA 2.0 • CFSd 2ª/2026 • Base Aérea de Anápolis</span>
     <span>Sincronização segura com Supabase</span>
   </footer>
 
@@ -4315,10 +4342,10 @@
 
 
 
-    // ---------- SIGR IA — MOTOR ANALÍTICO CORPORATIVO v4 (LOCAL / OFFLINE) ----------
+    // ---------- SIGR IA 2.0 — MOTOR HÍBRIDO LOCAL + ONLINE + AÇÕES ----------
     // Arquitetura: Interpretador de intenção → Busca → Estatística → Padrões →
     // Reincidência → Evolução/Regressão → Score → Parecer → Resposta estruturada.
-    // Sem APIs externas. Sem emojis na análise técnica. Linguagem profissional e variável.
+    // O motor local permanece como fallback. A Edge Function sigr-ai adiciona IA online, web e roteamento de ferramentas.
 
     let aiChatHistory = [];
     try { const raw = localStorage.getItem(AI_CHAT_KEY); if (raw) aiChatHistory = JSON.parse(raw); } catch (e) {}
@@ -4347,14 +4374,16 @@
     function renderAIChat() {
       const win = document.getElementById('aiChatWindow');
       if (!win) return;
-      win.innerHTML = aiChatHistory.map(m => `
-        <div class="ai-message max-w-[90%] rounded-xl px-3.5 py-2.5 whitespace-pre-wrap text-[12px] leading-relaxed ${m.role === 'user' ? 'ai-bubble-user text-slate-800' : 'ai-bubble-assistant text-slate-700'}">
-          <span class="ai-role-label block text-[9px] uppercase tracking-wider font-semibold ${m.role === 'user' ? 'text-brand-600' : 'text-violet-600'} mb-1">${m.role === 'user' ? 'Instrutor' : 'SIGR IA'}</span>${escapeHTML(m.text)}
-        </div>`).join('') + (aiLoading ? `<div class="ai-message max-w-[90%] rounded-xl px-3.5 py-2.5 ai-bubble-assistant text-slate-500 text-[12px]"><span class="ai-role-label block text-[9px] uppercase tracking-wider text-violet-500 mb-1">SIGR IA</span><span class="dot-flash">Analisando dados do SIGR…</span></div>` : '');
+      const empty = !aiChatHistory.length ? `<div class="mx-auto my-auto max-w-xl text-center px-5 py-10"><div class="sigr-ai-orb mx-auto mb-4"><span class="text-white font-black text-[11px] relative z-10">IA</span></div><div class="text-lg font-black text-slate-800">Como posso ajudar?</div><div class="text-[11px] text-slate-500 mt-2 leading-relaxed">Converse naturalmente. Eu posso analisar os dados do SIGR, responder perguntas gerais, pesquisar na web e executar ações autorizadas no sistema.</div></div>` : '';
+      win.innerHTML = empty + aiChatHistory.map(m => `
+        <div class="ai-message whitespace-pre-wrap text-[12px] leading-relaxed ${m.role === 'user' ? 'ai-bubble-user text-slate-800' : 'ai-bubble-assistant text-slate-700'}">
+          <span class="ai-role-label block text-[9px] uppercase tracking-wider font-semibold ${m.role === 'user' ? 'text-brand-600' : 'text-violet-600'} mb-1">${m.role === 'user' ? 'Você' : 'SIGR IA'}${m.provider ? ' · ' + escapeHTML(m.provider) : ''}</span>${escapeHTML(m.text)}${m.actionText ? `<div class="sigr-ai-action-toast">${escapeHTML(m.actionText)}</div>` : ''}
+        </div>`).join('') + (aiLoading ? `<div class="ai-message ai-bubble-assistant text-slate-500 text-[12px]"><span class="ai-role-label block text-[9px] uppercase tracking-wider text-violet-500 mb-1">SIGR IA</span><span class="dot-flash">Interpretando intenção e consultando as fontes necessárias…</span></div>` : '');
       win.scrollTop = win.scrollHeight;
+      refreshAIContextBadge();
     }
     function padId(raw) { const n = String(raw || '').replace(/\D/g, ''); return n ? n.padStart(3, '0') : null; }
-    function appendChat(role, text) { aiChatHistory.push({ role, text, ts: Date.now() }); }
+    function appendChat(role, text, extra = {}) { aiChatHistory.push({ role, text, ts: Date.now(), ...extra }); }
 
     function normalizeText(s) {
       return String(s || '')
@@ -5258,55 +5287,103 @@
       return analyzeTurmaDeep(period, detected.mode);
     }
 
+    // ---------- SIGR IA 2.0 — ORQUESTRAÇÃO ONLINE, VOZ E FERRAMENTAS ----------
+    const SIGR_AI_FUNCTION = 'sigr-ai';
+    let aiSpeakResponses = false;
+    let aiRecognition = null;
+    let aiListening = false;
+
+    function setAIStatus(text) { const el=document.getElementById('aiStatusLine'); if(el) el.textContent=text||''; }
+    function refreshAIContextBadge() {
+      const el=document.getElementById('aiActiveContext'); if(!el) return;
+      const id = document.getElementById('aiRecruitFocus')?.value || aiContext.lastRecruitId || currentSelectedId;
+      const r=id?getRecruitById(id):null;
+      el.textContent=r?`Nº ${r.id} — ${r.warName||r.name}`:'Turma completa';
+    }
+    function autoResizeAIInput(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,148)+'px'; }
+    function handleAIComposerKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); e.currentTarget.form.requestSubmit(); } }
+    function toggleAISpeech(){ aiSpeakResponses=!aiSpeakResponses; const b=document.getElementById('aiVoiceOutputBtn'); if(b){b.classList.toggle('active',aiSpeakResponses);b.textContent=aiSpeakResponses?'🔊 Voz ativa':'🔊 Voz';} if(!aiSpeakResponses&&'speechSynthesis'in window) speechSynthesis.cancel(); }
+    function speakAI(text){ if(!aiSpeakResponses||!('speechSynthesis'in window))return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(String(text||'').replace(/[•#*_]/g,' '));u.lang='pt-BR';u.rate=.98;u.pitch=1;speechSynthesis.speak(u); }
+    function toggleAIMicrophone(){
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      if(!SR){showToast('Reconhecimento de voz não disponível neste navegador');return;}
+      if(aiListening&&aiRecognition){aiRecognition.stop();return;}
+      aiRecognition=new SR(); aiRecognition.lang='pt-BR'; aiRecognition.interimResults=true; aiRecognition.continuous=false;
+      const input=document.getElementById('aiQuestion'),btn=document.getElementById('aiMicBtn');
+      aiRecognition.onstart=()=>{aiListening=true;btn?.classList.add('active');setAIStatus('Ouvindo… fale normalmente.');};
+      aiRecognition.onresult=(ev)=>{let txt='';for(let i=ev.resultIndex;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;input.value=txt;autoResizeAIInput(input);};
+      aiRecognition.onerror=()=>setAIStatus('Não consegui ouvir com clareza. Tente novamente.');
+      aiRecognition.onend=()=>{aiListening=false;btn?.classList.remove('active');setAIStatus('Voz convertida em texto. Revise ou envie.');};
+      aiRecognition.start();
+    }
+
+    function extractMentionedRecruitIds(text, focusId){
+      const ids=new Set(); if(focusId)ids.add(padId(focusId)); if(aiContext.lastRecruitId)ids.add(padId(aiContext.lastRecruitId));
+      const norm=String(text||''); for(const m of norm.matchAll(/(?:recruta|n[ºo°]?|numero|número)\s*#?\s*(\d{1,3})/gi)) ids.add(padId(m[1]));
+      return [...ids].filter(Boolean).slice(0,4);
+    }
+    function buildAIContextSnapshot(question, focusId){
+      const ids=extractMentionedRecruitIds(question,focusId); const selected=ids.map(getRecruitById).filter(Boolean);
+      const recruitData=selected.map(r=>({
+        id:r.id,name:r.name,warName:r.warName,platoon:r.platoon,squad:r.squad,score:getRecruitPartialScore(r.id),condition:statusFor(getRecruitPartialScore(r.id)),
+        occurrences:getRecruitOccurrences(r.id).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,30),
+        upcoming:getRecruitUpcomingEvents(r.id).slice(0,12),observations:(r.observacoes||[]).slice(-12),provas:(r.provas||[]).slice(-8),taf:(r.taf||[]).slice(-8)
+      }));
+      const scores=recruits.map(r=>getRecruitPartialScore(r.id)); const avg=scores.length?scores.reduce((a,b)=>a+b,0)/scores.length:0;
+      const ranked=recruits.map(r=>({id:r.id,warName:r.warName||r.name,score:getRecruitPartialScore(r.id),condition:statusFor(getRecruitPartialScore(r.id)),occurrences:getRecruitOccurrences(r.id).length})).sort((a,b)=>b.score-a.score);
+      return {today:todayStr(),timezone:'America/Sao_Paulo',course:{start:config.courseStart,end:config.courseEnd},activeRecruitId:ids[0]||null,
+        turma:{total:recruits.length,average:Number(avg.toFixed(2)),occurrences:occurrences.length,events:events.length,top:ranked.slice(0,10),attention:ranked.slice(-10).reverse()},recruits:recruitData,
+        recentOccurrences:occurrences.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,80),
+        recentEvents:events.slice().sort((a,b)=>(String(b.date)+String(b.time||'')).localeCompare(String(a.date)+String(a.time||''))).slice(0,30),
+        conversation:aiChatHistory.slice(-8).map(x=>({role:x.role,text:x.text}))};
+    }
+    function shouldUseWeb(question){return /\b(pesquis|internet|web|not[ií]cia|hoje no mundo|atual|atualmente|agora no brasil|quem [ée] o atual|pre[cç]o|cotação|clima|tempo em|resultado de|últimas|recentes)\b/i.test(question);}
+    function isClearlySigrOnly(question){return /recruta|turma|ocorr[eê]ncia|score|pelot[aã]o|esquadr[aã]o|consulta|agenda|observa[cç][aã]o|taf|prova|sigr|ranking|relat[oó]rio/i.test(question);}
+
+    function normalizeActionDate(value){
+      if(!value)return todayStr(); const s=String(value).trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+      const m=s.match(/^(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?$/); if(m){let y=m[3]?Number(m[3]):Number(todayStr().slice(0,4));if(y<100)y+=2000;return `${y}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;} return s;
+    }
+    async function executeSigrToolCall(call){
+      if(!call||!call.name)return null; const a=call.args||{}; const id=a.recruitId?padId(a.recruitId):null; const rec=id?getRecruitById(id):null;
+      if(id&&!rec)throw new Error(`Recruta ${id} não encontrado.`);
+      if(call.name==='create_event'){
+        const ev={id:'ev'+Date.now()+Math.random().toString(36).slice(2,7),date:normalizeActionDate(a.date),time:a.time||'',type:a.type||'Outro',recruitId:id||null,title:a.title||((a.type||'Evento')+(rec?` — Nº ${rec.id}`:'')),notes:a.notes||a.reason||''};
+        if(/consulta|m[eé]dic|odont/i.test(`${ev.type} ${ev.title}`))ev.type='Consulta Médica'; events.push(ev);saveData();try{renderCalendar()}catch(_){};recordOperatorActivity('AI_EVENT_CREATED','event',ev.id,{recruitId:id,type:ev.type});return `Evento criado: ${ev.type} em ${ev.date}${ev.time?' às '+ev.time:''}${rec?' para o Nº '+rec.id:''}.`;
+      }
+      if(call.name==='add_observation'){
+        if(!rec)throw new Error('Informe o recruta para adicionar observação.');ensureRecruitExtras(rec);rec.observacoes.push({id:'ob'+Date.now(),date:normalizeActionDate(a.date),autor:a.author||sigrActiveOperator?.display_name||'SIGR IA',texto:a.text||a.notes||''});saveData();recordOperatorActivity('AI_OBSERVATION_CREATED','recruit',rec.id);return `Observação adicionada ao recruta Nº ${rec.id}.`;
+      }
+      if(call.name==='add_occurrence'){
+        if(!rec)throw new Error('Informe o recruta para lançar ocorrência.'); const type=/posit/i.test(a.type)?'Positiva':'Negativa'; const grav=a.severity||(type==='Positiva'?'Bom':'Leve'); const pointMap={'Leve':-1,'Média':-2,'Media':-2,'Grave':-5,'Gravíssima':-10,'Gravissima':-10,'Bom':1,'Ótimo':2,'Otimo':2,'Excelente':3,'Excepcional':5}; const base=Number(a.basePoints??pointMap[grav]??(type==='Positiva'?1:-1)); const date=normalizeActionDate(a.date); const text=a.text||a.description||'Registro lançado pela SIGR IA'; const calc=computeFinalPoints(base,date,rec.id,normDesc(text),null); occurrences.unshift({id:Date.now(),recruitId:rec.id,date,type,gravidade:grav,text,basePoints:base,phaseIdx:calc.phase.idx,phaseMult:calc.phase.mult,recidNumber:calc.recid.occurrenceNumber,recidMult:calc.recid.mult,points:calc.finalPts});rec.score+=calc.finalPts;saveData();renderAll();recordOperatorActivity('AI_OCCURRENCE_CREATED','recruit',rec.id,{type,gravidade:grav,points:calc.finalPts});requestOccurrenceMilestoneCheck();return `Ocorrência ${type.toLowerCase()} lançada para o Nº ${rec.id} (${calc.finalPts>=0?'+':''}${calc.finalPts} pts).`;
+      }
+      if(call.name==='add_exam'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.provas.push({id:'pv'+Date.now(),date:normalizeActionDate(a.date),nome:a.name||a.title||'Avaliação',nota:Number(a.grade),obs:a.notes||''});saveData();return `Prova/avaliação registrada para o Nº ${rec.id}.`;}
+      if(call.name==='add_taf'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.taf.push({id:'tf'+Date.now(),date:normalizeActionDate(a.date),tipo:a.type||'TAF',resultado:a.result||'',conceito:a.concept||'',obs:a.notes||''});saveData();return `Registro de TAF adicionado ao Nº ${rec.id}.`;}
+      if(call.name==='add_instruction'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.instrucoes.push({id:'in'+Date.now(),date:normalizeActionDate(a.date),titulo:a.title||'Instrução',conteudo:a.content||'',por:a.by||sigrActiveOperator?.display_name||'SIGR IA'});saveData();return `Instrução registrada para o Nº ${rec.id}.`;}
+      if(call.name==='update_recruit'){if(!rec)throw new Error('Informe o recruta.');if(a.name)rec.name=a.name;if(a.warName)rec.warName=a.warName;if(a.saram!==undefined)rec.saram=a.saram;if(a.platoon)rec.platoon=a.platoon;if(a.squad)rec.squad=a.squad;saveData();renderAll();return `Cadastro do recruta Nº ${rec.id} atualizado.`;}
+      if(call.name==='set_active_recruit'){if(!rec)throw new Error('Recruta não encontrado.');document.getElementById('aiRecruitFocus').value=rec.id;aiContext.lastRecruitId=rec.id;refreshAIContextBadge();return `Contexto alterado para o recruta Nº ${rec.id}.`;}
+      return null;
+    }
+    async function callOnlineSIGRAI(question,focusId){
+      if(!sigrSupabase||!sigrSession)throw new Error('Sessão online indisponível'); const body={question,context:buildAIContextSnapshot(question,focusId),useWeb:shouldUseWeb(question),allowActions:sigrUserRole!=='viewer'};
+      const {data,error}=await sigrSupabase.functions.invoke(SIGR_AI_FUNCTION,{body}); if(error)throw error; if(!data?.answer)throw new Error(data?.error||'Resposta online vazia'); return data;
+    }
+
     async function askAI(question, focusId) {
       if (!question || aiLoading) return;
-      appendChat('user', question);
-      renderAIChat();
-      aiLoading = true;
-      const btn = document.getElementById('aiSubmitBtn');
-      if (btn) btn.disabled = true;
-      renderAIChat();
-      await new Promise(r => setTimeout(r, 320 + Math.random() * 280));
+      const explicitFocus=focusId||document.getElementById('aiRecruitFocus')?.value||null; const mentions=extractMentionedRecruitIds(question,explicitFocus); if(mentions[0]){aiContext.lastRecruitId=mentions[0];const f=document.getElementById('aiRecruitFocus');if(f)f.value=mentions[0];}
+      appendChat('user', question); renderAIChat(); aiLoading=true; const btn=document.getElementById('aiSubmitBtn');if(btn)btn.disabled=true;renderAIChat();setAIStatus('Selecionando o melhor motor para esta solicitação…');
       try {
-        const answer = localAnalyze(question, focusId);
-        appendChat('assistant', answer);
-      } catch (err) {
-        console.error(err);
-        appendChat('assistant', 'Erro interno na análise. Os dados foram preservados. Tente novamente com outra formulação.');
-      } finally {
-        aiLoading = false;
-        if (btn) btn.disabled = false;
-        renderAIChat();
-        saveAIChat();
-      }
+        let result=null, answer='', provider='Local SIGR', actionText='';
+        try{setAIStatus(shouldUseWeb(question)?'Consultando IA online + web…':'Consultando IA online e dados SIGR…');result=await callOnlineSIGRAI(question,explicitFocus);answer=result.answer;provider=result.provider||'IA online';const badge=document.getElementById('aiProviderBadge');if(badge)badge.textContent=provider+(result.used_web?' + Web':'');
+          if(Array.isArray(result.actions)&&result.actions.length){const notes=[];for(const call of result.actions){try{const n=await executeSigrToolCall(call);if(n)notes.push(n);}catch(e){notes.push('Ação não executada: '+e.message);}}actionText=notes.join(' ');}
+        }catch(onlineErr){console.warn('SIGR IA online indisponível; usando motor local',onlineErr);setAIStatus('IA online indisponível. Usando análise local do SIGR…');if(isClearlySigrOnly(question)){answer=localAnalyze(question,explicitFocus);provider='Motor local';}else{answer='A IA online está temporariamente indisponível ou ainda não foi configurada. As funções e análises internas do SIGR continuam funcionando normalmente.';provider='Fallback local';}}
+        appendChat('assistant',answer,{provider,actionText});speakAI(answer+(actionText?' '+actionText:''));
+      } catch (err) {console.error(err);appendChat('assistant','Não consegui concluir esta solicitação, mas seus dados foram preservados. '+(err?.message||''),{provider:'SIGR'});
+      } finally {aiLoading=false;if(btn)btn.disabled=false;renderAIChat();saveAIChat();setAIStatus('Pronta. Você pode continuar falando do mesmo assunto sem repetir o contexto.');}
     }
-    function handleAskAI(e) {
-      e.preventDefault();
-      const q = document.getElementById('aiQuestion').value.trim();
-      const focus = document.getElementById('aiRecruitFocus').value.trim();
-      if (!q) return;
-      document.getElementById('aiQuestion').value = '';
-      askAI(q, focus || null);
-    }
-    function quickAsk(text) {
-      const focus = document.getElementById('aiRecruitFocus').value.trim();
-      const map = {
-        'criticos': 'Quem está em condição crítica ou insatisfatória e merece atenção prioritária?',
-        'lideres': 'Gere o ranking positivo com os líderes e destaques da turma.',
-        'parecer turma': 'Elabore o parecer estatístico completo da turma no período filtrado.',
-        'reincidencias': 'Identifique padrões de reincidência entre os recrutas.',
-        'piores': 'Mostre o ranking dos piores com prioridade de acompanhamento.'
-      };
-      if (String(text).startsWith('recruta ') || String(text).startsWith('Analise o recruta') || String(text).includes('recruta ' + currentSelectedId)) {
-        const id = currentSelectedId || focus || padId(text);
-        if (id) {
-          document.getElementById('aiRecruitFocus').value = id;
-          askAI('Elabore parecer técnico detalhado do recruta ' + id, id);
-          return;
-        }
-      }
-      askAI(map[text] || text, focus || null);
-    }
+    function handleAskAI(e){e.preventDefault();const q=document.getElementById('aiQuestion').value.trim();const focus=document.getElementById('aiRecruitFocus').value.trim();if(!q)return;document.getElementById('aiQuestion').value='';document.getElementById('aiQuestion').style.height='auto';askAI(q,focus||null);}
+    function quickAsk(text){const focus=document.getElementById('aiRecruitFocus')?.value||currentSelectedId||aiContext.lastRecruitId||null;if(currentSelectedId&&!focus){document.getElementById('aiRecruitFocus').value=currentSelectedId;}askAI(text,focus);}
 
     // ---------- TEMA CLARO / ESCURO ----------
     const THEME_KEY = 'sigr_theme_v1';
@@ -6002,7 +6079,7 @@
         'Base disciplinar sincronizada.',
         'Linguagem Natural ativa.',
         'Banco estatístico carregado.',
-        'CCI disponível — selecione uma consulta ou digite livremente.'
+        'SIGR IA 2.0 disponível — conversa, voz, web e ações integradas.'
       ];
       let i = 0;
       function typeNext() {
@@ -6020,7 +6097,6 @@
     renderAIChat();
     renderAll();
     showView('dashboard');
-    try { if (typeof cciSelectCat === 'function') cciSelectCat(cciCurrentCat || 'recruta'); } catch(e) {}
     initializeSupabase();
   </script>
   <script>

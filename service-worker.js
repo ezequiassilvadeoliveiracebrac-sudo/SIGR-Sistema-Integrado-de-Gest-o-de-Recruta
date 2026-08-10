@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v5';
-const STATIC_CACHE = 'sigr-static-v5';
+const APP_CACHE = 'sigr-pwa-v6';
+const STATIC_CACHE = 'sigr-static-v6';
 
 const APP_SHELL = [
   './',

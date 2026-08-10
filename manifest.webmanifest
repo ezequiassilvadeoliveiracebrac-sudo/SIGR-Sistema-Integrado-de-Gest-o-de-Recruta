@@ -1,16 +1,19 @@
 {
   "id": "./",
-  "name": "SIGR — Sistema Integrado de Gestão de Recrutas",
+  "name": "SIGR — Sistema Integrado de Gestão de Recrutas + IA",
   "short_name": "SIGR",
-  "description": "Sistema Integrado de Gestão de Recrutas — CFSd 2ª/2026",
+  "description": "SIGR CFSd 2ª/2026 com SIGR IA 2.0, análise inteligente, voz, web e ações integradas.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "any",
-  "background_color": "#07152f",
-  "theme_color": "#0f172a",
+  "background_color": "#050b14",
+  "theme_color": "#071426",
   "icons": [
     {
       "src": "./icons/sigr-192.png",
