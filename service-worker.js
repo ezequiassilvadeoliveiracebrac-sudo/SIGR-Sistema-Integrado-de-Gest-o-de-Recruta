@@ -1,10 +1,13 @@
-const APP_CACHE = 'sigr-pwa-v6';
-const STATIC_CACHE = 'sigr-static-v6';
+const APP_CACHE = 'sigr-pwa-v7-holo';
+const STATIC_CACHE = 'sigr-static-v7-holo';
 
-const APP_SHELL = [
+const CORE_SHELL = [
   './',
   './index.html',
-  './manifest.webmanifest',
+  './manifest.webmanifest'
+];
+
+const OPTIONAL_ASSETS = [
   './icons/sigr-180.png',
   './icons/sigr-192.png',
   './icons/sigr-512.png',
@@ -22,7 +25,10 @@ const STATIC_HOSTS = new Set([
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(APP_CACHE)
-      .then(cache => cache.addAll(APP_SHELL))
+      .then(async cache => {
+        await cache.addAll(CORE_SHELL);
+        await Promise.allSettled(OPTIONAL_ASSETS.map(asset => cache.add(asset)));
+      })
       .then(() => self.skipWaiting())
   );
 });
@@ -138,4 +144,3 @@ self.addEventListener('notificationclick', event => {
     })
   );
 });
-
