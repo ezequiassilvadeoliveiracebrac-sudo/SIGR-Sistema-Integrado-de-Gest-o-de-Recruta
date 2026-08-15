@@ -881,9 +881,119 @@
       .ai-holo-figure,.ai-holo-ring,.holo-circuit,.holo-node,.holo-eye,.ai-holo-base,.ai-holo-mic::after,.ai-holo-wave span { animation-duration:.001ms!important; animation-iteration-count:1!important; }
     }
 
+    /* ========== ABERTURA CINEMATOGRÁFICA PÓS-LOGIN ========== */
+    #sigrBoot {
+      display:none; align-items:stretch; justify-content:stretch; isolation:isolate; overflow:hidden;
+      background:#020617; font-family:'Exo 2',system-ui,sans-serif;
+    }
+    #sigrBoot.visible-boot { display:flex; }
+    #sigrBoot.hidden-boot { display:flex; opacity:0; visibility:hidden; pointer-events:none; }
+    .onboarding-shell { position:relative; width:100%; min-height:100dvh; overflow:hidden; background:#020617; }
+    .onboarding-scanlines { position:absolute; inset:0; z-index:7; pointer-events:none; opacity:.17; background:repeating-linear-gradient(180deg,transparent 0 4px,rgba(56,189,248,.07) 5px); mix-blend-mode:screen; }
+    .onboarding-vignette { position:absolute; inset:0; z-index:6; pointer-events:none; background:radial-gradient(circle at 50% 42%,transparent 20%,rgba(2,6,23,.25) 58%,rgba(2,6,23,.88) 100%); }
+    .onboarding-scene { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:92px 7vw 118px; opacity:0; transform:scale(1.035); transition:opacity .85s ease,transform 1.1s ease; pointer-events:none; z-index:2; }
+    .onboarding-scene.active { opacity:1; transform:scale(1); pointer-events:auto; }
+    .scene-gripen { background-image:linear-gradient(90deg,rgba(2,6,23,.93) 0%,rgba(2,6,23,.45) 48%,rgba(2,6,23,.22) 100%),linear-gradient(0deg,rgba(2,6,23,.96),transparent 48%),url('./assets/f39-gripen-fab.webp'); background-size:cover; background-position:center; }
+    .scene-tech { background:radial-gradient(circle at 50% 35%,rgba(8,145,178,.23),transparent 35%),linear-gradient(145deg,#020617,#071426 55%,#0b1f38); }
+    .onboarding-content { width:min(1120px,100%); position:relative; z-index:8; color:white; }
+    .onboarding-content.center { text-align:center; }
+    .onboarding-kicker { display:inline-flex; align-items:center; gap:9px; color:#67e8f9; font-size:11px; font-weight:900; letter-spacing:.24em; text-transform:uppercase; }
+    .onboarding-kicker::before { content:''; width:38px; height:1px; background:#22d3ee; box-shadow:0 0 12px #22d3ee; }
+    .onboarding-title { margin-top:17px; max-width:920px; font-size:clamp(38px,6vw,86px); line-height:.94; letter-spacing:-.045em; font-weight:900; text-transform:uppercase; text-shadow:0 16px 60px rgba(0,0,0,.55); }
+    .onboarding-content.center .onboarding-title { margin-left:auto; margin-right:auto; }
+    .onboarding-subtitle { margin-top:20px; max-width:720px; color:#cbd5e1; font-size:clamp(14px,1.7vw,21px); line-height:1.55; }
+    .onboarding-content.center .onboarding-subtitle { margin-left:auto; margin-right:auto; }
+    .onboarding-wordmark { color:#fff; }
+    .onboarding-wordmark span { color:#22d3ee; text-shadow:0 0 30px rgba(34,211,238,.58); }
+    .onboarding-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:13px; margin-top:34px; }
+    .onboarding-card { min-height:142px; padding:20px; border:1px solid rgba(103,232,249,.18); border-radius:18px; background:linear-gradient(145deg,rgba(15,23,42,.78),rgba(8,47,73,.32)); box-shadow:inset 0 1px rgba(255,255,255,.04),0 22px 60px rgba(0,0,0,.18); backdrop-filter:blur(12px); }
+    .onboarding-card strong { display:block; margin-top:14px; color:#f8fafc; font-size:17px; }
+    .onboarding-card p { margin-top:7px; color:#94a3b8; font-size:12px; line-height:1.5; }
+    .onboarding-icon { width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:12px; background:rgba(34,211,238,.11); border:1px solid rgba(34,211,238,.23); color:#67e8f9; font-weight:900; }
+    .onboarding-hud { position:absolute; top:max(22px,env(safe-area-inset-top)); left:5vw; right:5vw; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:18px; color:#94a3b8; font-size:10px; font-weight:800; letter-spacing:.15em; text-transform:uppercase; }
+    .onboarding-hud-brand { display:flex; align-items:center; gap:10px; color:#e2e8f0; }
+    .onboarding-hud-brand b { width:35px; height:35px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(34,211,238,.38); border-radius:10px; color:#67e8f9; box-shadow:0 0 22px rgba(34,211,238,.13); }
+    .onboarding-timer { color:#67e8f9; font-variant-numeric:tabular-nums; }
+    .onboarding-controls { position:absolute; left:5vw; right:5vw; bottom:max(24px,env(safe-area-inset-bottom)); z-index:12; color:white; }
+    .onboarding-progress { height:3px; overflow:hidden; background:rgba(148,163,184,.2); border-radius:999px; }
+    .onboarding-progress > div { height:100%; width:0%; background:linear-gradient(90deg,#0ea5e9,#22d3ee,#34d399); box-shadow:0 0 17px #22d3ee; transition:width .12s linear; }
+    .onboarding-actions { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:15px; }
+    .onboarding-check { display:flex; align-items:center; gap:8px; color:#94a3b8; font-size:11px; cursor:pointer; }
+    .onboarding-check input { accent-color:#06b6d4; width:16px; height:16px; }
+    .onboarding-btns { display:flex; gap:8px; }
+    .onboarding-btn { min-height:39px; padding:0 15px; border:1px solid rgba(148,163,184,.28); border-radius:11px; color:#e2e8f0; background:rgba(15,23,42,.64); font-size:11px; font-weight:900; backdrop-filter:blur(10px); }
+    .onboarding-btn.primary { border-color:rgba(34,211,238,.5); background:rgba(8,145,178,.2); color:#cffafe; }
+    .onboarding-podium { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; align-items:end; max-width:760px; margin:42px auto 0; }
+    .onboarding-place { padding:20px 12px; border:1px solid rgba(103,232,249,.2); border-radius:20px 20px 8px 8px; background:linear-gradient(180deg,rgba(14,116,144,.35),rgba(15,23,42,.72)); text-align:center; }
+    .onboarding-place.first { min-height:180px; border-color:rgba(250,204,21,.45); background:linear-gradient(180deg,rgba(161,98,7,.34),rgba(15,23,42,.78)); }
+    .onboarding-place .medal { font-size:30px; }
+    .onboarding-place strong { display:block; margin-top:8px; font-size:14px; }
+    .onboarding-place span { display:block; margin-top:5px; color:#94a3b8; font-size:10px; }
+    .onboarding-quote { max-width:860px; margin:30px auto 0; padding:18px 22px; border-left:2px solid #22d3ee; background:rgba(8,47,73,.28); color:#cbd5e1; font-size:14px; line-height:1.6; text-align:left; }
+
+    /* ========== EXPERIÊNCIA ADMINISTRATIVA ========== */
+    body[data-sigr-role="admin"] header { background:linear-gradient(90deg,#020617,#071426 58%,#0c2340)!important; border-color:rgba(34,211,238,.25)!important; color:#e2e8f0; box-shadow:0 8px 30px rgba(2,6,23,.22); }
+    body[data-sigr-role="admin"] header .text-slate-800,body[data-sigr-role="admin"] header .text-slate-700,body[data-sigr-role="admin"] header .text-slate-600 { color:#e2e8f0!important; }
+    body[data-sigr-role="admin"] header .sigr-toolbar { background:rgba(3,15,28,.96)!important; border-color:rgba(34,211,238,.14)!important; }
+    body[data-sigr-role="admin"] #sigrRoleBadge { color:#67e8f9; border-color:rgba(34,211,238,.45); background:rgba(8,145,178,.14); box-shadow:0 0 18px rgba(34,211,238,.16); }
+    .admin-command-dock { display:none; background:linear-gradient(90deg,#020617,#081b31); border-bottom:1px solid rgba(34,211,238,.22); color:#e2e8f0; padding:9px 18px; }
+    body[data-sigr-role="admin"] .admin-command-dock { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    .admin-command-identity { display:flex; align-items:center; gap:11px; min-width:0; }
+    .admin-command-seal { width:38px; height:38px; flex:0 0 38px; display:flex; align-items:center; justify-content:center; border-radius:12px; background:linear-gradient(145deg,#0369a1,#0e7490); color:white; border:1px solid rgba(103,232,249,.38); box-shadow:0 0 24px rgba(34,211,238,.16); }
+    .admin-command-actions { display:flex; gap:7px; overflow-x:auto; }
+    .admin-command-actions button { white-space:nowrap; min-height:34px; padding:0 11px; border:1px solid rgba(148,163,184,.22); border-radius:9px; color:#cbd5e1; background:rgba(15,23,42,.72); font-size:10px; font-weight:800; }
+    .admin-command-actions button:hover { border-color:#22d3ee; color:#cffafe; }
+    .admin-overview { border:1px solid rgba(14,116,144,.28); border-radius:18px; overflow:hidden; background:linear-gradient(135deg,#020617,#0b1f38); color:white; box-shadow:0 18px 50px rgba(2,6,23,.16); }
+    .admin-overview-grid { display:grid; grid-template-columns:1.4fr repeat(3,minmax(0,1fr)); }
+    .admin-overview-cell { padding:18px; border-right:1px solid rgba(103,232,249,.12); }
+    .admin-overview-cell:last-child { border-right:0; }
+    .admin-overview-kicker { font-size:9px; letter-spacing:.16em; font-weight:900; text-transform:uppercase; color:#67e8f9; }
+    .admin-overview-value { margin-top:7px; font-size:20px; font-weight:900; }
+    .admin-overview-sub { margin-top:4px; color:#94a3b8; font-size:10px; }
+
+    /* ========== RANKING SEMANAL DOS OPERADORES ========== */
+    .weekly-operator-shell { position:relative; overflow:hidden; border:1px solid rgba(14,116,144,.23); border-radius:18px; background:linear-gradient(145deg,#020617,#0b1f38); color:white; box-shadow:0 18px 50px rgba(2,6,23,.14); }
+    .weekly-operator-shell::after { content:''; position:absolute; width:280px; height:280px; right:-100px; top:-150px; border:1px solid rgba(34,211,238,.15); border-radius:50%; box-shadow:0 0 0 35px rgba(34,211,238,.035),0 0 0 75px rgba(34,211,238,.025); }
+    .weekly-operator-grid { display:grid; grid-template-columns:minmax(230px,.75fr) minmax(0,1.6fr); position:relative; z-index:1; }
+    .weekly-operator-hero { padding:24px; border-right:1px solid rgba(103,232,249,.12); }
+    .weekly-operator-list { padding:15px; display:grid; gap:8px; }
+    .weekly-operator-row { display:grid; grid-template-columns:34px minmax(120px,1fr) repeat(4,64px); align-items:center; gap:8px; padding:10px 12px; border:1px solid rgba(148,163,184,.13); border-radius:12px; background:rgba(15,23,42,.58); }
+    .weekly-operator-row.leader { border-color:rgba(250,204,21,.35); background:linear-gradient(90deg,rgba(161,98,7,.2),rgba(15,23,42,.62)); }
+    .weekly-stat { text-align:center; font-size:10px; color:#94a3b8; }
+    .weekly-stat strong { display:block; color:#f8fafc; font-size:14px; }
+
+    @media(max-width:780px){
+      .onboarding-scene { padding:82px 20px 126px; align-items:flex-end; }
+      .scene-gripen { background-image:linear-gradient(0deg,#020617 8%,rgba(2,6,23,.72) 56%,rgba(2,6,23,.18)),url('./assets/f39-gripen-fab.webp'); background-position:58% center; }
+      .onboarding-title { font-size:clamp(34px,12vw,56px); }
+      .onboarding-subtitle { font-size:14px; margin-top:14px; }
+      .onboarding-grid { grid-template-columns:1fr; gap:8px; margin-top:20px; }
+      .onboarding-card { min-height:auto; padding:13px; }
+      .onboarding-card:nth-child(n+3) { display:none; }
+      .onboarding-card strong { display:inline; margin-left:8px; font-size:14px; }
+      .onboarding-card p { margin-left:48px; margin-top:-9px; font-size:10px; }
+      .onboarding-icon { display:inline-flex; width:34px; height:34px; }
+      .onboarding-hud { left:18px; right:18px; }
+      .onboarding-controls { left:18px; right:18px; }
+      .onboarding-actions { align-items:flex-end; }
+      .onboarding-check { max-width:160px; line-height:1.35; }
+      .onboarding-podium { gap:7px; margin-top:22px; }
+      .onboarding-place { padding:12px 6px; }
+      .onboarding-place.first { min-height:138px; }
+      body[data-sigr-role="admin"] .admin-command-dock { padding:8px 10px; }
+      .admin-command-identity { display:none; }
+      .admin-command-actions { width:100%; }
+      .admin-overview-grid { grid-template-columns:1fr 1fr; }
+      .admin-overview-cell { border-bottom:1px solid rgba(103,232,249,.12); }
+      .weekly-operator-grid { grid-template-columns:1fr; }
+      .weekly-operator-hero { border-right:0; border-bottom:1px solid rgba(103,232,249,.12); }
+      .weekly-operator-row { grid-template-columns:30px minmax(100px,1fr) 54px; }
+      .weekly-operator-row .weekly-stat:nth-last-child(n+2) { display:none; }
+    }
+
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans text-sm" data-theme="light">
+<body class="min-h-screen flex flex-col font-sans text-sm" data-theme="light" data-sigr-role="viewer">
   <!-- ACESSO PROTEGIDO PELO SUPABASE AUTH -->
   <div id="sigrAuthGate" class="no-print">
     <div class="sigr-auth-card">
@@ -893,7 +1003,7 @@
       <form id="sigrLoginForm" onsubmit="handleSigrLogin(event)" class="space-y-3">
         <div>
           <label for="sigrLoginUsername" class="block text-[11px] text-slate-400 mb-1">Usuário ou e-mail</label>
-          <input id="sigrLoginUsername" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="equipe.sigr" />
+          <input id="sigrLoginUsername" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="Digite seu usuário" />
         </div>
         <div>
           <label for="sigrLoginPassword" class="block text-[11px] text-slate-400 mb-1">Senha</label>
@@ -957,15 +1067,34 @@
     </div>
   </section>
 
-  <!-- BOOT SPLASH -->
-  <div id="sigrBoot" class="no-print">
-    <div class="boot-logo">SIGR</div>
-    <div class="boot-title">SIGR</div>
-    <div class="boot-sub">Sistema Integrado de Gestão de Recrutas</div>
-    <div class="boot-ver">Versão Operacional · CFSd 2ª/2026</div>
-    <div class="boot-log" id="bootLog"></div>
-    <div class="boot-bar"><div class="boot-bar-fill" id="bootBarFill"></div></div>
-    <div class="boot-welcome" id="bootWelcome">Bem-vindo.</div>
+  <!-- ABERTURA GAMIFICADA: exibida somente depois do login e da identificação -->
+  <div id="sigrBoot" class="no-print" role="dialog" aria-modal="true" aria-label="Apresentação do SIGR">
+    <div class="onboarding-shell">
+      <audio id="sigrOnboardingAudio" preload="auto" src="./assets/fortunate-son-30s.mp3"></audio>
+      <div class="onboarding-scanlines"></div><div class="onboarding-vignette"></div>
+      <div class="onboarding-hud"><div class="onboarding-hud-brand"><b>S</b><span>Sistema operacional SIGR</span></div><div><span id="onboardingSceneLabel">APRESENTAÇÃO 01/06</span> · <span id="onboardingTimer" class="onboarding-timer">00:30</span></div></div>
+
+      <section class="onboarding-scene scene-gripen active" data-scene="0">
+        <div class="onboarding-content"><div class="onboarding-kicker">Força · Precisão · Controle</div><h1 class="onboarding-title onboarding-wordmark"><span>SIGR</span><br>Sistema Integrado de Gestão de Recrutas</h1><p class="onboarding-subtitle">Tecnologia criada para transformar cada registro em acompanhamento, evolução e decisão responsável.</p></div>
+      </section>
+      <section class="onboarding-scene scene-tech" data-scene="1">
+        <div class="onboarding-content center"><div class="onboarding-kicker">Visão operacional</div><h2 class="onboarding-title">A turma inteira.<br>Em um único comando.</h2><div class="onboarding-grid"><div class="onboarding-card"><span class="onboarding-icon">01</span><strong>Efetivo pesquisável</strong><p>Localize qualquer recruta por número, nome ou nome de guerra.</p></div><div class="onboarding-card"><span class="onboarding-icon">02</span><strong>Sincronização segura</strong><p>Informações atualizadas entre computador e aplicativo.</p></div><div class="onboarding-card"><span class="onboarding-icon">03</span><strong>Controle por perfil</strong><p>Cada ação vinculada ao operador responsável.</p></div></div></div>
+      </section>
+      <section class="onboarding-scene scene-tech" data-scene="2">
+        <div class="onboarding-content center"><div class="onboarding-kicker">Acompanhamento individual</div><h2 class="onboarding-title">Cada recruta.<br>Cada detalhe.</h2><div class="onboarding-grid"><div class="onboarding-card"><span class="onboarding-icon">−5</span><strong>Ocorrências</strong><p>Registros positivos e negativos com pontuação recalculada.</p></div><div class="onboarding-card"><span class="onboarding-icon">OBS</span><strong>Observações</strong><p>Histórico objetivo para acompanhar comportamento e evolução.</p></div><div class="onboarding-card"><span class="onboarding-icon">TAF</span><strong>Avaliações</strong><p>Provas, instruções, consultas e desempenho físico reunidos.</p></div></div></div>
+      </section>
+      <section class="onboarding-scene scene-tech" data-scene="3">
+        <div class="onboarding-content center"><div class="onboarding-kicker">Análise inteligente</div><h2 class="onboarding-title">Dados que revelam<br>a evolução.</h2><p class="onboarding-subtitle">Gráficos, tendências, reincidências e SIGR IA transformam o histórico em uma leitura clara — sem substituir o julgamento do instrutor.</p><div class="onboarding-quote">“O sistema organiza os fatos. A liderança interpreta o contexto e decide com responsabilidade.”</div></div>
+      </section>
+      <section class="onboarding-scene scene-tech" data-scene="4">
+        <div class="onboarding-content center"><div class="onboarding-kicker">Missão semanal</div><h2 class="onboarding-title">Registrar também<br>é liderar.</h2><div class="onboarding-podium"><div class="onboarding-place"><div class="medal">🥈</div><strong>2º lugar</strong><span>Consistência operacional</span></div><div class="onboarding-place first"><div class="medal">🏆</div><strong>Destaque da semana</strong><span>Mais registros qualificados</span></div><div class="onboarding-place"><div class="medal">🥉</div><strong>3º lugar</strong><span>Equipe em movimento</span></div></div></div>
+      </section>
+      <section class="onboarding-scene scene-tech" data-scene="5">
+        <div class="onboarding-content center"><div class="onboarding-kicker">Pronto para a missão</div><h2 class="onboarding-title">Inteligência.<br>Relatórios. Impacto.</h2><p class="onboarding-subtitle">Dossiês completos, PDFs pesquisáveis, backups e uma visão única da turma. O SIGR está pronto.</p><button type="button" onclick="finishSigrOnboarding(false)" class="onboarding-btn primary mt-7">ENTRAR NO SISTEMA</button></div>
+      </section>
+
+      <div class="onboarding-controls"><div class="onboarding-progress"><div id="onboardingProgress"></div></div><div class="onboarding-actions"><label class="onboarding-check"><input id="onboardingNeverAgain" type="checkbox">Não mostrar novamente neste aparelho</label><div class="onboarding-btns"><button id="onboardingSoundButton" type="button" onclick="toggleSigrOnboardingSound()" class="onboarding-btn">SOM: LIGADO</button><button type="button" onclick="finishSigrOnboarding(true)" class="onboarding-btn">PULAR ABERTURA</button></div></div></div>
+    </div>
   </div>
 
 
@@ -1057,6 +1186,11 @@
     </div>
   </header>
 
+  <section class="admin-command-dock requires-admin no-print" aria-label="Central administrativa">
+    <div class="admin-command-identity"><div class="admin-command-seal">◆</div><div class="min-w-0"><div class="text-[9px] font-black tracking-[.19em] text-cyan-300">ACESSO NÍVEL ADMINISTRADOR</div><div class="text-xs font-bold truncate">Centro de Comando SIGR</div></div></div>
+    <div class="admin-command-actions"><button type="button" onclick="openReportModal()">Dossiês e PDFs</button><button type="button" onclick="exportData()">Exportar JSON</button><button type="button" onclick="requestJsonImport()">Importar arquivo</button><button type="button" onclick="openAuditModal()">Auditoria</button><button type="button" onclick="showView('comunicacao')">Gerenciar perfis</button><button type="button" onclick="openCredentialModal('account')">Alterar senha</button></div>
+  </section>
+
   <div class="flex flex-1 overflow-hidden no-print">
     <!-- SIDEBAR -->
     <aside id="sidebar" class="w-56 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col hidden lg:flex overflow-y-auto">
@@ -1146,10 +1280,10 @@
             <svg class="w-3 h-3 transition-transform menu-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
           <div class="menu-group-content open">
-            <a href="#" onclick="exportData(); return false;" class="sidebar-item flex items-center gap-2 px-4 py-2 text-slate-700">
+            <a href="#" onclick="exportData(); return false;" class="requires-admin sidebar-item flex items-center gap-2 px-4 py-2 text-slate-700">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Backup JSON detalhado
             </a>
-            <a href="#" onclick="requestJsonImport(); return false;" class="sidebar-item flex items-center gap-2 px-4 py-2 text-slate-700">
+            <a href="#" onclick="requestJsonImport(); return false;" class="requires-admin sidebar-item flex items-center gap-2 px-4 py-2 text-slate-700">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Importar backup
             </a>
             <a href="#" onclick="openAuditModal(); return false;" class="sidebar-item flex items-center gap-2 px-4 py-2 text-slate-700">
@@ -1177,6 +1311,10 @@
           <h2 class="text-base font-semibold text-slate-800">Dashboard Geral</h2>
           <span id="periodLabel" class="text-xs text-slate-500 bg-white border border-slate-200 rounded-full px-3 py-1">Período: 08/2026 – 11/2026</span>
         </div>
+
+        <section class="admin-overview requires-admin" aria-label="Resumo administrativo">
+          <div class="admin-overview-grid"><div class="admin-overview-cell"><div class="admin-overview-kicker">Comando administrativo autenticado</div><div class="admin-overview-value">Visão total da turma</div><div class="admin-overview-sub">Relatórios completos, auditoria, perfis e proteção dos dados em um único painel.</div></div><div class="admin-overview-cell"><div class="admin-overview-kicker">Efetivo</div><div id="adminMetricRecruits" class="admin-overview-value">0</div><div class="admin-overview-sub">recrutas cadastrados</div></div><div class="admin-overview-cell"><div class="admin-overview-kicker">Operadores</div><div id="adminMetricOperators" class="admin-overview-value">0</div><div class="admin-overview-sub">perfis identificados</div></div><div class="admin-overview-cell"><div class="admin-overview-kicker">Última sincronização</div><div id="adminMetricSync" class="admin-overview-value text-base">—</div><div class="admin-overview-sub">monitoramento da base</div></div></div>
+        </section>
 
         <!-- Metric cards -->
         <div id="todaySummary" class="today-strip" aria-label="Resumo de hoje">
@@ -1313,10 +1451,10 @@
               <option value="Crítica">Crítica</option>
             </select>
             <div class="flex gap-2">
-              <button type="button" onclick="exportData()" class="mobile-data-action primary" title="Exportar todos os dados em JSON">
+              <button type="button" onclick="exportData()" class="requires-admin mobile-data-action primary" title="Exportar todos os dados em JSON">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v12m0 0l-4-4m4 4l4-4M5 18v2h14v-2"/></svg>Exportar JSON
               </button>
-              <button type="button" onclick="requestJsonImport()" class="mobile-data-action" title="Importar backup JSON">
+              <button type="button" onclick="requestJsonImport()" class="requires-admin mobile-data-action" title="Importar backup JSON">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 16V4m0 0L8 8m4-4l4 4M5 18v2h14v-2"/></svg>Importar JSON
               </button>
             </div>
@@ -1328,6 +1466,9 @@
       <!-- VIEW: RANKING -->
       <div id="view-ranking" class="view-panel hidden space-y-4">
         <h2 class="text-base font-semibold text-slate-800">Ranking Completo da Turma</h2>
+        <section class="weekly-operator-shell" aria-label="Ranking semanal dos operadores">
+          <div class="weekly-operator-grid"><div class="weekly-operator-hero"><div class="text-[9px] font-black tracking-[.18em] text-cyan-300">MISSÃO SEMANAL DA EQUIPE</div><div class="text-2xl font-black mt-2">Quem mais registrou?</div><div id="weeklyOperatorPeriod" class="text-[11px] text-slate-400 mt-2">Semana atual</div><div id="weeklyOperatorMotivation" class="text-xs text-cyan-100 mt-5 leading-relaxed">Cada ocorrência, observação e consulta bem registrada fortalece o acompanhamento da turma.</div></div><div id="weeklyOperatorRankingList" class="weekly-operator-list"><div class="text-xs text-slate-400 p-3">Carregando desempenho da equipe...</div></div></div>
+        </section>
         <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
           <table class="w-full text-xs">
             <thead class="bg-slate-50 border-b border-slate-200">
@@ -2110,7 +2251,17 @@
         <div class="flex items-start justify-between gap-3"><div id="operatorProfileHeader" class="flex items-center gap-3"></div><button type="button" onclick="closeOperatorProfile()" class="w-9 h-9 rounded-full border border-white/20">✕</button></div>
       </div>
       <div id="operatorProfileBody" class="p-5"></div>
-      <div id="operatorProfileActions" class="p-4 border-t border-slate-100 flex gap-2"></div>
+      <div id="operatorProfileActions" class="p-4 border-t border-slate-100 flex flex-wrap gap-2"></div>
+    </div>
+  </div>
+
+  <!-- CREDENCIAIS DO PERFIL / CONTA -->
+  <div id="credentialModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[10010] hidden items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200">
+      <div class="p-5 bg-gradient-to-br from-slate-950 to-cyan-950 text-white"><div class="flex items-start justify-between gap-3"><div><div id="credentialKicker" class="text-[9px] font-black uppercase tracking-[.16em] text-cyan-300">Segurança do perfil</div><h2 id="credentialTitle" class="text-xl font-black mt-1">Alterar credencial</h2><p id="credentialDescription" class="text-xs text-slate-300 mt-1">A nova credencial será aplicada somente após confirmação.</p></div><button type="button" onclick="closeCredentialModal()" class="w-9 h-9 rounded-full border border-white/20">✕</button></div></div>
+      <form id="operatorPinChangeForm" onsubmit="changeMyOperatorPin(event)" class="hidden p-5 space-y-3"><div><label class="block text-[10px] font-bold text-slate-500 mb-1">PIN atual</label><input id="currentOperatorPin" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required class="w-full min-h-11 border border-slate-200 rounded-xl px-3 tracking-[.28em] text-center"></div><div><label class="block text-[10px] font-bold text-slate-500 mb-1">Novo PIN de 6 números</label><input id="newOperatorPin" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required class="w-full min-h-11 border border-slate-200 rounded-xl px-3 tracking-[.28em] text-center"></div><div><label class="block text-[10px] font-bold text-slate-500 mb-1">Confirmar novo PIN</label><input id="confirmOperatorPin" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required class="w-full min-h-11 border border-slate-200 rounded-xl px-3 tracking-[.28em] text-center"></div><button id="operatorPinChangeButton" class="w-full min-h-11 rounded-xl bg-cyan-700 text-white font-black text-xs">ATUALIZAR MEU PIN</button></form>
+      <form id="accountPasswordChangeForm" onsubmit="changeAdminAccountPassword(event)" class="hidden p-5 space-y-3"><div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-800">Esta opção altera a senha da conta administrativa autenticada. Nenhuma senha é exibida ou armazenada no código.</div><div><label class="block text-[10px] font-bold text-slate-500 mb-1">Nova senha</label><input id="newAccountPassword" type="password" minlength="10" autocomplete="new-password" required class="w-full min-h-11 border border-slate-200 rounded-xl px-3"></div><div><label class="block text-[10px] font-bold text-slate-500 mb-1">Confirmar nova senha</label><input id="confirmAccountPassword" type="password" minlength="10" autocomplete="new-password" required class="w-full min-h-11 border border-slate-200 rounded-xl px-3"></div><button id="accountPasswordChangeButton" class="w-full min-h-11 rounded-xl bg-slate-950 text-white font-black text-xs">ALTERAR SENHA ADMINISTRATIVA</button></form>
+      <div id="credentialMessage" class="px-5 pb-5 text-center text-xs text-rose-600"></div>
     </div>
   </div>
 
@@ -2166,10 +2317,17 @@
     let sigrSyncTimer = null;
     let sigrSyncInFlight = false;
     let sigrSyncQueued = false;
-    let sigrAccountRole = 'admin';
-    let sigrUserRole = 'admin';
+    // Falha fechada: ninguém recebe privilégios administrativos antes da validação.
+    let sigrAccountRole = 'viewer';
+    let sigrUserRole = 'viewer';
     let sigrNotifications = [];
     const SIGR_SHARED_USERNAME = 'equipe.sigr';
+    const SIGR_ADMIN_EMAIL = 'ezequiassilvadeoliveira.cebrac@gmail.com';
+    const SIGR_TEAM_EMAIL = 'equipesigr@gmail.com';
+    // Os nomes de usuário não são exibidos na interface. O valor administrativo
+    // é comparado por hash e a senha continua exclusivamente no Supabase Auth.
+    const SIGR_ADMIN_USERNAME_SHA256 = '29772364b033128efbccfe4beadd0df67d863242e0acb894f54e24f8cf86b75d';
+    const SIGR_TEAM_USERNAME_SHA256 = '8af75f3740f45af0c5f9566a011802313c858080b93f621b5f5bbd008d6380d5';
     const SIGR_COMM_FUNCTION = 'sigr-communications';
     const SIGR_OPERATOR_TOKEN_KEY = 'sigr_operator_session_v1';
     const SIGR_OPERATOR_PROFILE_KEY = 'sigr_operator_profile_v1';
@@ -2187,6 +2345,11 @@
     let sigrCall = null;
     let sigrCallStartedAt = null;
     let sigrCallTimer = null;
+    let sigrOnboardingPlayedSession = false;
+    let sigrOnboardingFrame = 0;
+    let sigrOnboardingStartedAt = 0;
+    let sigrWeeklyRankingLoadedAt = 0;
+    const SIGR_LOCAL_ACTIVITY_KEY = 'sigr_local_operator_activity_v2';
     const SIGR_ICE_SERVERS = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }];
 
     const DEFAULT_CONFIG = {
@@ -2386,6 +2549,20 @@
       return String(value || '').trim().toLowerCase().replace(/\s+/g, '.');
     }
 
+    async function sha256Hex(value) {
+      if (!window.crypto?.subtle) return '';
+      const bytes = new TextEncoder().encode(String(value || ''));
+      const digest = await crypto.subtle.digest('SHA-256', bytes);
+      return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function resolveKnownSigrUsername(username) {
+      const hash = await sha256Hex(normalizeSigrUsername(username));
+      if (hash === SIGR_ADMIN_USERNAME_SHA256) return SIGR_ADMIN_EMAIL;
+      if (hash === SIGR_TEAM_USERNAME_SHA256) return SIGR_TEAM_EMAIL;
+      return '';
+    }
+
     async function invokeSigrCommunications(action, payload = {}) {
       if (!sigrSupabase) throw new Error('Conexão segura indisponível.');
       const { data, error } = await sigrSupabase.functions.invoke(SIGR_COMM_FUNCTION, { body: { action, ...payload } });
@@ -2499,9 +2676,22 @@
       sigrUserRole = getEffectiveSigrRole();
       document.body.dataset.sigrRole = sigrUserRole;
       const badge = document.getElementById('sigrRoleBadge');
-      if (badge) badge.textContent = roleLabel(sigrUserRole);
+      if (badge) badge.textContent = sigrUserRole === 'admin' ? 'ADMINISTRADOR' : roleLabel(sigrUserRole);
       const notice = document.getElementById('occurrenceWriteNotice');
       if (notice) notice.classList.toggle('hidden', canSigrWrite());
+      updateAdminCommandMetrics();
+    }
+
+    function updateAdminCommandMetrics() {
+      const recruitsEl = document.getElementById('adminMetricRecruits');
+      const operatorsEl = document.getElementById('adminMetricOperators');
+      const syncEl = document.getElementById('adminMetricSync');
+      if (recruitsEl) recruitsEl.textContent = String(Array.isArray(recruits) ? recruits.length : 0);
+      if (operatorsEl) operatorsEl.textContent = String(Array.isArray(sigrOperators) ? sigrOperators.length : 0);
+      if (syncEl) {
+        const raw = sigrMetadata?.lastSyncAt;
+        syncEl.textContent = raw ? new Date(raw).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : 'Aguardando';
+      }
     }
 
     async function activateOperatorIdentity(operator, token, options = {}) {
@@ -2515,6 +2705,9 @@
       await refreshCommunications(false);
       await registerCommunicationPushSubscriptionSilently();
       await checkPendingVoiceCalls();
+      updateAdminCommandMetrics();
+      renderWeeklyOperatorRanking(true);
+      maybeStartSigrOnboarding();
       if (!options.restored) showToast(`Identificação ativa: ${operatorFullName(operator)}`);
       const requestedParams = new URLSearchParams(location.search);
       if (requestedParams.get('view') === 'comunicacao') {
@@ -2548,6 +2741,7 @@
         document.getElementById('sigrOperatorGate')?.classList.remove('visible');
         updateActiveOperatorUI();
         showToast('O módulo de identificação ainda precisa ser ativado no Supabase');
+        maybeStartSigrOnboarding();
       }
     }
 
@@ -2833,9 +3027,19 @@
       if (header) header.innerHTML = `${operatorAvatarHTML(operator,'large')}<div><div class="text-xl font-bold">${escapeHTML(operatorFullName(operator))}</div><div class="text-xs text-slate-300 mt-1">${escapeHTML(operator.duty_function || 'Integrante da equipe')}</div><div class="flex items-center gap-1.5 text-[10px] mt-2 ${online ? 'text-emerald-300' : 'text-slate-400'}"><span class="${online ? 'comm-online-dot' : 'comm-offline-dot'}"></span>${online ? 'Online agora' : 'Offline'}</div></div>`;
       if (body) body.innerHTML = `<div class="grid grid-cols-2 gap-3 text-xs"><div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><span class="block text-[9px] uppercase tracking-wider text-slate-400">Graduação</span><strong class="block mt-1 text-slate-800">${escapeHTML(operator.rank || '—')}</strong></div><div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><span class="block text-[9px] uppercase tracking-wider text-slate-400">Nome de guerra</span><strong class="block mt-1 text-slate-800">${escapeHTML(operator.war_name || '—')}</strong></div></div>`;
       const mine = String(operator.id) === String(sigrActiveOperator?.id);
-      if (actions) actions.innerHTML = mine
-        ? `<button type="button" onclick="closeOperatorProfile(); endOperatorIdentity()" class="w-full min-h-11 rounded-xl border border-slate-200 font-bold text-slate-600">Trocar identificação</button>`
-        : `<button type="button" onclick="closeOperatorProfile(); openPrivateConversation('${escapeHTML(String(operator.id))}')" class="flex-1 min-h-11 rounded-xl bg-blue-600 text-white font-bold">Mensagem privada</button><button type="button" onclick="closeOperatorProfile(); startVoiceCall('${escapeHTML(String(operator.id))}')" class="flex-1 min-h-11 rounded-xl bg-emerald-600 text-white font-bold">Ligar</button>`;
+      if (actions) {
+        const buttons = [];
+        if (mine) {
+          buttons.push(`<button type="button" onclick="closeOperatorProfile(); openCredentialModal('pin')" class="flex-1 min-h-11 rounded-xl bg-cyan-700 text-white font-bold">Alterar meu PIN</button>`);
+          if (getEffectiveSigrRole() === 'admin') buttons.push(`<button type="button" onclick="closeOperatorProfile(); openCredentialModal('account')" class="flex-1 min-h-11 rounded-xl bg-slate-950 text-white font-bold">Senha administrativa</button>`);
+          buttons.push(`<button type="button" onclick="closeOperatorProfile(); endOperatorIdentity()" class="flex-1 min-h-11 rounded-xl border border-slate-200 font-bold text-slate-600">Trocar perfil</button>`);
+        } else {
+          buttons.push(`<button type="button" onclick="closeOperatorProfile(); openPrivateConversation('${escapeHTML(String(operator.id))}')" class="flex-1 min-h-11 rounded-xl bg-blue-600 text-white font-bold">Mensagem</button>`);
+          buttons.push(`<button type="button" onclick="closeOperatorProfile(); startVoiceCall('${escapeHTML(String(operator.id))}')" class="flex-1 min-h-11 rounded-xl bg-emerald-600 text-white font-bold">Ligar</button>`);
+        }
+        if (getEffectiveSigrRole() === 'admin') buttons.push(`<button type="button" onclick="removeSigrOperatorProfile('${escapeHTML(String(operator.id))}')" class="min-h-11 px-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 font-bold">Remover</button>`);
+        actions.innerHTML = buttons.join('');
+      }
       const modal = document.getElementById('operatorProfileModal');
       modal?.classList.remove('hidden'); modal?.classList.add('flex');
     }
@@ -2849,6 +3053,80 @@
     function openSelectedCommProfile() { if (sigrConversation.type === 'private') openOperatorProfile(sigrConversation.operatorId); }
     function callSelectedOperator() { if (sigrConversation.type === 'private') startVoiceCall(sigrConversation.operatorId); }
 
+    function openCredentialModal(mode = 'pin') {
+      const modal = document.getElementById('credentialModal');
+      const pinForm = document.getElementById('operatorPinChangeForm');
+      const accountForm = document.getElementById('accountPasswordChangeForm');
+      const message = document.getElementById('credentialMessage');
+      if (mode === 'account' && getEffectiveSigrRole() !== 'admin') { showToast('Somente o administrador pode alterar a senha da conta'); return; }
+      if (mode === 'pin' && !sigrActiveOperator) { showToast('Selecione primeiro o seu perfil'); return; }
+      if (message) message.textContent = '';
+      pinForm?.classList.toggle('hidden', mode !== 'pin');
+      accountForm?.classList.toggle('hidden', mode !== 'account');
+      document.getElementById('credentialKicker').textContent = mode === 'account' ? 'Segurança administrativa' : 'Segurança do perfil';
+      document.getElementById('credentialTitle').textContent = mode === 'account' ? 'Alterar senha da conta' : 'Alterar meu PIN';
+      document.getElementById('credentialDescription').textContent = mode === 'account' ? 'A alteração será realizada diretamente pelo Supabase Auth.' : 'A mudança afeta somente a sua identificação operacional.';
+      modal?.classList.remove('hidden'); modal?.classList.add('flex');
+    }
+
+    function closeCredentialModal() {
+      const modal = document.getElementById('credentialModal');
+      modal?.classList.add('hidden'); modal?.classList.remove('flex');
+      document.getElementById('operatorPinChangeForm')?.reset();
+      document.getElementById('accountPasswordChangeForm')?.reset();
+    }
+
+    async function changeMyOperatorPin(event) {
+      event.preventDefault();
+      const currentPin = document.getElementById('currentOperatorPin').value;
+      const newPin = document.getElementById('newOperatorPin').value;
+      const confirmation = document.getElementById('confirmOperatorPin').value;
+      const message = document.getElementById('credentialMessage');
+      const button = document.getElementById('operatorPinChangeButton');
+      if (!/^\d{6}$/.test(newPin) || newPin !== confirmation) { if (message) message.textContent = 'Confirme corretamente o novo PIN de 6 números.'; return; }
+      button.disabled = true; button.textContent = 'ATUALIZANDO...'; if (message) message.textContent = '';
+      try {
+        await invokeSigrCommunications('operator-change-pin',{ operatorToken:sigrOperatorToken, currentPin, newPin });
+        recordOperatorActivity('OPERATOR_PIN_CHANGED','operator',sigrActiveOperator.id);
+        closeCredentialModal(); showToast('Seu PIN foi atualizado com segurança');
+      } catch (error) { if (message) message.textContent = error.message || 'Não foi possível alterar o PIN.'; }
+      finally { button.disabled = false; button.textContent = 'ATUALIZAR MEU PIN'; }
+    }
+
+    async function changeAdminAccountPassword(event) {
+      event.preventDefault();
+      if (getEffectiveSigrRole() !== 'admin') { showToast('Operação não autorizada'); return; }
+      const password = document.getElementById('newAccountPassword').value;
+      const confirmation = document.getElementById('confirmAccountPassword').value;
+      const message = document.getElementById('credentialMessage');
+      const button = document.getElementById('accountPasswordChangeButton');
+      if (password.length < 10 || password !== confirmation) { if (message) message.textContent = 'Use no mínimo 10 caracteres e confirme a mesma senha.'; return; }
+      button.disabled = true; button.textContent = 'ALTERANDO...'; if (message) message.textContent = '';
+      try {
+        const { error } = await sigrSupabase.auth.updateUser({ password });
+        if (error) throw error;
+        recordOperatorActivity('ADMIN_PASSWORD_CHANGED','account',sigrSession?.user?.id);
+        closeCredentialModal(); showToast('Senha administrativa atualizada');
+      } catch (error) { if (message) message.textContent = error.message || 'Não foi possível alterar a senha.'; }
+      finally { button.disabled = false; button.textContent = 'ALTERAR SENHA ADMINISTRATIVA'; }
+    }
+
+    async function removeSigrOperatorProfile(operatorId) {
+      if (getEffectiveSigrRole() !== 'admin') { showToast('Somente o administrador pode remover perfis'); return; }
+      const operator = sigrOperators.find(item => String(item.id) === String(operatorId));
+      if (!operator) return;
+      if (!confirm(`Remover definitivamente o perfil ${operatorFullName(operator)}? O histórico operacional permanecerá na auditoria.`)) return;
+      try {
+        await invokeSigrCommunications('operator-delete',{ operatorToken:sigrOperatorToken, operatorId:operator.id });
+        recordOperatorActivity('OPERATOR_PROFILE_REMOVED','operator',operator.id,{ name:operatorFullName(operator) });
+        closeOperatorProfile();
+        const removedCurrent = String(operator.id) === String(sigrActiveOperator?.id);
+        await loadSigrOperators();
+        if (removedCurrent) await endOperatorIdentity();
+        showToast('Perfil removido. O histórico de auditoria foi preservado.');
+      } catch (error) { showToast(error.message || 'Não foi possível remover o perfil'); }
+    }
+
     async function registerCommunicationPushSubscriptionSilently() {
       if (!sigrOperatorToken || !('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window) || Notification.permission !== 'granted') return;
       try {
@@ -2858,9 +3136,108 @@
       } catch (_) {}
     }
 
+    function readLocalOperatorActivity() {
+      try { return JSON.parse(localStorage.getItem(SIGR_LOCAL_ACTIVITY_KEY) || '[]'); }
+      catch (_) { return []; }
+    }
+
     function recordOperatorActivity(activity, entityType = null, entityId = null, details = {}) {
-      if (!sigrOperatorToken || !sigrActiveOperator) return;
-      invokeSigrCommunications('activity-log', { operatorToken: sigrOperatorToken, activity, entityType, entityId, details }).catch(() => {});
+      if (!sigrActiveOperator) return;
+      const clientActivityId = `activity-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+      const activityDetails = { ...details, clientActivityId };
+      const localRows = readLocalOperatorActivity();
+      localRows.unshift({
+        id: clientActivityId,
+        action: activity, entity_type: entityType, entity_id: entityId, details:activityDetails,
+        created_at: new Date().toISOString(), operator_id: sigrActiveOperator.id,
+        operator: { ...sigrActiveOperator }
+      });
+      localStorage.setItem(SIGR_LOCAL_ACTIVITY_KEY, JSON.stringify(localRows.slice(0, 600)));
+      if (sigrOperatorToken) invokeSigrCommunications('activity-log', { operatorToken: sigrOperatorToken, activity, entityType, entityId, details:activityDetails }).catch(() => {});
+      setTimeout(() => renderWeeklyOperatorRanking(true), 350);
+      maybeShowOperatorStimulus(activity, localRows);
+    }
+
+    function maybeShowOperatorStimulus(activity, rows) {
+      if (!weeklyActivityCategory({ action:activity })) return;
+      const bounds = currentSigrWeekBounds();
+      const operatorId = String(sigrActiveOperator?.id || '');
+      const total = rows.filter(row => String(row.operator_id || row.operator?.id || '') === operatorId && new Date(row.created_at) >= bounds.start && new Date(row.created_at) < bounds.next && weeklyActivityCategory(row)).length;
+      const milestones = [1,5,10,15,25,40];
+      if (!milestones.includes(total)) return;
+      const weekKey = `${bounds.start.getFullYear()}-${bounds.start.getMonth()+1}-${bounds.start.getDate()}`;
+      const key = `sigr_operator_milestone:${operatorId}:${weekKey}:${total}`;
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key,'1');
+      const message = total === 1 ? 'Missão semanal iniciada: primeiro registro documentado.' : `Missão semanal: ${total} registros concluídos. Mantenha precisão e qualidade.`;
+      setTimeout(() => showToast(message),700);
+    }
+
+    function weeklyActivityCategory(row) {
+      const action = String(row?.action || '').toUpperCase();
+      if (['OCCURRENCE_CREATED','AI_OCCURRENCE_CREATED'].includes(action)) return 'occurrences';
+      if (['OBSERVATION_CREATED','AI_OBSERVATION_CREATED'].includes(action)) return 'observations';
+      if (['CONSULTATION_CREATED','MEDICAL_LEAVE_CREATED'].includes(action)) return 'consultations';
+      if (action === 'AI_EVENT_CREATED' && /consulta|m[eé]dic|odont/i.test(String(row?.details?.type || ''))) return 'consultations';
+      return '';
+    }
+
+    function currentSigrWeekBounds() {
+      const now = new Date(); now.setHours(0,0,0,0);
+      const mondayOffset = (now.getDay() + 6) % 7;
+      const start = new Date(now); start.setDate(start.getDate() - mondayOffset);
+      const next = new Date(start); next.setDate(next.getDate() + 7);
+      const end = new Date(next); end.setDate(end.getDate() - 1);
+      return { start, end, next };
+    }
+
+    async function renderWeeklyOperatorRanking(force = false) {
+      const list = document.getElementById('weeklyOperatorRankingList');
+      if (!list) return;
+      if (!force && Date.now() - sigrWeeklyRankingLoadedAt < 45000) return;
+      sigrWeeklyRankingLoadedAt = Date.now();
+      const bounds = currentSigrWeekBounds();
+      const period = document.getElementById('weeklyOperatorPeriod');
+      if (period) period.textContent = `${bounds.start.toLocaleDateString('pt-BR')} a ${bounds.end.toLocaleDateString('pt-BR')}`;
+      try {
+        let rows = [];
+        const localRows = readLocalOperatorActivity();
+        if (sigrOperatorToken) {
+          try {
+            const result = await invokeSigrCommunications('activity-list', { operatorToken: sigrOperatorToken, limit: 500 });
+            rows = Array.isArray(result.activities) ? result.activities : [];
+          } catch (_) {}
+        }
+        if (rows.length) {
+          const remoteClientIds = new Set(rows.map(row => row?.details?.clientActivityId).filter(Boolean));
+          rows = rows.concat(localRows.filter(row => !remoteClientIds.has(row?.details?.clientActivityId)));
+        } else rows = localRows;
+        const aggregate = new Map();
+        rows.forEach(row => {
+          const created = new Date(row.created_at || row.createdAt || 0);
+          if (!(created >= bounds.start && created < bounds.next)) return;
+          const category = weeklyActivityCategory(row);
+          if (!category) return;
+          const operatorId = String(row.operator_id || row.operator?.id || '');
+          if (!operatorId) return;
+          const operator = row.operator || sigrOperators.find(item => String(item.id) === operatorId) || { id:operatorId, display_name:'Operador SIGR' };
+          if (!aggregate.has(operatorId)) aggregate.set(operatorId,{ operator, occurrences:0, observations:0, consultations:0, total:0 });
+          const item = aggregate.get(operatorId); item[category]++; item.total++;
+        });
+        const ranking = [...aggregate.values()].sort((a,b)=>b.total-a.total || b.occurrences-a.occurrences || operatorFullName(a.operator).localeCompare(operatorFullName(b.operator),'pt-BR'));
+        if (!ranking.length) {
+          list.innerHTML = '<div class="p-5 text-center text-xs text-slate-400">Ainda não há ocorrências, observações ou consultas registradas nesta semana.</div>';
+          const motivation = document.getElementById('weeklyOperatorMotivation');
+          if (motivation) motivation.textContent = 'A semana está começando. Registre com qualidade para construir um acompanhamento completo da turma.';
+          return;
+        }
+        list.innerHTML = ranking.slice(0,10).map((item,index)=>`<div class="weekly-operator-row ${index===0?'leader':''}"><div class="text-center font-black ${index===0?'text-amber-300':'text-cyan-300'}">${index===0?'★':'#'+(index+1)}</div><div class="min-w-0 flex items-center gap-2">${operatorAvatarHTML(item.operator,'small')}<div class="min-w-0"><strong class="block text-xs truncate">${escapeHTML(operatorFullName(item.operator))}</strong><span class="block text-[9px] text-slate-400 truncate">${escapeHTML(item.operator?.duty_function || 'Operador SIGR')}</span></div></div><div class="weekly-stat"><strong>${item.occurrences}</strong>ocorr.</div><div class="weekly-stat"><strong>${item.observations}</strong>observ.</div><div class="weekly-stat"><strong>${item.consultations}</strong>consultas</div><div class="weekly-stat"><strong>${item.total}</strong>total</div></div>`).join('');
+        const winner = ranking[0];
+        const motivation = document.getElementById('weeklyOperatorMotivation');
+        if (motivation) motivation.textContent = `${operatorFullName(winner.operator)} lidera com ${winner.total} registro${winner.total===1?'':'s'}. O ranking reconhece volume de documentação e não substitui a avaliação de qualidade feita pela chefia.`;
+      } catch (error) {
+        list.innerHTML = '<div class="p-5 text-center text-xs text-slate-400">Ranking temporariamente indisponível. Os registros continuam sendo preservados.</div>';
+      }
     }
 
     function showActiveCall(operator, status = 'Conectando...') {
@@ -3068,10 +3445,15 @@
     async function loadSigrProfile() {
       const user = sigrSession?.user;
       if (!sigrSupabase || !user) return;
-      sigrAccountRole = 'admin'; // compatibilidade com instalações anteriores ao módulo de perfis
+      const authenticatedEmail = String(user.email || '').trim().toLowerCase();
+      sigrAccountRole = authenticatedEmail === SIGR_ADMIN_EMAIL ? 'admin' : 'viewer';
       try {
         const { data, error } = await sigrSupabase.from('sigr_user_profiles').select('role').eq('user_id', user.id).maybeSingle();
-        if (!error && data?.role) sigrAccountRole = normalizeSigrRole(data.role);
+        if (!error && data?.role && authenticatedEmail !== SIGR_ADMIN_EMAIL) {
+          const storedRole = normalizeSigrRole(data.role);
+          // A conta compartilhada nunca ganha administração apenas por informação do navegador.
+          sigrAccountRole = storedRole === 'admin' ? 'viewer' : storedRole;
+        }
       } catch (_) {}
       applySigrRolePermissions();
     }
@@ -3198,7 +3580,9 @@
           const activityLabel = {
             OCCURRENCE_CREATED: 'registrou uma ocorrência', OCCURRENCE_UPDATED: 'ajustou a pontuação de uma ocorrência', RECRUIT_CREATED: 'cadastrou um recruta', RECRUIT_UPDATED: 'alterou o cadastro de um recruta',
             RECRUIT_DELETED: 'removeu um recruta', PDF_RANKING_GENERATED: 'gerou um relatório de ranking', PDF_INDIVIDUAL_GENERATED: 'gerou uma ficha individual',
-            MEDICAL_LEAVE_CREATED: 'registrou uma baixa médica', MEDICAL_LEAVE_UPDATED: 'atualizou uma baixa médica'
+            PDF_CLASS_DOSSIER_GENERATED: 'gerou o dossiê completo da turma', OBSERVATION_CREATED: 'registrou uma observação', CONSULTATION_CREATED: 'registrou uma consulta',
+            MEDICAL_LEAVE_CREATED: 'registrou uma baixa médica', MEDICAL_LEAVE_UPDATED: 'atualizou uma baixa médica', JSON_BACKUP_EXPORTED: 'exportou um backup JSON',
+            JSON_BACKUP_IMPORTED: 'importou um backup JSON', OPERATOR_PIN_CHANGED: 'alterou o próprio PIN', OPERATOR_PROFILE_REMOVED: 'removeu um perfil operacional'
           };
           if (result.activities?.length) {
             list.innerHTML = result.activities.map(row => `<div class="py-3 border-b border-slate-100 last:border-0"><div class="flex items-start justify-between gap-3"><div class="text-xs text-slate-700"><strong>${escapeHTML(operatorFullName(row.operator))}</strong> ${escapeHTML(activityLabel[row.action] || row.action)}${row.entity_id ? ` <span class="text-slate-400">(${escapeHTML(String(row.entity_id))})</span>` : ''}.</div><time class="text-[10px] text-slate-400 whitespace-nowrap">${new Date(row.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</time></div></div>`).join('');
@@ -3414,11 +3798,21 @@
           session = data.session;
         } else {
           const username = normalizeSigrUsername(identifier);
-          const result = await invokeSigrCommunications('login', { username, password });
-          if (!result.session?.access_token || !result.session?.refresh_token) throw new Error('Acesso não autorizado.');
-          const { data, error } = await sigrSupabase.auth.setSession({ access_token: result.session.access_token, refresh_token: result.session.refresh_token });
-          if (error) throw error;
-          session = data.session;
+          try {
+            const result = await invokeSigrCommunications('login', { username, password });
+            if (!result.session?.access_token || !result.session?.refresh_token) throw new Error('Acesso não autorizado.');
+            const { data, error } = await sigrSupabase.auth.setSession({ access_token: result.session.access_token, refresh_token: result.session.refresh_token });
+            if (error) throw error;
+            session = data.session;
+          } catch (usernameError) {
+            // Compatibilidade imediata com as duas contas já existentes no Supabase.
+            // Nenhuma senha é armazenada: ela é enviada diretamente ao Supabase Auth.
+            const mappedEmail = await resolveKnownSigrUsername(username);
+            if (!mappedEmail) throw usernameError;
+            const { data, error } = await sigrSupabase.auth.signInWithPassword({ email: mappedEmail, password });
+            if (error) throw error;
+            session = data.session;
+          }
         }
         await activateSigrSession(session);
         document.getElementById('sigrLoginPassword').value = '';
@@ -3435,6 +3829,13 @@
 
     async function handleSigrLogout() {
       if (!sigrSupabase) return;
+      cancelAnimationFrame(sigrOnboardingFrame);
+      sigrOnboardingPlayedSession = false;
+      const onboarding = document.getElementById('sigrBoot');
+      onboarding?.classList.remove('visible-boot'); onboarding?.classList.add('hidden-boot');
+      const onboardingAudio = document.getElementById('sigrOnboardingAudio');
+      if (onboardingAudio) { onboardingAudio.pause(); onboardingAudio.currentTime = 0; }
+      document.documentElement.style.overflow = ''; document.body.style.overflow = '';
       try { await endVoiceCall(); } catch (_) {}
       if (sigrCommRefreshTimer) clearInterval(sigrCommRefreshTimer);
       if (sigrCommChannel) { try { await sigrSupabase.removeChannel(sigrCommChannel); } catch (_) {} }
@@ -3443,6 +3844,8 @@
       sigrOperatorToken = ''; sigrActiveOperator = null; sigrOperators = [];
       await sigrSupabase.auth.signOut();
       sigrSession = null;
+      sigrAccountRole = 'viewer'; sigrUserRole = 'viewer';
+      applySigrRolePermissions();
       setSigrSyncStatus('', 'Desconectado');
       document.getElementById('sigrOperatorGate')?.classList.remove('visible');
       updateActiveOperatorUI();
@@ -3698,7 +4101,7 @@
       });
       if (name === 'dashboard') renderCharts();
       if (name === 'efetivo') refreshMobileRecruitTools();
-      if (name === 'ranking') renderFullRanking();
+      if (name === 'ranking') { renderFullRanking(); renderWeeklyOperatorRanking(); }
       if (name === 'calendario') renderCalendar();
       if (name === 'baixa') renderBaixaModule();
       if (name === 'comunicacao') { updateCommChatHeader(); refreshCommunications(true); try { navigator.clearAppBadge?.(); } catch (_) {} }
@@ -3734,8 +4137,9 @@
       renderProactiveInsight();
       renderCategoryRadar();
       renderDashRanking();
+      updateAdminCommandMetrics();
       if (!document.getElementById('view-dashboard').classList.contains('hidden')) renderCharts();
-      if (!document.getElementById('view-ranking').classList.contains('hidden')) renderFullRanking();
+      if (!document.getElementById('view-ranking').classList.contains('hidden')) { renderFullRanking(); renderWeeklyOperatorRanking(); }
     }
 
     function renderMetrics() {
@@ -4338,6 +4742,7 @@
 
     // ---------- CRUD RECRUTA ----------
     function openAddRecruitModal() {
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       editingRecruitId = null;
       document.getElementById('formModalTitle').textContent = 'Adicionar Recruta';
       document.getElementById('formId').value = '';
@@ -4350,6 +4755,7 @@
       document.getElementById('recruitFormModal').classList.remove('hidden');
     }
     function openEditRecruitModal() {
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const rec = getRecruitById(currentSelectedId);
       if (!rec) return;
       editingRecruitId = rec.id;
@@ -4369,6 +4775,7 @@
     }
     function handleSaveRecruit(e) {
       e.preventDefault();
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const id = document.getElementById('formId').value.trim().padStart(3, '0');
       const name = document.getElementById('formName').value.trim();
       const warName = document.getElementById('formWarName').value.trim();
@@ -4394,6 +4801,7 @@
       if (wasEditing) openModal(savedRecruitId);
     }
     function deleteRecruit() {
+      if (getEffectiveSigrRole() !== 'admin') { showToast('Somente o administrador pode remover recrutas'); return; }
       if (!currentSelectedId || !confirm(`Remover o recruta Nº ${currentSelectedId}?`)) return;
       const deletedRecruitId = currentSelectedId;
       recruits = recruits.filter(r => String(r.id) !== String(currentSelectedId));
@@ -4437,6 +4845,7 @@
     }
 
     function openEventModal(dateStr, eventId) {
+      if (!canSigrWrite()) { showToast('Confirme sua identificação para registrar eventos'); return; }
       fillEventRecruitSelect(null);
       document.getElementById('eventDeleteBtn').classList.add('hidden');
       if (eventId) {
@@ -4466,6 +4875,7 @@
 
     function handleSaveEvent(e) {
       e.preventDefault();
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const id = document.getElementById('eventId').value;
       const payload = {
         date: document.getElementById('eventDate').value,
@@ -4486,9 +4896,12 @@
       closeEventModal();
       renderCalendar();
       showToast('Evento salvo');
+      const consultation = payload.type === 'Consulta Médica' || /consulta|m[eé]dic|odont/i.test(`${payload.title} ${payload.notes}`);
+      recordOperatorActivity(id ? 'EVENT_UPDATED' : (consultation ? 'CONSULTATION_CREATED' : 'EVENT_CREATED'),'event',id || payload.recruitId,{ type:payload.type, recruitId:payload.recruitId, date:payload.date });
     }
 
     function deleteEventFromModal() {
+      if (getEffectiveSigrRole() !== 'admin') { showToast('Somente o administrador pode excluir eventos'); return; }
       const id = document.getElementById('eventId').value;
       if (!id) return;
       if (!confirm('Excluir este evento do calendário?')) return;
@@ -4612,6 +5025,10 @@
     }
 
     function exportData() {
+      if (getEffectiveSigrRole() !== 'admin') {
+        showToast('Exportação restrita ao administrador');
+        return;
+      }
       const payload = {
         _meta: {
           sistema: 'SIGR — Sistema Integrado de Gestão de Recrutas',
@@ -4626,9 +5043,7 @@
           periodoCurso: { inicio: config.courseStart, fim: config.courseEnd }
         },
         config,
-        recruits: recruits.map(r => ({
-          id: r.id, name: r.name, warName: r.warName, saram: r.saram,
-          platoon: r.platoon, squad: r.squad, score: r.score,
+        recruits: recruits.map(r => ({ ...r,
           pontuacaoParcial: getRecruitPartialScore(r.id),
           condicao: statusFor(getRecruitPartialScore(r.id)),
           totalOcorrencias: getRecruitOccurrences(r.id).length
@@ -4645,6 +5060,7 @@
       a.click();
       URL.revokeObjectURL(url);
       showToast('Backup JSON exportado');
+      recordOperatorActivity('JSON_BACKUP_EXPORTED','backup','class',{ recruits:recruits.length, occurrences:occurrences.length });
     }
     function importData(event) {
       if (getEffectiveSigrRole() !== 'admin') {
@@ -4661,7 +5077,7 @@
           if (!data.recruits) throw new Error('Inválido');
           recruits = data.recruits.map(r => {
             const { pontuacaoParcial, condicao, totalOcorrencias, ...rest } = r;
-            return rest;
+            return ensureRecruitExtras(rest);
           });
           occurrences = data.occurrences || [];
           events = data.events || [];
@@ -4672,12 +5088,14 @@
           renderAll();
           if (!document.getElementById('view-calendario').classList.contains('hidden')) renderCalendar();
           showToast('Backup importado');
+          recordOperatorActivity('JSON_BACKUP_IMPORTED','backup','class',{ recruits:recruits.length, occurrences:occurrences.length });
         } catch (err) { alert('Erro ao importar o arquivo.'); }
       };
       reader.readAsText(file);
       event.target.value = '';
     }
     function confirmReset() {
+      if (getEffectiveSigrRole() !== 'admin') { showToast('Operação restrita ao administrador'); return; }
       if (!confirm('Restaurar a turma original com 101 recrutas?')) return;
       const d = defaultData();
       recruits = d.recruits;
@@ -4739,7 +5157,7 @@
         m = document.createElement('div');
         m.id = 'reportModal';
         m.className = 'fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[80] flex items-center justify-center p-4 no-print';
-        m.innerHTML = `<div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+        m.innerHTML = `<div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
           <h2 class="text-sm font-semibold text-slate-800 mb-1">Relatórios PDF — Alta Qualidade</h2>
           <p class="text-[11px] text-slate-500 mb-4">Relatórios vetoriais, com texto nítido e paginação automática.</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -4748,6 +5166,14 @@
             <button onclick="generateTop10PeriodPDF('best',7)" class="w-full text-left px-4 py-3 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-xs font-semibold">🏅 10 Melhores da Semana</button>
             <button onclick="generateTop10PeriodPDF('best',30)" class="w-full text-left px-4 py-3 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-xs font-semibold">🏅 10 Melhores do Mês</button>
           </div>
+          <section class="requires-admin relative overflow-hidden mt-4 rounded-2xl border border-cyan-400/30 bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-950 p-5 text-white shadow-xl">
+            <div class="absolute -right-12 -top-16 h-40 w-40 rounded-full border border-cyan-300/20 shadow-[0_0_0_28px_rgba(34,211,238,.04),0_0_0_56px_rgba(34,211,238,.025)]"></div>
+            <div class="relative"><div class="text-[9px] font-black uppercase tracking-[.18em] text-cyan-300">Exclusivo do administrador</div><h3 class="text-base font-black mt-1">Dossiê Analítico Completo da Turma</h3><p class="text-[11px] leading-relaxed text-slate-300 mt-2">Um único PDF pesquisável com visão executiva e análise individual de todos os recrutas, evolução em três fases, ocorrências, observações, consultas, avaliações e histórico completo.</p>
+              <div class="grid grid-cols-4 gap-2 mt-4 text-center"><div class="rounded-lg border border-white/10 bg-white/5 p-2"><strong class="block text-cyan-300">100%</strong><span class="text-[8px] text-slate-400">da turma</span></div><div class="rounded-lg border border-white/10 bg-white/5 p-2"><strong class="block text-cyan-300">A-Z</strong><span class="text-[8px] text-slate-400">pesquisável</span></div><div class="rounded-lg border border-white/10 bg-white/5 p-2"><strong class="block text-cyan-300">3 fases</strong><span class="text-[8px] text-slate-400">evolução</span></div><div class="rounded-lg border border-white/10 bg-white/5 p-2"><strong class="block text-cyan-300">Vetor</strong><span class="text-[8px] text-slate-400">alta definição</span></div></div>
+              <label class="flex items-start gap-2 mt-4 rounded-xl border border-amber-300/20 bg-amber-400/5 px-3 py-2.5 text-[10px] text-slate-300"><input id="dossierIncludeMedical" type="checkbox" class="mt-0.5 accent-cyan-400"><span><strong class="text-amber-200">Incluir detalhes médicos sensíveis</strong><br>Desmarcado por padrão. Use somente quando o destinatário estiver autorizado.</span></label>
+              <button id="dossierGenerateButton" onclick="generateCompleteClassDossierPDF()" class="relative w-full mt-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-3 text-xs font-black text-white shadow-lg shadow-cyan-950/40 hover:from-cyan-400 hover:to-blue-500">GERAR DOSSIÊ COMPLETO DA TURMA</button>
+            </div>
+          </section>
           <div class="mt-4 pt-4 border-t border-slate-200">
             <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Ficha Individual</label>
             <div class="flex gap-2">
@@ -4930,6 +5356,407 @@
 
 
 
+
+    // ---------- DOSSIÊ ANALÍTICO COMPLETO DA TURMA - ADMIN ----------
+    let sigrDossierCancelRequested = false;
+
+    function ensureSigrDossierProgress() {
+      let modal = document.getElementById('sigrDossierProgress');
+      if (modal) return modal;
+      modal = document.createElement('div');
+      modal.id = 'sigrDossierProgress';
+      modal.className = 'fixed inset-0 z-[110] hidden items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 no-print';
+      modal.innerHTML = `<div class="w-full max-w-md overflow-hidden rounded-2xl border border-cyan-300/20 bg-slate-950 text-white shadow-2xl">
+        <div class="relative p-6">
+          <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl"></div>
+          <div class="relative">
+            <div class="text-[9px] font-black uppercase tracking-[.24em] text-cyan-300">Motor de relatórios SIGR</div>
+            <h3 class="mt-2 text-lg font-black">Construindo o dossiê da turma</h3>
+            <p id="sigrDossierProgressText" class="mt-2 min-h-9 text-xs leading-relaxed text-slate-400">Consolidando os registros...</p>
+            <div class="mt-5 h-1.5 overflow-hidden rounded-full bg-slate-800"><div id="sigrDossierProgressBar" class="h-full w-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-300 shadow-[0_0_18px_rgba(34,211,238,.5)] transition-[width] duration-300"></div></div>
+            <div class="mt-2 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-slate-500"><span id="sigrDossierProgressStage">Preparação</span><span id="sigrDossierProgressPercent">0%</span></div>
+            <button type="button" onclick="cancelSigrDossierGeneration()" class="mt-5 w-full rounded-xl border border-slate-700 py-2.5 text-[10px] font-black uppercase tracking-wider text-slate-300 hover:border-rose-400 hover:text-rose-300">Cancelar geração</button>
+          </div>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+      return modal;
+    }
+
+    function showSigrDossierProgress() {
+      const modal = ensureSigrDossierProgress();
+      sigrDossierCancelRequested = false;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      updateSigrDossierProgress(0, 'Preparação', 'Consolidando os registros da turma...');
+    }
+
+    function updateSigrDossierProgress(percent, stage, text) {
+      const value = Math.max(0, Math.min(100, Math.round(percent)));
+      const bar = document.getElementById('sigrDossierProgressBar');
+      const pct = document.getElementById('sigrDossierProgressPercent');
+      const stageEl = document.getElementById('sigrDossierProgressStage');
+      const textEl = document.getElementById('sigrDossierProgressText');
+      if (bar) bar.style.width = `${value}%`;
+      if (pct) pct.textContent = `${value}%`;
+      if (stageEl && stage) stageEl.textContent = stage;
+      if (textEl && text) textEl.textContent = text;
+    }
+
+    function hideSigrDossierProgress() {
+      const modal = document.getElementById('sigrDossierProgress');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function cancelSigrDossierGeneration() {
+      sigrDossierCancelRequested = true;
+      updateSigrDossierProgress(0, 'Cancelando', 'Interrompendo a geração com segurança...');
+    }
+
+    function sigrDossierDateAdd(dateStr, days) {
+      const d = new Date(`${dateStr}T12:00:00`);
+      d.setDate(d.getDate() + days);
+      return sigrLocalISODate(d);
+    }
+
+    function sigrDossierIdLabel(id) {
+      const raw = String(id == null ? '' : id).trim();
+      const numeric = Number(raw);
+      return Number.isFinite(numeric) ? String(numeric) : raw;
+    }
+
+    function sigrDossierBuildContext(includeMedical) {
+      const today = todayStr();
+      let start = config.courseStart || today;
+      let end = config.courseEnd && config.courseEnd < today ? config.courseEnd : today;
+      if (end < start) end = start;
+      const periodDays = Math.max(1, daysBetween(start, end) + 1);
+      const firstLength = Math.max(1, Math.ceil(periodDays / 3));
+      const secondLength = Math.max(1, Math.ceil((periodDays - firstLength) / 2));
+      const phase1End = sigrDossierDateAdd(start, firstLength - 1);
+      const phase2Start = sigrDossierDateAdd(phase1End, 1);
+      const phase2End = phase2Start > end ? end : sigrDossierDateAdd(phase2Start, secondLength - 1);
+      const phase3Start = sigrDossierDateAdd(phase2End, 1) > end ? end : sigrDossierDateAdd(phase2End, 1);
+      const phases = [
+        { name: 'Início', start, end: phase1End > end ? end : phase1End },
+        { name: 'Intermediário', start: phase2Start > end ? end : phase2Start, end: phase2End > end ? end : phase2End },
+        { name: 'Recente', start: phase3Start, end }
+      ];
+      const periodOccs = occurrences.filter(o => o.date >= start && o.date <= end);
+      const byRecruit = new Map();
+      periodOccs.forEach(o => {
+        const id = String(o.recruitId);
+        if (!byRecruit.has(id)) byRecruit.set(id, []);
+        byRecruit.get(id).push(o);
+      });
+      const rows = [...recruits].sort((a,b) => String(a.id).localeCompare(String(b.id), 'pt-BR', { numeric:true })).map(rec => {
+        const occs = [...(byRecruit.get(String(rec.id)) || [])].sort((a,b) => a.date.localeCompare(b.date) || Number(a.id || 0) - Number(b.id || 0));
+        const score = config.baseScore + occs.reduce((sum,o) => sum + Number(o.points || 0), 0);
+        return { rec, occs, score, status: statusFor(score) };
+      });
+      const avg = rows.length ? rows.reduce((sum,row) => sum + row.score, 0) / rows.length : config.baseScore;
+      const ranked = [...rows].sort((a,b) => b.score - a.score || String(a.rec.id).localeCompare(String(b.rec.id), 'pt-BR', { numeric:true }));
+      ranked.forEach((row,index) => { row.rank = index + 1; });
+      const rankById = new Map(ranked.map(row => [String(row.rec.id), row.rank]));
+      rows.forEach(row => { row.rank = rankById.get(String(row.rec.id)) || rows.length; });
+      const context = { start, end, periodDays, phases, periodOccs, rows, ranked, avg, includeMedical };
+      context.analyses = rows.map(row => sigrDossierAnalyzeRecruit(row, context));
+      context.analysisById = new Map(context.analyses.map(item => [String(item.rec.id), item]));
+      return context;
+    }
+
+    function sigrDossierAnalyzeRecruit(row, context) {
+      const { rec, occs, score, status, rank } = row;
+      ensureRecruitExtras(rec);
+      const neg = occs.filter(o => Number(o.points) < 0);
+      const pos = occs.filter(o => Number(o.points) > 0);
+      const sum = occs.reduce((total,o) => total + Number(o.points || 0), 0);
+      const phaseStats = context.phases.map(phase => {
+        const list = occs.filter(o => o.date >= phase.start && o.date <= phase.end);
+        return {
+          ...phase,
+          occs: list,
+          total: list.length,
+          neg: list.filter(o => Number(o.points) < 0).length,
+          pos: list.filter(o => Number(o.points) > 0).length,
+          sum: list.reduce((total,o) => total + Number(o.points || 0), 0)
+        };
+      });
+      const first = phaseStats[0], recent = phaseStats[2];
+      const tendencyScore = (recent.sum - first.sum) + ((first.neg - recent.neg) * 1.5) + (recent.pos - first.pos);
+      let trend = 'Estabilidade';
+      if (!occs.length) trend = 'Sem base suficiente';
+      else if (!first.total && !recent.total) trend = 'Sem tendência definida';
+      else if (tendencyScore >= 2) trend = 'Evolução';
+      else if (tendencyScore <= -2) trend = 'Regressão';
+      let startProfile = 'sem registros suficientes para classificar o início';
+      if (first.total) {
+        if (first.sum > 0) startProfile = 'positivo, com saldo favorável';
+        else if (first.sum < 0) startProfile = 'com pontos de atenção e saldo desfavorável';
+        else startProfile = 'equilibrado, sem variação líquida de pontos';
+      }
+      const categories = {};
+      neg.forEach(o => { const cat = classifyCategory(o.text); categories[cat] = (categories[cat] || 0) + 1; });
+      const topCategories = Object.entries(categories).sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0,4);
+      const byDescription = {};
+      neg.forEach(o => { const key = normDesc(o.text); if (key) byDescription[key] = (byDescription[key] || 0) + 1; });
+      const recurrences = Object.entries(byDescription).filter(([,count]) => count >= 2).sort((a,b) => b[1] - a[1]).slice(0,4);
+      const lastNegative = [...neg].sort((a,b) => b.date.localeCompare(a.date))[0] || null;
+      const daysWithoutNegative = lastNegative ? Math.max(0, daysBetween(lastNegative.date, context.end)) : null;
+      const observations = [...rec.observacoes].sort((a,b) => String(a.date || '').localeCompare(String(b.date || '')));
+      const consultations = (events || []).filter(ev => String(ev.recruitId || '') === String(rec.id) && ev.date >= context.start && ev.date <= context.end && (ev.type === 'Consulta Médica' || /consulta|medic|odont/i.test(`${ev.title || ''} ${ev.notes || ''}`))).sort((a,b) => a.date.localeCompare(b.date));
+      const leaves = (medicalLeaves || []).filter(item => String(item.recruitId) === String(rec.id)).sort((a,b) => String(a.inicio || '').localeCompare(String(b.inicio || '')));
+      const confidence = occs.length >= 8 ? 'Alta' : occs.length >= 3 ? 'Média' : 'Baixa';
+      const relative = score - context.avg;
+      const phasePhrase = phaseStats.map(p => `${p.name.toLowerCase()}: ${p.total} registro(s), saldo ${p.sum >= 0 ? '+' : ''}${p.sum}`).join('; ');
+      let opening;
+      if (!occs.length) {
+        opening = `No período analisado, o Recruta ${sigrDossierIdLabel(rec.id)} não possui ocorrências positivas ou negativas cadastradas. A ausência de registros não deve ser interpretada automaticamente como desempenho superior; ela indica que não existe amostragem disciplinar suficiente para uma conclusão individual robusta.`;
+      } else {
+        opening = `O Recruta ${sigrDossierIdLabel(rec.id)} iniciou o período com desempenho ${startProfile}. Ao longo do intervalo foram consolidados ${occs.length} registro(s), sendo ${neg.length} negativo(s) e ${pos.length} positivo(s), com impacto acumulado de ${sum >= 0 ? '+' : ''}${sum} ponto(s).`;
+      }
+      let evolution;
+      if (trend === 'Evolução') evolution = `A comparação entre as fases indica evolução: o saldo passou de ${first.sum >= 0 ? '+' : ''}${first.sum} no início para ${recent.sum >= 0 ? '+' : ''}${recent.sum} na fase recente, acompanhada de variação das ocorrências negativas de ${first.neg} para ${recent.neg}.`;
+      else if (trend === 'Regressão') evolution = `A trajetória indica regressão no recorte disponível: o saldo variou de ${first.sum >= 0 ? '+' : ''}${first.sum} no início para ${recent.sum >= 0 ? '+' : ''}${recent.sum} na fase recente, enquanto os registros negativos passaram de ${first.neg} para ${recent.neg}.`;
+      else if (trend === 'Estabilidade') evolution = `A trajetória apresenta estabilidade relativa entre o início e a fase recente. O detalhamento por fase foi: ${phasePhrase}.`;
+      else evolution = `A distribuição temporal ainda não permite afirmar melhora ou piora com segurança. O detalhamento disponível é: ${phasePhrase}.`;
+      let current;
+      if (!occs.length) current = `A pontuação permanece em ${score}, condição ${status}, ocupando provisoriamente a posição ${rank} de ${context.rows.length}. A confiança desta leitura é baixa e depende da continuidade dos registros objetivos.`;
+      else current = `No corte atual, sua pontuação é ${score}, classificada como ${status}, na posição ${rank} de ${context.rows.length}. Em relação à média da turma (${context.avg.toFixed(1)}), encontra-se ${Math.abs(relative).toFixed(1)} ponto(s) ${relative >= 0 ? 'acima' : 'abaixo'}. ${topCategories.length ? `A principal categoria negativa observada foi ${topCategories[0][0]}, com ${topCategories[0][1]} registro(s).` : 'Não foram identificadas categorias negativas predominantes.'}`;
+      let assessment;
+      if (['Crítica','Insatisfatória'].includes(status)) assessment = 'O conjunto de indicadores recomenda acompanhamento prioritário, revisão das reincidências e observação documentada da resposta às orientações.';
+      else if (status === 'Regular') assessment = 'O quadro recomenda acompanhamento preventivo para evitar agravamento e confirmar se a tendência recente se sustenta.';
+      else if (trend === 'Evolução') assessment = 'A evolução identificada deve ser acompanhada e reforçada, preservando registros objetivos que confirmem a continuidade da melhora.';
+      else if (status === 'Destaque' || status === 'Ótima') assessment = 'O desempenho registrado é favorável e pode ser reconhecido quando confirmado pelo instrutor e pelo contexto operacional.';
+      else if (!occs.length) assessment = 'Recomenda-se manter observação sistemática, pois a base atual não permite diferenciar ausência de ocorrência de ausência de acompanhamento.';
+      else assessment = 'A situação permanece controlada, devendo-se manter a rotina de acompanhamento e a qualidade dos lançamentos.';
+      return { rec, occs, neg, pos, sum, score, status, rank, relative, phaseStats, trend, startProfile, topCategories, recurrences, lastNegative, daysWithoutNegative, observations, consultations, leaves, confidence, opening, evolution, current, assessment };
+    }
+
+    function sigrDossierBuildClassNarrative(context) {
+      const neg = context.periodOccs.filter(o => Number(o.points) < 0);
+      const pos = context.periodOccs.filter(o => Number(o.points) > 0);
+      const sum = context.periodOccs.reduce((total,o) => total + Number(o.points || 0), 0);
+      const withData = context.analyses.filter(item => item.occs.length).length;
+      const improving = context.analyses.filter(item => item.trend === 'Evolução').length;
+      const worsening = context.analyses.filter(item => item.trend === 'Regressão').length;
+      const attention = context.analyses.filter(item => ['Crítica','Insatisfatória','Regular'].includes(item.status)).length;
+      const categoryCounts = {};
+      neg.forEach(o => { const cat = classifyCategory(o.text); categoryCounts[cat] = (categoryCounts[cat] || 0) + 1; });
+      const topCats = Object.entries(categoryCounts).sort((a,b) => b[1] - a[1]).slice(0,5);
+      const coverage = context.rows.length ? (withData / context.rows.length) * 100 : 0;
+      let text = `Entre ${sigrFmtDate(context.start)} e ${sigrFmtDate(context.end)}, o SIGR consolidou ${context.periodOccs.length} ocorrência(s) referentes a ${withData} dos ${context.rows.length} recrutas da turma, correspondendo a ${coverage.toFixed(1)}% de cobertura individual por ocorrências. Foram ${neg.length} registros negativos e ${pos.length} positivos, com saldo coletivo de ${sum >= 0 ? '+' : ''}${sum} ponto(s). A média da turma no corte é ${context.avg.toFixed(1)}.`;
+      text += ` A análise comparativa das três fases identificou ${improving} recruta(s) em evolução, ${worsening} em regressão e ${context.rows.length - improving - worsening} sem tendência conclusiva ou em estabilidade. Atualmente, ${attention} recruta(s) estão nas condições Regular, Insatisfatória ou Crítica.`;
+      if (topCats.length) text += ` Entre as ocorrências negativas, as categorias predominantes são ${topCats.map(([cat,count]) => `${cat} (${count})`).join(', ')}.`;
+      if (coverage < 40) text += ' A cobertura ainda é limitada; conclusões gerais e individuais devem ser complementadas por observação direta e atualização contínua dos registros.';
+      else text += ' O documento deve ser interpretado como apoio técnico à decisão, sempre associado ao julgamento do instrutor e ao contexto de cada lançamento.';
+      return { text, neg, pos, sum, withData, improving, worsening, attention, topCats, coverage };
+    }
+
+    function sigrDossierYield() {
+      return new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    async function generateCompleteClassDossierPDF() {
+      if (getEffectiveSigrRole() !== 'admin') {
+        showToast('O Dossiê Completo da Turma é exclusivo do administrador');
+        return;
+      }
+      const JsPDF = window.jspdf && window.jspdf.jsPDF;
+      if (!JsPDF) { showToast('Biblioteca jsPDF não carregada'); return; }
+      const includeMedical = !!document.getElementById('dossierIncludeMedical')?.checked;
+      closeReportModal();
+      showSigrDossierProgress();
+      const button = document.getElementById('dossierGenerateButton');
+      if (button) button.disabled = true;
+      try {
+        updateSigrDossierProgress(3, 'Consolidação', 'Lendo ocorrências, observações, avaliações e evolução temporal...');
+        await sigrDossierYield();
+        const context = sigrDossierBuildContext(includeMedical);
+        const classSummary = sigrDossierBuildClassNarrative(context);
+        if (sigrDossierCancelRequested) throw new Error('SIGR_DOSSIER_CANCELLED');
+        const pdf = new JsPDF({ unit:'mm', format:'a4', orientation:'portrait', compress:true, putOnlyUsedFonts:true });
+        const PW=210, PH=297, ML=14, MR=14, MT=14, MB=16, W=PW-ML-MR;
+        const NAVY=[2,6,23], BLUE=[30,58,138], CYAN=[8,145,178], CYAN2=[34,211,238], DARK=[15,23,42], MID=[71,85,105], MUTED=[100,116,139], GRID=[203,213,225], LIGHT=[248,250,252], GREEN=[5,150,105], RED=[225,29,72], AMBER=[217,119,6], WHITE=[255,255,255];
+        let y=MT, chapter='VISÃO EXECUTIVA';
+        const pageTargets = [];
+        const tocPages = [];
+        const reportTitle = 'DOSSIÊ ANALÍTICO COMPLETO DA TURMA';
+        const operatorName = sigrActiveOperator && typeof operatorFullName === 'function' ? operatorFullName(sigrActiveOperator) : 'Administrador SIGR';
+        const setText=(size=9,style='normal',color=DARK)=>{pdf.setFont('helvetica',style);pdf.setFontSize(size);pdf.setTextColor(...color)};
+        const line=(x1,y1,x2,y2,color=GRID,width=.25)=>{pdf.setDrawColor(...color);pdf.setLineWidth(width);pdf.line(x1,y1,x2,y2)};
+        const statusColor=status=>({Destaque:CYAN,'Ótima':GREEN,Boa:[37,99,235],Regular:AMBER,'Insatisfatória':[234,88,12],'Crítica':RED}[status]||MID);
+        function standardHeader() {
+          y=MT;
+          setText(8.4,'bold',BLUE);pdf.text('SIGR',ML,y);
+          setText(5.9,'normal',MUTED);pdf.text('SISTEMA INTEGRADO DE GESTÃO DE RECRUTAS',ML+14,y);
+          setText(6.2,'bold',CYAN);pdf.text(chapter,PW-MR,y,{align:'right'});
+          line(ML,y+4,PW-MR,y+4,BLUE,.55);y+=11;
+        }
+        function addPage(nextChapter=chapter) { chapter=nextChapter;pdf.addPage();standardHeader(); }
+        function ensure(height,nextChapter=chapter) { if(y+height>PH-MB)addPage(nextChapter); }
+        function section(title,color=BLUE) { ensure(11);setText(10.2,'bold',color);pdf.text(title,ML,y);y+=2.2;line(ML,y,PW-MR,y,color,.4);y+=5.5; }
+        function paragraph(text,options={}) {
+          const size=options.size||8.4, color=options.color||DARK, width=options.width||W, x=options.x||ML, lineHeight=options.lineHeight||4;
+          setText(size,options.bold?'bold':'normal',color);
+          const lines=pdf.splitTextToSize(String(text||''),width);
+          let index=0;
+          while(index<lines.length){
+            const capacity=Math.max(1,Math.floor((PH-MB-y)/lineHeight));
+            if(capacity<1){addPage();continue}
+            const part=lines.slice(index,index+capacity);pdf.text(part,x,y,{maxWidth:width});y+=part.length*lineHeight+2;index+=part.length;
+            if(index<lines.length)addPage();
+          }
+        }
+        function metricRow(items) {
+          const gap=3, cw=(W-gap*(items.length-1))/items.length, h=22;ensure(h+5);
+          items.forEach((item,index)=>{const x=ML+index*(cw+gap);pdf.setFillColor(...(item.fill||LIGHT));pdf.setDrawColor(...(item.border||GRID));pdf.roundedRect(x,y,cw,h,2,2,'FD');setText(5.8,'bold',item.labelColor||MUTED);pdf.text(String(item.label).toUpperCase(),x+3,y+5);setText(item.valueSize||15,'bold',item.valueColor||DARK);pdf.text(String(item.value),x+3,y+13);setText(6.2,'normal',item.subColor||MUTED);const sub=pdf.splitTextToSize(String(item.sub||''),cw-6).slice(0,1);if(sub.length)pdf.text(sub,x+3,y+18.5)});y+=h+5;
+        }
+        function drawBarChart(title,entries,color=CYAN,maxEntries=7) {
+          const list=entries.slice(0,maxEntries);const h=12+Math.max(1,list.length)*8;ensure(h+5);setText(8.4,'bold',DARK);pdf.text(title,ML,y);y+=6;
+          if(!list.length){setText(7.4,'normal',MUTED);pdf.text('Sem dados suficientes.',ML,y);y+=8;return}
+          const max=Math.max(1,...list.map(item=>Number(item[1])||0));
+          list.forEach(([label,value])=>{setText(6.7,'normal',MID);const safe=pdf.splitTextToSize(String(label),46)[0]||'';pdf.text(safe,ML,y+3);const bx=ML+50,bw=W-64;pdf.setFillColor(226,232,240);pdf.roundedRect(bx,y,bw,4,2,2,'F');pdf.setFillColor(...color);pdf.roundedRect(bx,y,Math.max(1,bw*(Number(value||0)/max)),4,2,2,'F');setText(6.8,'bold',DARK);pdf.text(String(value),PW-MR,y+3,{align:'right'});y+=8});y+=3;
+        }
+        function drawPhaseTimeline(analysis) {
+          ensure(34);const gap=3,cw=(W-gap*2)/3,h=27;
+          analysis.phaseStats.forEach((phase,index)=>{const x=ML+index*(cw+gap);const valueColor=phase.sum<0?RED:phase.sum>0?GREEN:MID;pdf.setFillColor(...LIGHT);pdf.setDrawColor(...GRID);pdf.roundedRect(x,y,cw,h,2,2,'FD');setText(6.2,'bold',CYAN);pdf.text(`${index+1}. ${phase.name.toUpperCase()}`,x+3,y+5);setText(5.8,'normal',MUTED);pdf.text(`${sigrFmtDate(phase.start)} - ${sigrFmtDate(phase.end)}`,x+3,y+9.5);setText(14,'bold',valueColor);pdf.text(`${phase.sum>=0?'+':''}${phase.sum}`,x+3,y+17);setText(6.2,'normal',MID);pdf.text(`${phase.total} reg. | ${phase.neg} neg. | ${phase.pos} pos.`,x+3,y+23)});y+=h+6;
+        }
+        function drawTable(headers,rows,widths,options={}) {
+          const headHeight=7;
+          function head(){ensure(headHeight+7);pdf.setFillColor(...(options.headerColor||BLUE));pdf.rect(ML,y,W,headHeight,'F');let x=ML;setText(6.5,'bold',WHITE);headers.forEach((header,index)=>{pdf.text(String(header),x+2,y+4.7);x+=widths[index]});y+=headHeight}
+          head();
+          if(!rows.length){paragraph(options.empty||'Nenhum registro disponível.',{size:7.4,color:MUTED});return}
+          rows.forEach(row=>{
+            setText(6.5,'normal',DARK);const wrapped=row.map((cell,index)=>pdf.splitTextToSize(String(cell==null?'':cell),widths[index]-4));const rh=Math.max(7,...wrapped.map(lines=>lines.length*3.1+3));
+            if(y+rh>PH-MB){addPage(options.continuationTitle||chapter);head()}
+            pdf.setDrawColor(...GRID);pdf.rect(ML,y,W,rh);let x=ML;for(let index=0;index<widths.length-1;index++){x+=widths[index];line(x,y,x,y+rh,GRID,.2)}
+            x=ML;wrapped.forEach((lines,index)=>{setText(6.3,index===wrapped.length-1&&options.lastBold?'bold':'normal',options.colorForCell?options.colorForCell(row,index):DARK);pdf.text(lines,x+2,y+4.2);x+=widths[index]});y+=rh;
+          });y+=4;
+        }
+        function cover() {
+          pdf.setFillColor(...NAVY);pdf.rect(0,0,PW,PH,'F');
+          pdf.setDrawColor(14,116,144);pdf.setLineWidth(.25);for(let r=22;r<=92;r+=14)pdf.circle(174,48,r,'S');
+          pdf.setDrawColor(...CYAN2);pdf.setLineWidth(1.2);pdf.line(16,22,70,22);pdf.line(16,25,42,25);
+          setText(7.2,'bold',CYAN2);pdf.text('DOCUMENTO ANALÍTICO DE USO INTERNO',16,35);
+          setText(42,'bold',WHITE);pdf.text('SIGR',16,77);
+          setText(8,'normal',[148,163,184]);pdf.text('SISTEMA INTEGRADO DE GESTÃO DE RECRUTAS',17,87);
+          pdf.setFillColor(8,47,73);pdf.roundedRect(16,105,178,68,4,4,'F');pdf.setDrawColor(14,116,144);pdf.roundedRect(16,105,178,68,4,4,'S');
+          setText(7,'bold',CYAN2);pdf.text('CFSd 2ª/2026',25,120);
+          setText(21,'bold',WHITE);const titleLines=pdf.splitTextToSize(reportTitle,148);pdf.text(titleLines,25,135);setText(8,'normal',[186,230,253]);pdf.text('Visão executiva da turma e análise individual de todos os recrutas',25,161);
+          setText(6.4,'bold',[148,163,184]);pdf.text('PERÍODO ANALISADO',16,205);setText(10,'bold',WHITE);pdf.text(`${sigrFmtDate(context.start)} a ${sigrFmtDate(context.end)}`,16,213);
+          setText(6.4,'bold',[148,163,184]);pdf.text('EMISSÃO',16,229);setText(8.5,'normal',WHITE);pdf.text(new Date().toLocaleString('pt-BR'),16,237);
+          setText(6.4,'bold',[148,163,184]);pdf.text('RESPONSÁVEL',110,229);setText(8.5,'normal',WHITE);pdf.text(pdf.splitTextToSize(operatorName,84),110,237);
+          pdf.setFillColor(127,29,29);pdf.roundedRect(16,263,51,9,2,2,'F');setText(6.8,'bold',WHITE);pdf.text('USO INTERNO',41.5,269,{align:'center'});
+          setText(6.4,'normal',[100,116,139]);pdf.text('Gerado exclusivamente a partir dos registros cadastrados no SIGR.',16,282);
+        }
+
+        updateSigrDossierProgress(8,'Composição','Criando capa e visão executiva da turma...');
+        cover();
+        addPage('VISÃO EXECUTIVA');
+        setText(18,'bold',DARK);pdf.text('VISÃO EXECUTIVA DA TURMA',ML,y);y+=7;setText(7.2,'normal',MUTED);pdf.text(`Corte analítico: ${sigrFmtDate(context.start)} a ${sigrFmtDate(context.end)} | ${context.periodDays} dia(s)`,ML,y);y+=8;
+        metricRow([
+          {label:'Efetivo',value:context.rows.length,sub:'recrutas'},
+          {label:'Média',value:context.avg.toFixed(1),sub:'pontuação'},
+          {label:'Registros',value:context.periodOccs.length,sub:'no período'},
+          {label:'Cobertura',value:`${classSummary.coverage.toFixed(0)}%`,sub:'com ocorrências'}
+        ]);
+        section('SÍNTESE ANALÍTICA',CYAN);paragraph(classSummary.text,{size:8.5,lineHeight:4.1});
+        metricRow([
+          {label:'Negativas',value:classSummary.neg.length,sub:'registros',valueColor:RED},
+          {label:'Positivas',value:classSummary.pos.length,sub:'registros',valueColor:GREEN},
+          {label:'Em evolução',value:classSummary.improving,sub:'recrutas',valueColor:GREEN},
+          {label:'Em regressão',value:classSummary.worsening,sub:'recrutas',valueColor:RED},
+          {label:'Atenção',value:classSummary.attention,sub:'regular ou abaixo',valueColor:AMBER}
+        ]);
+        const statusCounts={};context.analyses.forEach(item=>{statusCounts[item.status]=(statusCounts[item.status]||0)+1});
+        drawBarChart('DISTRIBUIÇÃO POR CONDIÇÃO',Object.entries(statusCounts).sort((a,b)=>b[1]-a[1]),BLUE,6);
+        drawBarChart('CATEGORIAS NEGATIVAS MAIS RECORRENTES',classSummary.topCats,RED,6);
+
+        addPage('DESTAQUES E PELOTÕES');
+        setText(16,'bold',DARK);pdf.text('DESTAQUES, ATENÇÃO E PELOTÕES',ML,y);y+=10;
+        const best=context.ranked.slice(0,10).map(row=>[`Recruta ${sigrDossierIdLabel(row.rec.id)}`,row.rec.warName||row.rec.name,row.score,row.status]);
+        const worst=[...context.ranked].reverse().slice(0,10).map(row=>[`Recruta ${sigrDossierIdLabel(row.rec.id)}`,row.rec.warName||row.rec.name,row.score,row.status]);
+        section('10 MAIORES PONTUAÇÕES',GREEN);drawTable(['Identificação','Nome de guerra','Pontos','Condição'],best,[37,78,27,40],{headerColor:GREEN,lastBold:true,continuationTitle:'DESTAQUES - CONTINUAÇÃO'});
+        section('10 MENORES PONTUAÇÕES',RED);drawTable(['Identificação','Nome de guerra','Pontos','Condição'],worst,[37,78,27,40],{headerColor:RED,lastBold:true,continuationTitle:'PONTOS DE ATENÇÃO - CONTINUAÇÃO'});
+        const platoons={};context.analyses.forEach(item=>{const key=`${item.rec.platoon||'N/I'} Pelotão`;if(!platoons[key])platoons[key]={sum:0,count:0,records:0};platoons[key].sum+=item.score;platoons[key].count++;platoons[key].records+=item.occs.length});
+        const platoonRows=Object.entries(platoons).map(([name,data])=>[name,data.count,(data.sum/data.count).toFixed(1),data.records]).sort((a,b)=>Number(b[2])-Number(a[2]));
+        section('COMPARAÇÃO ENTRE PELOTÕES',CYAN);drawTable(['Pelotão','Efetivo','Média','Registros'],platoonRows,[64,35,40,43],{headerColor:CYAN});
+
+        const tocCount=Math.max(1,Math.ceil(context.rows.length/34));
+        for(let tocIndex=0;tocIndex<tocCount;tocIndex++){
+          addPage('ÍNDICE PESQUISÁVEL');tocPages.push(pdf.getNumberOfPages());setText(16,'bold',DARK);pdf.text(tocIndex===0?'ÍNDICE DOS RECRUTAS':'ÍNDICE DOS RECRUTAS - CONTINUAÇÃO',ML,y);y+=7;setText(7.2,'normal',MUTED);pdf.text('Clique em um recruta para abrir a análise individual. Use Ctrl + F para pesquisar por número ou nome.',ML,y);y+=10;
+        }
+
+        updateSigrDossierProgress(15,'Análises individuais',`Iniciando a consolidação de ${context.rows.length} recrutas...`);
+        for(let index=0;index<context.rows.length;index++){
+          if(sigrDossierCancelRequested)throw new Error('SIGR_DOSSIER_CANCELLED');
+          const row=context.rows[index], analysis=context.analysisById.get(String(row.rec.id));
+          chapter=`RECRUTA ${sigrDossierIdLabel(row.rec.id)}`;addPage(chapter);const startPage=pdf.getNumberOfPages();pageTargets.push({rec:row.rec,page:startPage,status:analysis.status,score:analysis.score,trend:analysis.trend});
+          setText(6.5,'bold',CYAN);pdf.text('ANÁLISE INDIVIDUAL',ML,y);y+=5;
+          setText(19,'bold',DARK);pdf.text(`RECRUTA ${sigrDossierIdLabel(row.rec.id)}`,ML,y);
+          const sc=statusColor(analysis.status);pdf.setFillColor(...sc);pdf.roundedRect(PW-MR-42,y-6.5,42,8,4,4,'F');setText(6.5,'bold',WHITE);pdf.text(analysis.status.toUpperCase(),PW-MR-21,y-1.2,{align:'center'});y+=7;
+          setText(9.2,'bold',MID);const identity=pdf.splitTextToSize(`${String(row.rec.name||'SEM NOME').toUpperCase()} | ${row.rec.warName||'SEM NOME DE GUERRA'}`,W);pdf.text(identity,ML,y);y+=identity.length*4.3+2;
+          setText(6.8,'normal',MUTED);pdf.text(`${row.rec.platoon||'N/I'} Pelotão | ${row.rec.squad||'Esquadrão N/I'} | Nº ${String(row.rec.id).padStart(3,'0')} | Período: ${sigrFmtDate(context.start)} a ${sigrFmtDate(context.end)}`,ML,y);y+=7;
+          metricRow([
+            {label:'Pontuação',value:analysis.score,sub:analysis.status,valueColor:sc},
+            {label:'Ranking',value:`${analysis.rank}º`,sub:`de ${context.rows.length}`},
+            {label:'Registros',value:analysis.occs.length,sub:`${analysis.neg.length} neg. | ${analysis.pos.length} pos.`},
+            {label:'Tendência',value:analysis.trend,valueSize:10,sub:`confiança ${analysis.confidence.toLowerCase()}`,valueColor:analysis.trend==='Evolução'?GREEN:analysis.trend==='Regressão'?RED:MID}
+          ]);
+          section('EVOLUÇÃO EM TRÊS FASES',CYAN);drawPhaseTimeline(analysis);
+          section('PARECER ANALÍTICO INDIVIDUAL',BLUE);paragraph(analysis.opening,{size:8.4});paragraph(analysis.evolution,{size:8.4});paragraph(analysis.current,{size:8.4});
+          pdf.setFillColor(239,246,255);pdf.setDrawColor(147,197,253);const adviceLines=pdf.splitTextToSize(analysis.assessment,W-10);const adviceH=adviceLines.length*4+10;ensure(adviceH);pdf.roundedRect(ML,y,W,adviceH,2,2,'FD');setText(6.5,'bold',BLUE);pdf.text('ORIENTAÇÃO DE ACOMPANHAMENTO',ML+5,y+5);setText(8,'normal',DARK);pdf.text(adviceLines,ML+5,y+10);y+=adviceH+6;
+          if(analysis.topCategories.length){section('PADRÕES E REINCIDÊNCIAS',RED);paragraph(`Categorias predominantes: ${analysis.topCategories.map(([cat,count])=>`${cat} (${count})`).join(', ')}. ${analysis.recurrences.length?`Descrições reincidentes: ${analysis.recurrences.map(([desc,count])=>`"${desc}" (${count}x)`).join('; ')}.`:'Não foram identificadas descrições negativas idênticas reincidentes.'}`,{size:8});}
+          section('DADOS EXPANDIDOS DO PERFIL',CYAN);
+          const expanded=[];
+          if(row.rec.provas.length){const average=row.rec.provas.reduce((sum,item)=>sum+Number(item.nota||0),0)/row.rec.provas.length;expanded.push(['Provas',`${row.rec.provas.length} registro(s) | média ${average.toFixed(2)}`]);}else expanded.push(['Provas','Nenhum registro']);
+          expanded.push(['TAF',`${row.rec.taf.length} registro(s)`]);expanded.push(['Instruções',`${row.rec.instrucoes.length} registro(s)`]);expanded.push(['Observações',`${analysis.observations.length} registro(s)`]);expanded.push(['Consultas',`${analysis.consultations.length} registro(s)`]);expanded.push(['Baixas médicas',`${analysis.leaves.length} registro(s)`]);
+          drawTable(['Dimensão','Resumo'],expanded,[48,134],{headerColor:CYAN});
+          if(analysis.observations.length){section('OBSERVAÇÕES DO INSTRUTOR',AMBER);const obsRows=analysis.observations.map(item=>[sigrFmtDate(item.date),item.autor||'INSTRUTOR',item.texto||'']);drawTable(['Data','Autor','Observação'],obsRows,[27,38,117],{headerColor:AMBER,continuationTitle:`RECRUTA ${sigrDossierIdLabel(row.rec.id)} - OBSERVAÇÕES`});}
+          if(row.rec.provas.length){section('PROVAS E AVALIAÇÕES',GREEN);drawTable(['Data','Avaliação','Nota','Observação'],row.rec.provas.map(item=>[sigrFmtDate(item.date),item.nome||'',Number(item.nota||0).toFixed(2),item.obs||'']),[27,67,23,65],{headerColor:GREEN});}
+          if(row.rec.taf.length){section('TESTE DE APTIDÃO FÍSICA',GREEN);drawTable(['Data','Tipo','Resultado','Conceito'],row.rec.taf.map(item=>[sigrFmtDate(item.date),item.tipo||'',`${item.resultado||''}${item.obs?` - ${item.obs}`:''}`,item.conceito||'']),[27,48,76,31],{headerColor:GREEN});}
+          if(analysis.consultations.length||analysis.leaves.length){section('ACOMPANHAMENTO MÉDICO',AMBER);if(context.includeMedical){const medicalRows=[...analysis.consultations.map(item=>[sigrFmtDate(item.date),item.type||'Consulta',`${item.title||''}${item.notes?` - ${item.notes}`:''}`]),...analysis.leaves.map(item=>[`${sigrFmtDate(item.inicio)} a ${sigrFmtDate(item.fim)}`,'Baixa médica',`${item.motivo||''}${item.obs?` - ${item.obs}`:''}`])];drawTable(['Data / período','Tipo','Detalhamento'],medicalRows,[45,38,99],{headerColor:AMBER});}else paragraph(`Existem ${analysis.consultations.length} consulta(s) e ${analysis.leaves.length} baixa(s) vinculadas ao perfil. Os detalhes foram omitidos porque a opção de dados médicos sensíveis não foi ativada.`,{size:8,color:MID});}
+          section('HISTÓRICO COMPLETO DE OCORRÊNCIAS',BLUE);
+          const occRows=analysis.occs.map(item=>[sigrFmtDate(item.date),item.type||'',item.gravidade||'',item.text||'',`${Number(item.points)>0?'+':''}${Number(item.points||0)}`]);
+          drawTable(['Data','Tipo','Gravidade','Descrição','Pts'],occRows,[25,27,29,83,18],{headerColor:BLUE,empty:'Nenhuma ocorrência cadastrada no período analisado.',continuationTitle:`RECRUTA ${sigrDossierIdLabel(row.rec.id)} - HISTÓRICO`,lastBold:true,colorForCell:(record,cellIndex)=>cellIndex===4?(Number(record[4])<0?RED:Number(record[4])>0?GREEN:MID):DARK});
+          ensure(20);setText(6.4,'normal',MUTED);pdf.text(`Confiança da análise: ${analysis.confidence}. Parecer fundamentado exclusivamente nos dados cadastrados no SIGR.`,ML,y);y+=5;pdf.text('Não constitui sanção automática e não substitui o julgamento do instrutor.',ML,y);y+=6;
+          const progress=15+((index+1)/context.rows.length)*78;updateSigrDossierProgress(progress,'Análises individuais',`Analisando Recruta ${sigrDossierIdLabel(row.rec.id)} - ${index+1} de ${context.rows.length}`);
+          if(index%2===0)await sigrDossierYield();
+        }
+
+        updateSigrDossierProgress(94,'Índice navegável','Organizando índice, destinos e pesquisa textual...');
+        const perTocPage=34;
+        for(let pageIndex=0;pageIndex<tocPages.length;pageIndex++){
+          pdf.setPage(tocPages[pageIndex]);let ty=42;const slice=pageTargets.slice(pageIndex*perTocPage,(pageIndex+1)*perTocPage);
+          slice.forEach((target,rowIndex)=>{const alt=rowIndex%2===0;if(alt){pdf.setFillColor(248,250,252);pdf.rect(ML,ty-4,W,7,'F')}setText(7.4,'bold',DARK);pdf.text(`Recruta ${sigrDossierIdLabel(target.rec.id)}`,ML+2,ty);setText(7,'normal',MID);pdf.text(String(target.rec.warName||target.rec.name||''),ML+35,ty);setText(6.7,'bold',statusColor(target.status));pdf.text(`${target.status} | ${target.score} pts | ${target.trend}`,PW-MR-20,ty,{align:'right'});setText(6.8,'bold',CYAN);pdf.text(String(target.page),PW-MR,ty,{align:'right'});if(typeof pdf.link==='function')pdf.link(ML,ty-5,W,7,{pageNumber:target.page});ty+=7.2});
+        }
+        try { if(pdf.outline&&typeof pdf.outline.add==='function'){const root=pdf.outline.add(null,'Recrutas',{pageNumber:pageTargets[0]?.page||1});pageTargets.forEach(target=>pdf.outline.add(root,`Recruta ${sigrDossierIdLabel(target.rec.id)} - ${target.rec.warName||target.rec.name}`,{pageNumber:target.page}));} } catch(_) {}
+        const totalPages=pdf.getNumberOfPages();
+        for(let page=2;page<=totalPages;page++){
+          pdf.setPage(page);line(ML,PH-11,PW-MR,PH-11,[226,232,240],.25);setText(5.8,'normal',MUTED);pdf.text('SIGR - Dossiê Analítico Completo da Turma - USO INTERNO',ML,PH-6);pdf.text(`Página ${page} de ${totalPages}`,PW-MR,PH-6,{align:'right'});
+        }
+        if(typeof pdf.setProperties==='function')pdf.setProperties({title:reportTitle,subject:`Turma CFSd 2ª/2026 - ${context.rows.length} recrutas`,author:'SIGR - Sistema Integrado de Gestão de Recrutas',creator:'SIGR',keywords:'SIGR, turma, recrutas, evolução, relatório, dossiê'});
+        if(sigrDossierCancelRequested)throw new Error('SIGR_DOSSIER_CANCELLED');
+        updateSigrDossierProgress(98,'Finalização',`Validando ${totalPages} páginas e preparando o download...`);await sigrDossierYield();
+        const blob=pdf.output('blob');if(!blob||blob.size<5000)throw new Error('O PDF gerado não passou na validação de integridade');
+        const filename=`SIGR_Dossie_Completo_Turma_${sigrLocalISODate(new Date())}.pdf`;
+        pdf.save(filename);
+        recordOperatorActivity('PDF_CLASS_DOSSIER_GENERATED','report','class_dossier',{pages:totalPages,recruits:context.rows.length,includeMedical});
+        updateSigrDossierProgress(100,'Concluído',`Dossiê concluído: ${context.rows.length} recrutas analisados em ${totalPages} páginas.`);
+        setTimeout(()=>{hideSigrDossierProgress();showToast(`Dossiê completo gerado com sucesso (${totalPages} páginas)`);},1300);
+      } catch(error) {
+        console.error('SIGR Dossiê:',error);
+        hideSigrDossierProgress();
+        if(error?.message==='SIGR_DOSSIER_CANCELLED')showToast('Geração do dossiê cancelada');
+        else showToast(`Falha ao gerar o dossiê: ${error?.message||'erro inesperado'}`);
+      } finally {
+        if(button)button.disabled=false;
+        sigrDossierCancelRequested=false;
+      }
+    }
 
     // ---------- SIGR IA 2.0 — MOTOR HÍBRIDO LOCAL + ONLINE + AÇÕES ----------
     // Arquitetura: Interpretador de intenção → Busca → Estatística → Padrões →
@@ -6295,6 +7122,7 @@
 
     function handleAddProva(e) {
       e.preventDefault();
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const rec = getRecruitById(currentSelectedId);
       if (!rec) return;
       ensureRecruitExtras(rec);
@@ -6305,8 +7133,10 @@
       document.getElementById('provaObs').value = '';
       renderProfileExtras(rec.id);
       showToast('Prova registrada');
+      recordOperatorActivity('EXAM_CREATED','recruit',rec.id);
     }
     function deleteProva(idx) {
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const rec = getRecruitById(currentSelectedId);
       if (!rec || !confirm('Remover esta prova?')) return;
       const sorted = [...rec.provas].sort((a,b)=>b.date.localeCompare(a.date));
@@ -6316,6 +7146,7 @@
     }
     function handleAddTaf(e) {
       e.preventDefault();
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const rec = getRecruitById(currentSelectedId);
       if (!rec) return;
       ensureRecruitExtras(rec);
@@ -6324,8 +7155,10 @@
       document.getElementById('tafResultado').value = '';
       document.getElementById('tafObs').value = '';
       renderProfileExtras(rec.id); showToast('TAF registrado');
+      recordOperatorActivity('TAF_CREATED','recruit',rec.id);
     }
     function deleteTaf(idx) {
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const rec = getRecruitById(currentSelectedId);
       if (!rec || !confirm('Remover este TAF?')) return;
       const sorted = [...rec.taf].sort((a,b)=>b.date.localeCompare(a.date));
@@ -6335,6 +7168,7 @@
     }
     function handleAddInstrucao(e) {
       e.preventDefault();
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const rec = getRecruitById(currentSelectedId);
       if (!rec) return;
       ensureRecruitExtras(rec);
@@ -6343,8 +7177,10 @@
       document.getElementById('instTitulo').value = '';
       document.getElementById('instConteudo').value = '';
       renderProfileExtras(rec.id); showToast('Instrução registrada');
+      recordOperatorActivity('INSTRUCTION_CREATED','recruit',rec.id);
     }
     function deleteInstrucao(idx) {
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const rec = getRecruitById(currentSelectedId);
       if (!rec || !confirm('Remover esta instrução?')) return;
       const sorted = [...rec.instrucoes].sort((a,b)=>b.date.localeCompare(a.date));
@@ -6354,15 +7190,18 @@
     }
     function handleAddObservacao(e) {
       e.preventDefault();
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const rec = getRecruitById(currentSelectedId);
       if (!rec) return;
       ensureRecruitExtras(rec);
-      rec.observacoes.push({ id: 'ob' + Date.now(), date: document.getElementById('obsDate').value, autor: document.getElementById('obsAutor').value.trim() || 'INSTRUTOR', texto: document.getElementById('obsTexto').value.trim() });
+      rec.observacoes.push({ id: 'ob' + Date.now(), date: document.getElementById('obsDate').value, autor: document.getElementById('obsAutor').value.trim() || operatorFullName(sigrActiveOperator) || 'INSTRUTOR', texto: document.getElementById('obsTexto').value.trim(), operatorId:sigrActiveOperator?.id || null, createdAt:new Date().toISOString() });
       saveData();
       document.getElementById('obsTexto').value = '';
       renderProfileExtras(rec.id); showToast('Observação salva');
+      recordOperatorActivity('OBSERVATION_CREATED','recruit',rec.id);
     }
     function deleteObservacao(idx) {
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const rec = getRecruitById(currentSelectedId);
       if (!rec || !confirm('Remover esta observação?')) return;
       const sorted = [...rec.observacoes].sort((a,b)=>b.date.localeCompare(a.date));
@@ -6455,6 +7294,7 @@
     function closeBaixaModal() { document.getElementById('baixaFormModal').classList.add('hidden'); }
     function handleSaveBaixa(e) {
       e.preventDefault();
+      if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }
       const id = document.getElementById('baixaId').value;
       const inicio = document.getElementById('baixaInicio').value;
       const fim = document.getElementById('baixaFim').value;
@@ -6480,6 +7320,7 @@
       recordOperatorActivity(id ? 'MEDICAL_LEAVE_UPDATED' : 'MEDICAL_LEAVE_CREATED', 'recruit', payload.recruitId, { inicio, fim });
     }
     function deleteBaixaFromModal() {
+      if (getEffectiveSigrRole() !== 'admin') { showToast('Somente o administrador pode excluir baixas médicas'); return; }
       const id = document.getElementById('baixaId').value;
       if (!id || !confirm('Excluir esta baixa médica?')) return;
       medicalLeaves = medicalLeaves.filter(b => b.id !== id);
@@ -6579,39 +7420,87 @@
 
 
 
-    // ---------- BOOT SPLASH ----------
-    (function runBootSplash() {
+    // ---------- ABERTURA GAMIFICADA DE 30 SEGUNDOS, SEMPRE APÓS O LOGIN ----------
+    function sigrOnboardingStorageKey() {
+      const account = sigrSession?.user?.id || 'conta';
+      const operator = sigrActiveOperator?.id || 'sem-perfil';
+      return `sigr_onboarding_disabled_v3:${account}:${operator}`;
+    }
+
+    function maybeStartSigrOnboarding(force = false) {
+      if (!sigrSession || sigrOnboardingPlayedSession) return;
+      if (!force && localStorage.getItem(sigrOnboardingStorageKey()) === '1') {
+        sigrOnboardingPlayedSession = true;
+        return;
+      }
+      startSigrOnboarding();
+    }
+
+    function startSigrOnboarding() {
       const boot = document.getElementById('sigrBoot');
       if (!boot) return;
-      const log = document.getElementById('bootLog');
-      const bar = document.getElementById('bootBarFill');
-      const welcome = document.getElementById('bootWelcome');
-      const steps = [
-        'Carregando interface',
-        'Verificando integridade dos registros',
-        'Inicializando banco de dados',
-        'Inicializando módulos do sistema',
-        'Carregando Inteligência Analítica',
-        'Preparando Dashboard',
-        'Sistema pronto'
-      ];
-      let i = 0;
-      function next() {
-        if (i < steps.length) {
-          if (log) log.innerHTML += `<div><span class="ok">✓</span> ${steps[i]}</div>`;
-          if (bar) bar.style.width = Math.round(((i + 1) / steps.length) * 100) + '%';
-          i++;
-          setTimeout(next, 380 + Math.random() * 120);
-        } else {
-          if (welcome) welcome.style.opacity = '1';
-          setTimeout(() => {
-            boot.classList.add('hidden-boot');
-            setTimeout(() => { boot.style.display = 'none'; }, 750);
-          }, 500);
-        }
+      sigrOnboardingPlayedSession = true;
+      cancelAnimationFrame(sigrOnboardingFrame);
+      boot.style.display = '';
+      boot.classList.remove('hidden-boot');
+      boot.classList.add('visible-boot');
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      document.getElementById('onboardingNeverAgain').checked = false;
+      sigrOnboardingStartedAt = performance.now();
+      const audio = document.getElementById('sigrOnboardingAudio');
+      const soundButton = document.getElementById('onboardingSoundButton');
+      if (audio) {
+        audio.currentTime = 0; audio.volume = .58; audio.muted = false;
+        audio.play().then(() => { if (soundButton) soundButton.textContent = 'SOM: LIGADO'; })
+          .catch(() => { if (soundButton) soundButton.textContent = 'ATIVAR SOM'; });
       }
-      setTimeout(next, 280);
-    })();
+      const total = 30000;
+      const tick = now => {
+        if (!boot.classList.contains('visible-boot')) return;
+        const elapsed = Math.min(total, now - sigrOnboardingStartedAt);
+        const sceneIndex = Math.min(5, Math.floor(elapsed / 5000));
+        document.querySelectorAll('.onboarding-scene').forEach((scene, index) => scene.classList.toggle('active', index === sceneIndex));
+        const progress = document.getElementById('onboardingProgress');
+        if (progress) progress.style.width = `${(elapsed / total) * 100}%`;
+        const timer = document.getElementById('onboardingTimer');
+        if (timer) timer.textContent = `00:${String(Math.max(0, Math.ceil((total - elapsed) / 1000))).padStart(2,'0')}`;
+        const label = document.getElementById('onboardingSceneLabel');
+        if (label) label.textContent = `APRESENTAÇÃO ${String(sceneIndex + 1).padStart(2,'0')}/06`;
+        if (elapsed >= total) finishSigrOnboarding(false);
+        else sigrOnboardingFrame = requestAnimationFrame(tick);
+      };
+      sigrOnboardingFrame = requestAnimationFrame(tick);
+    }
+
+    function toggleSigrOnboardingSound() {
+      const audio = document.getElementById('sigrOnboardingAudio');
+      const button = document.getElementById('onboardingSoundButton');
+      if (!audio) return;
+      if (audio.paused) {
+        audio.muted = false;
+        audio.play().then(() => { if (button) button.textContent = 'SOM: LIGADO'; }).catch(() => {});
+        return;
+      }
+      audio.muted = !audio.muted;
+      if (button) button.textContent = audio.muted ? 'SOM: DESLIGADO' : 'SOM: LIGADO';
+    }
+
+    function finishSigrOnboarding(skipped = false) {
+      const boot = document.getElementById('sigrBoot');
+      if (!boot || !boot.classList.contains('visible-boot')) return;
+      cancelAnimationFrame(sigrOnboardingFrame);
+      const neverAgain = !!document.getElementById('onboardingNeverAgain')?.checked;
+      if (neverAgain) localStorage.setItem(sigrOnboardingStorageKey(), '1');
+      const audio = document.getElementById('sigrOnboardingAudio');
+      if (audio) { audio.pause(); audio.currentTime = 0; }
+      boot.classList.remove('visible-boot');
+      boot.classList.add('hidden-boot');
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      setTimeout(() => { if (boot.classList.contains('hidden-boot')) boot.style.display = 'none'; }, 760);
+      recordOperatorActivity(skipped ? 'ONBOARDING_SKIPPED' : 'ONBOARDING_COMPLETED','system','onboarding',{neverAgain});
+    }
 
     // ---------- CCI — CENTRO DE COMANDOS INTELIGENTE ----------
     const CCI_MEMORY_KEY = 'sigr_cci_mem_v1';

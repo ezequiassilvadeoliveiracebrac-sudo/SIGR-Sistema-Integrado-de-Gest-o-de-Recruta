@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "SIGR — Gestão de Recrutas + IA Holográfica",
+  "name": "SIGR — Sistema Integrado de Gestão de Recrutas",
   "short_name": "SIGR",
-  "description": "SIGR CFSd 2ª/2026 com SIGR IA 3.0 HOLO, análise inteligente, voz, web e ações integradas.",
+  "description": "SIGR CFSd 2ª/2026 com gestão de recrutas, central administrativa, ranking semanal, dossiês completos e SIGR IA 3.0 HOLO.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
