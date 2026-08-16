@@ -1070,7 +1070,7 @@
   <!-- ABERTURA GAMIFICADA: exibida somente depois do login e da identificação -->
   <div id="sigrBoot" class="no-print" role="dialog" aria-modal="true" aria-label="Apresentação do SIGR">
     <div class="onboarding-shell">
-      <audio id="sigrOnboardingAudio" preload="auto" src="./assets/fortunate-son-30s.mp3"></audio>
+      <audio id="sigrOnboardingAudio" preload="auto" src="./assets/danger-zone-30s.mp3"></audio>
       <div class="onboarding-scanlines"></div><div class="onboarding-vignette"></div>
       <div class="onboarding-hud"><div class="onboarding-hud-brand"><b>S</b><span>Sistema operacional SIGR</span></div><div><span id="onboardingSceneLabel">APRESENTAÇÃO 01/06</span> · <span id="onboardingTimer" class="onboarding-timer">00:30</span></div></div>
 
@@ -3204,7 +3204,11 @@
         const localRows = readLocalOperatorActivity();
         if (sigrOperatorToken) {
           try {
-            const result = await invokeSigrCommunications('activity-list', { operatorToken: sigrOperatorToken, limit: 500 });
+            const result = await invokeSigrCommunications('activity-weekly-list', {
+              operatorToken: sigrOperatorToken,
+              weekStart: bounds.start.toISOString(),
+              weekEnd: bounds.next.toISOString()
+            });
             rows = Array.isArray(result.activities) ? result.activities : [];
           } catch (_) {}
         }

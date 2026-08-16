@@ -1,12 +1,12 @@
-const APP_CACHE = 'sigr-pwa-v8-command';
-const STATIC_CACHE = 'sigr-static-v8-command';
+const APP_CACHE = 'sigr-pwa-v9-ranking-week';
+const STATIC_CACHE = 'sigr-static-v9-ranking-week';
 
 const CORE_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './assets/f39-gripen-fab.webp',
-  './assets/fortunate-son-30s.mp3'
+  './assets/danger-zone-30s.mp3'
 ];
 
 const OPTIONAL_ASSETS = [
