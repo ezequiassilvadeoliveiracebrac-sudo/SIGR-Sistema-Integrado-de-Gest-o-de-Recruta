@@ -1177,6 +1177,10 @@
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
         SIGR IA
       </button>
+      <div class="hidden lg:block relative ml-2 min-w-[220px] max-w-[320px] flex-1" title="Pesquisar recruta por número, nome ou nome de guerra">
+        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="desktopQuickSearch" type="search" autocomplete="off" placeholder="Pesquisar recruta..." oninput="syncRecruitSearch(this.value)" class="w-full border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
+      </div>
       <div class="flex-1"></div>
       <button onclick="openReportModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white hover:shadow-sm transition text-emerald-700 font-medium">Relatórios PDF</button>
       <button onclick="openSettingsModal()" class="requires-admin flex items-center gap-1.5 px-3 py-1.5 rounded hover:bg-white hover:shadow-sm transition">Configurações</button>
@@ -3025,7 +3029,7 @@
       const actions = document.getElementById('operatorProfileActions');
       const online = onlineOperatorIds().has(String(operator.id));
       if (header) header.innerHTML = `${operatorAvatarHTML(operator,'large')}<div><div class="text-xl font-bold">${escapeHTML(operatorFullName(operator))}</div><div class="text-xs text-slate-300 mt-1">${escapeHTML(operator.duty_function || 'Integrante da equipe')}</div><div class="flex items-center gap-1.5 text-[10px] mt-2 ${online ? 'text-emerald-300' : 'text-slate-400'}"><span class="${online ? 'comm-online-dot' : 'comm-offline-dot'}"></span>${online ? 'Online agora' : 'Offline'}</div></div>`;
-      if (body) body.innerHTML = `<div class="grid grid-cols-2 gap-3 text-xs"><div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><span class="block text-[9px] uppercase tracking-wider text-slate-400">Graduação</span><strong class="block mt-1 text-slate-800">${escapeHTML(operator.rank || '—')}</strong></div><div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><span class="block text-[9px] uppercase tracking-wider text-slate-400">Nome de guerra</span><strong class="block mt-1 text-slate-800">${escapeHTML(operator.war_name || '—')}</strong></div></div>`;
+      if (body) body.innerHTML = `<div class="grid grid-cols-2 gap-3 text-xs"><div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><span class="block text-[9px] uppercase tracking-wider text-slate-400">Graduação</span><strong class="block mt-1 text-slate-800">${escapeHTML(operator.rank || '—')}</strong></div><div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><span class="block text-[9px] uppercase tracking-wider text-slate-400">Nome de guerra</span><strong class="block mt-1 text-slate-800">${escapeHTML(operator.war_name || '—')}</strong></div></div><div id="operatorProfileStats" class="grid grid-cols-4 gap-2 mt-4"></div><div class="mt-5"><div class="flex items-center justify-between gap-2 mb-2"><div><div class="text-[9px] uppercase tracking-[.14em] font-black text-slate-400">Histórico operacional</div><div class="text-xs font-bold text-slate-700 mt-0.5">Registros feitos por este integrante</div></div><span id="operatorProfileHistoryCount" class="text-[10px] text-slate-400">Carregando...</span></div><div id="operatorProfileHistory" class="max-h-64 overflow-y-auto space-y-2"><div class="p-3 rounded-xl border border-slate-100 bg-slate-50 text-xs text-slate-400">Carregando registros...</div></div></div>`;
       const mine = String(operator.id) === String(sigrActiveOperator?.id);
       if (actions) {
         const buttons = [];
@@ -3042,6 +3046,64 @@
       }
       const modal = document.getElementById('operatorProfileModal');
       modal?.classList.remove('hidden'); modal?.classList.add('flex');
+      loadOperatorProfileActivity(operator.id);
+    }
+
+    function operatorActivityPresentation(row) {
+      const action = String(row?.action || '').toUpperCase();
+      const details = row?.details || {};
+      const labels = {
+        OCCURRENCE_CREATED:'Ocorrência registrada', AI_OCCURRENCE_CREATED:'Ocorrência registrada pela SIGR IA',
+        OBSERVATION_CREATED:'Observação registrada', AI_OBSERVATION_CREATED:'Observação registrada pela SIGR IA',
+        CONSULTATION_CREATED:'Consulta registrada', EVENT_CREATED:'Aviso no calendário', AI_EVENT_CREATED:'Evento criado pela SIGR IA',
+        MEDICAL_LEAVE_CREATED:'Baixa médica registrada', MEDICAL_LEAVE_UPDATED:'Baixa médica atualizada',
+        OCCURRENCE_UPDATED:'Pontuação de ocorrência ajustada', RECRUIT_CREATED:'Recruta cadastrado', RECRUIT_UPDATED:'Cadastro de recruta alterado'
+      };
+      let title = labels[action] || String(row?.action || 'Registro').replaceAll('_',' ');
+      let detail = details.text || details.description || details.title || details.notes || '';
+      if (!detail && details.type) detail = String(details.type);
+      if (!detail && row?.entity_type === 'recruit' && row?.entity_id) detail = `Recruta Nº ${row.entity_id}`;
+      const recruitId = details.recruitId || (row?.entity_type === 'recruit' ? row?.entity_id : null);
+      if (recruitId && detail && !detail.includes(`Nº ${recruitId}`)) detail = `Nº ${recruitId} · ${detail}`;
+      const points = Number(details.points);
+      if (Number.isFinite(points)) detail += `${detail ? ' · ' : ''}${points >= 0 ? '+' : ''}${points} pts`;
+      return { title, detail };
+    }
+
+    async function loadOperatorProfileActivity(operatorId) {
+      const history = document.getElementById('operatorProfileHistory');
+      const countEl = document.getElementById('operatorProfileHistoryCount');
+      const stats = document.getElementById('operatorProfileStats');
+      if (!history || !stats) return;
+      try {
+        let rows = [];
+        if (sigrOperatorToken) {
+          try {
+            const result = await invokeSigrCommunications('activity-operator-list', { operatorToken:sigrOperatorToken, operatorId, limit:100 });
+            rows = Array.isArray(result.activities) ? result.activities : [];
+          } catch (_) {}
+        }
+        const local = readLocalOperatorActivity().filter(row => String(row.operator_id || row.operator?.id || '') === String(operatorId));
+        const remoteClientIds = new Set(rows.map(row => row?.details?.clientActivityId).filter(Boolean));
+        rows = rows.concat(local.filter(row => !remoteClientIds.has(row?.details?.clientActivityId)));
+        rows.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+        const occurrenceCount = rows.filter(row => ['OCCURRENCE_CREATED','AI_OCCURRENCE_CREATED'].includes(String(row.action||'').toUpperCase())).length;
+        const observationCount = rows.filter(row => weeklyActivityCategory(row) === 'observations').length;
+        const consultationCount = rows.filter(row => weeklyActivityCategory(row) === 'consultations').length;
+        stats.innerHTML = [
+          ['Ocorrências',occurrenceCount],['Observações',observationCount],['Consultas',consultationCount],['Registros',rows.length]
+        ].map(([label,value])=>`<div class="p-2 rounded-xl bg-slate-50 border border-slate-100 text-center"><strong class="block text-sm text-slate-800">${value}</strong><span class="block text-[8px] uppercase tracking-wide text-slate-400 mt-0.5">${label}</span></div>`).join('');
+        if (countEl) countEl.textContent = `${rows.length} registro${rows.length===1?'':'s'}`;
+        if (!rows.length) { history.innerHTML = '<div class="p-3 rounded-xl border border-slate-100 bg-slate-50 text-xs text-slate-400">Nenhum registro encontrado para este integrante.</div>'; return; }
+        history.innerHTML = rows.slice(0,100).map(row => {
+          const view = operatorActivityPresentation(row);
+          const when = row.created_at ? new Date(row.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+          return `<div class="p-3 rounded-xl border border-slate-100 bg-white"><div class="flex items-start justify-between gap-2"><strong class="text-[11px] text-slate-700">${escapeHTML(view.title)}</strong><time class="text-[9px] text-slate-400 whitespace-nowrap">${escapeHTML(when)}</time></div>${view.detail ? `<div class="text-[10px] text-slate-500 mt-1 leading-relaxed">${escapeHTML(view.detail)}</div>` : ''}</div>`;
+        }).join('');
+      } catch (error) {
+        if (countEl) countEl.textContent = 'Indisponível';
+        history.innerHTML = '<div class="p-3 rounded-xl border border-amber-100 bg-amber-50 text-xs text-amber-700">Não foi possível carregar o histórico agora.</div>';
+      }
     }
 
     function closeOperatorProfile() {
@@ -3178,7 +3240,10 @@
       if (['OCCURRENCE_CREATED','AI_OCCURRENCE_CREATED'].includes(action)) return 'occurrences';
       if (['OBSERVATION_CREATED','AI_OBSERVATION_CREATED'].includes(action)) return 'observations';
       if (['CONSULTATION_CREATED','MEDICAL_LEAVE_CREATED'].includes(action)) return 'consultations';
-      if (action === 'AI_EVENT_CREATED' && /consulta|m[eé]dic|odont/i.test(String(row?.details?.type || ''))) return 'consultations';
+      if (['EVENT_CREATED','AI_EVENT_CREATED'].includes(action)) {
+        if (/consulta|m[eé]dic|odont/i.test(String(row?.details?.type || ''))) return 'consultations';
+        return 'observations';
+      }
       return '';
     }
 
@@ -3235,7 +3300,7 @@
           if (motivation) motivation.textContent = 'A semana está começando. Registre com qualidade para construir um acompanhamento completo da turma.';
           return;
         }
-        list.innerHTML = ranking.slice(0,10).map((item,index)=>`<div class="weekly-operator-row ${index===0?'leader':''}"><div class="text-center font-black ${index===0?'text-amber-300':'text-cyan-300'}">${index===0?'★':'#'+(index+1)}</div><div class="min-w-0 flex items-center gap-2">${operatorAvatarHTML(item.operator,'small')}<div class="min-w-0"><strong class="block text-xs truncate">${escapeHTML(operatorFullName(item.operator))}</strong><span class="block text-[9px] text-slate-400 truncate">${escapeHTML(item.operator?.duty_function || 'Operador SIGR')}</span></div></div><div class="weekly-stat"><strong>${item.occurrences}</strong>ocorr.</div><div class="weekly-stat"><strong>${item.observations}</strong>observ.</div><div class="weekly-stat"><strong>${item.consultations}</strong>consultas</div><div class="weekly-stat"><strong>${item.total}</strong>total</div></div>`).join('');
+        list.innerHTML = ranking.slice(0,10).map((item,index)=>`<div class="weekly-operator-row ${index===0?'leader':''} cursor-pointer" role="button" tabindex="0" title="Abrir perfil e histórico de registros" onclick="openOperatorProfile('${escapeHTML(String(item.operator?.id || ''))}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openOperatorProfile('${escapeHTML(String(item.operator?.id || ''))}')}"><div class="text-center font-black ${index===0?'text-amber-300':'text-cyan-300'}">${index===0?'★':'#'+(index+1)}</div><div class="min-w-0 flex items-center gap-2">${operatorAvatarHTML(item.operator,'small')}<div class="min-w-0"><strong class="block text-xs truncate">${escapeHTML(operatorFullName(item.operator))}</strong><span class="block text-[9px] text-slate-400 truncate">${escapeHTML(item.operator?.duty_function || 'Operador SIGR')}</span></div></div><div class="weekly-stat"><strong>${item.occurrences}</strong>ocorr.</div><div class="weekly-stat"><strong>${item.observations}</strong>observ.</div><div class="weekly-stat"><strong>${item.consultations}</strong>consultas</div><div class="weekly-stat"><strong>${item.total}</strong>total</div></div>`).join('');
         const winner = ranking[0];
         const motivation = document.getElementById('weeklyOperatorMotivation');
         if (motivation) motivation.textContent = `${operatorFullName(winner.operator)} lidera com ${winner.total} registro${winner.total===1?'':'s'}. O ranking reconhece volume de documentação e não substitui a avaliação de qualidade feita pela chefia.`;
@@ -3623,8 +3688,11 @@
 
     function buildOccurrenceAudit() {
       return Object.fromEntries(occurrences
-        .filter(o => o.pointsAdjustedManually || (Array.isArray(o.pointEditHistory) && o.pointEditHistory.length))
+        .filter(o => o.registeredById || o.registeredByName || o.registeredAt || o.pointsAdjustedManually || (Array.isArray(o.pointEditHistory) && o.pointEditHistory.length))
         .map(o => [String(o.id), {
+          registeredById: o.registeredById || null,
+          registeredByName: o.registeredByName || '',
+          registeredAt: o.registeredAt || null,
           pointsAdjustedManually: !!o.pointsAdjustedManually,
           pointsOriginal: Number.isFinite(Number(o.pointsOriginal)) ? Number(o.pointsOriginal) : null,
           lastEditedAt: o.lastEditedAt || null,
@@ -4045,8 +4113,10 @@
     function syncRecruitSearch(value) {
       const next = String(value || '');
       const desktop = document.getElementById('searchInput');
+      const quickDesktop = document.getElementById('desktopQuickSearch');
       const mobile = document.getElementById('mobileSearchInput');
       if (desktop && desktop.value !== next) desktop.value = next;
+      if (quickDesktop && quickDesktop.value !== next) quickDesktop.value = next;
       if (mobile && mobile.value !== next) mobile.value = next;
       onFilterChange();
     }
@@ -4069,8 +4139,10 @@
       const desktopSearch = document.getElementById('searchInput');
       const desktopStatus = document.getElementById('filterStatus');
       const mobileSearch = document.getElementById('mobileSearchInput');
+      const quickDesktop = document.getElementById('desktopQuickSearch');
       const mobileStatus = document.getElementById('mobileFilterStatus');
       if (mobileSearch && desktopSearch) mobileSearch.value = desktopSearch.value || '';
+      if (quickDesktop && desktopSearch) quickDesktop.value = desktopSearch.value || '';
       if (mobileStatus && desktopStatus) mobileStatus.value = desktopStatus.value || '';
     }
 
@@ -4478,12 +4550,15 @@
         const editNote = manuallyAdjusted
           ? `<span class="text-[10px] text-cyan-700 block mt-1">Ajustada por ${escapeHTML(occ.lastEditedByName || 'operador')}${editedAt ? ` em ${escapeHTML(editedAt)}` : ''}. Motivo: ${escapeHTML(occ.lastEditReason || 'não informado')}.</span>`
           : '';
+        const registeredAt = occ.registeredAt ? new Date(occ.registeredAt).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+        const registeredNote = occ.registeredByName ? `<span class="text-[10px] text-slate-500 block mt-1">Registrado por <strong>${escapeHTML(occ.registeredByName)}</strong>${registeredAt ? ` · ${escapeHTML(registeredAt)}` : ''}</span>` : `<span class="text-[10px] text-slate-400 block mt-1">Responsável pelo registro não disponível neste lançamento antigo.</span>`;
         return `
           <div class="bg-white border border-slate-150 rounded-lg p-3 flex justify-between items-start gap-2 text-xs">
             <div class="min-w-0">
               <span class="text-[10px] text-slate-400 block">${occ.date} · ${occ.type} (${occ.gravidade})</span>
               <span class="text-slate-700">${occ.text}</span>
               ${hasMult ? `<span class="text-[10px] text-amber-600 block mt-0.5">base ${occ.basePoints} × fase ${occ.phaseMult}x × reinc ${occ.recidMult}x (${occ.recidNumber}ª)</span>` : ''}
+              ${registeredNote}
               ${editNote}
             </div>
             <div class="flex-shrink-0 text-right">
@@ -4505,9 +4580,13 @@
       const basePoints = parseInt(document.getElementById('newPoints').value);
       const descNorm = normDesc(desc);
       const { finalPts, phase, recid } = computeFinalPoints(basePoints, occDate, currentSelectedId, descNorm, null);
+      const occurrenceId = Date.now();
+      const registeredByName = operatorFullName(sigrActiveOperator);
+      const registeredAt = new Date().toISOString();
       occurrences.unshift({
-        id: Date.now(), recruitId: currentSelectedId, date: occDate, type, gravidade, text: desc,
-        basePoints, phaseIdx: phase.idx, phaseMult: phase.mult, recidNumber: recid.occurrenceNumber, recidMult: recid.mult, points: finalPts
+        id: occurrenceId, recruitId: currentSelectedId, date: occDate, type, gravidade, text: desc,
+        basePoints, phaseIdx: phase.idx, phaseMult: phase.mult, recidNumber: recid.occurrenceNumber, recidMult: recid.mult, points: finalPts,
+        registeredById: sigrActiveOperator?.id || null, registeredByName, registeredAt
       });
       const rec = getRecruitById(currentSelectedId);
       if (rec) rec.score += finalPts;
@@ -4516,7 +4595,7 @@
       openModal(currentSelectedId);
       renderAll();
       showToast('Ocorrência lançada');
-      recordOperatorActivity('OCCURRENCE_CREATED', 'recruit', currentSelectedId, { type, gravidade, points: finalPts });
+      recordOperatorActivity('OCCURRENCE_CREATED', 'recruit', currentSelectedId, { occurrenceId, recruitId:currentSelectedId, date:occDate, type, gravidade, points: finalPts, text:desc });
       requestOccurrenceMilestoneCheck();
     }
 
@@ -4901,7 +4980,7 @@
       renderCalendar();
       showToast('Evento salvo');
       const consultation = payload.type === 'Consulta Médica' || /consulta|m[eé]dic|odont/i.test(`${payload.title} ${payload.notes}`);
-      recordOperatorActivity(id ? 'EVENT_UPDATED' : (consultation ? 'CONSULTATION_CREATED' : 'EVENT_CREATED'),'event',id || payload.recruitId,{ type:payload.type, recruitId:payload.recruitId, date:payload.date });
+      recordOperatorActivity(id ? 'EVENT_UPDATED' : (consultation ? 'CONSULTATION_CREATED' : 'EVENT_CREATED'),'event',id || payload.recruitId,{ type:payload.type, recruitId:payload.recruitId, date:payload.date, title:payload.title, notes:payload.notes });
     }
 
     function deleteEventFromModal() {
@@ -6990,13 +7069,13 @@
       if(id&&!rec)throw new Error(`Recruta ${id} não encontrado.`);
       if(call.name==='create_event'){
         const ev={id:'ev'+Date.now()+Math.random().toString(36).slice(2,7),date:normalizeActionDate(a.date),time:a.time||'',type:a.type||'Outro',recruitId:id||null,title:a.title||((a.type||'Evento')+(rec?` — Nº ${rec.id}`:'')),notes:a.notes||a.reason||''};
-        if(/consulta|m[eé]dic|odont/i.test(`${ev.type} ${ev.title}`))ev.type='Consulta Médica'; events.push(ev);saveData();try{renderCalendar()}catch(_){};recordOperatorActivity('AI_EVENT_CREATED','event',ev.id,{recruitId:id,type:ev.type});return `Evento criado: ${ev.type} em ${ev.date}${ev.time?' às '+ev.time:''}${rec?' para o Nº '+rec.id:''}.`;
+        if(/consulta|m[eé]dic|odont/i.test(`${ev.type} ${ev.title}`))ev.type='Consulta Médica'; events.push(ev);saveData();try{renderCalendar()}catch(_){};recordOperatorActivity('AI_EVENT_CREATED','event',ev.id,{recruitId:id,type:ev.type,date:ev.date,title:ev.title,notes:ev.notes});return `Evento criado: ${ev.type} em ${ev.date}${ev.time?' às '+ev.time:''}${rec?' para o Nº '+rec.id:''}.`;
       }
       if(call.name==='add_observation'){
-        if(!rec)throw new Error('Informe o recruta para adicionar observação.');ensureRecruitExtras(rec);rec.observacoes.push({id:'ob'+Date.now(),date:normalizeActionDate(a.date),autor:a.author||sigrActiveOperator?.display_name||'SIGR IA',texto:a.text||a.notes||''});saveData();recordOperatorActivity('AI_OBSERVATION_CREATED','recruit',rec.id);return `Observação adicionada ao recruta Nº ${rec.id}.`;
+        if(!rec)throw new Error('Informe o recruta para adicionar observação.');ensureRecruitExtras(rec);const obsText=a.text||a.notes||'';const obsDate=normalizeActionDate(a.date);rec.observacoes.push({id:'ob'+Date.now(),date:obsDate,autor:a.author||operatorFullName(sigrActiveOperator)||'SIGR IA',texto:obsText,operatorId:sigrActiveOperator?.id||null,createdAt:new Date().toISOString()});saveData();recordOperatorActivity('AI_OBSERVATION_CREATED','recruit',rec.id,{recruitId:rec.id,date:obsDate,text:obsText});return `Observação adicionada ao recruta Nº ${rec.id}.`;
       }
       if(call.name==='add_occurrence'){
-        if(!rec)throw new Error('Informe o recruta para lançar ocorrência.'); const type=/posit/i.test(a.type)?'Positiva':'Negativa'; const grav=a.severity||(type==='Positiva'?'Bom':'Leve'); const pointMap={'Leve':-1,'Média':-2,'Media':-2,'Grave':-5,'Gravíssima':-10,'Gravissima':-10,'Bom':1,'Ótimo':2,'Otimo':2,'Excelente':3,'Excepcional':5}; const base=Number(a.basePoints??pointMap[grav]??(type==='Positiva'?1:-1)); const date=normalizeActionDate(a.date); const text=a.text||a.description||'Registro lançado pela SIGR IA'; const calc=computeFinalPoints(base,date,rec.id,normDesc(text),null); occurrences.unshift({id:Date.now(),recruitId:rec.id,date,type,gravidade:grav,text,basePoints:base,phaseIdx:calc.phase.idx,phaseMult:calc.phase.mult,recidNumber:calc.recid.occurrenceNumber,recidMult:calc.recid.mult,points:calc.finalPts});rec.score+=calc.finalPts;saveData();renderAll();recordOperatorActivity('AI_OCCURRENCE_CREATED','recruit',rec.id,{type,gravidade:grav,points:calc.finalPts});requestOccurrenceMilestoneCheck();return `Ocorrência ${type.toLowerCase()} lançada para o Nº ${rec.id} (${calc.finalPts>=0?'+':''}${calc.finalPts} pts).`;
+        if(!rec)throw new Error('Informe o recruta para lançar ocorrência.'); const type=/posit/i.test(a.type)?'Positiva':'Negativa'; const grav=a.severity||(type==='Positiva'?'Bom':'Leve'); const pointMap={'Leve':-1,'Média':-2,'Media':-2,'Grave':-5,'Gravíssima':-10,'Gravissima':-10,'Bom':1,'Ótimo':2,'Otimo':2,'Excelente':3,'Excepcional':5}; const base=Number(a.basePoints??pointMap[grav]??(type==='Positiva'?1:-1)); const date=normalizeActionDate(a.date); const text=a.text||a.description||'Registro lançado pela SIGR IA'; const calc=computeFinalPoints(base,date,rec.id,normDesc(text),null); const occurrenceId=Date.now(); occurrences.unshift({id:occurrenceId,recruitId:rec.id,date,type,gravidade:grav,text,basePoints:base,phaseIdx:calc.phase.idx,phaseMult:calc.phase.mult,recidNumber:calc.recid.occurrenceNumber,recidMult:calc.recid.mult,points:calc.finalPts,registeredById:sigrActiveOperator?.id||null,registeredByName:operatorFullName(sigrActiveOperator),registeredAt:new Date().toISOString()});rec.score+=calc.finalPts;saveData();renderAll();recordOperatorActivity('AI_OCCURRENCE_CREATED','recruit',rec.id,{occurrenceId,recruitId:rec.id,date,type,gravidade:grav,points:calc.finalPts,text});requestOccurrenceMilestoneCheck();return `Ocorrência ${type.toLowerCase()} lançada para o Nº ${rec.id} (${calc.finalPts>=0?'+':''}${calc.finalPts} pts).`;
       }
       if(call.name==='add_exam'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.provas.push({id:'pv'+Date.now(),date:normalizeActionDate(a.date),nome:a.name||a.title||'Avaliação',nota:Number(a.grade),obs:a.notes||''});saveData();return `Prova/avaliação registrada para o Nº ${rec.id}.`;}
       if(call.name==='add_taf'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.taf.push({id:'tf'+Date.now(),date:normalizeActionDate(a.date),tipo:a.type||'TAF',resultado:a.result||'',conceito:a.concept||'',obs:a.notes||''});saveData();return `Registro de TAF adicionado ao Nº ${rec.id}.`;}
@@ -7198,11 +7277,13 @@
       const rec = getRecruitById(currentSelectedId);
       if (!rec) return;
       ensureRecruitExtras(rec);
-      rec.observacoes.push({ id: 'ob' + Date.now(), date: document.getElementById('obsDate').value, autor: document.getElementById('obsAutor').value.trim() || operatorFullName(sigrActiveOperator) || 'INSTRUTOR', texto: document.getElementById('obsTexto').value.trim(), operatorId:sigrActiveOperator?.id || null, createdAt:new Date().toISOString() });
+      const observationDate = document.getElementById('obsDate').value;
+      const observationText = document.getElementById('obsTexto').value.trim();
+      rec.observacoes.push({ id: 'ob' + Date.now(), date: observationDate, autor: document.getElementById('obsAutor').value.trim() || operatorFullName(sigrActiveOperator) || 'INSTRUTOR', texto: observationText, operatorId:sigrActiveOperator?.id || null, createdAt:new Date().toISOString() });
       saveData();
       document.getElementById('obsTexto').value = '';
       renderProfileExtras(rec.id); showToast('Observação salva');
-      recordOperatorActivity('OBSERVATION_CREATED','recruit',rec.id);
+      recordOperatorActivity('OBSERVATION_CREATED','recruit',rec.id,{recruitId:rec.id,date:observationDate,text:observationText});
     }
     function deleteObservacao(idx) {
       if (!canSigrWrite()) { showToast('Operação não autorizada'); return; }

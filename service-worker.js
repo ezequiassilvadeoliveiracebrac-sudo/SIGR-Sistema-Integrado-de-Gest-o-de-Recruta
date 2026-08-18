@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v9-ranking-week';
-const STATIC_CACHE = 'sigr-static-v9-ranking-week';
+const APP_CACHE = 'sigr-pwa-v10-auditoria-perfis';
+const STATIC_CACHE = 'sigr-static-v10-auditoria-perfis';
 
 const CORE_SHELL = [
   './',
