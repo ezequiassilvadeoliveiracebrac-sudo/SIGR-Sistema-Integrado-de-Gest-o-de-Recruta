@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v10-auditoria-perfis';
-const STATIC_CACHE = 'sigr-static-v10-auditoria-perfis';
+const APP_CACHE = 'sigr-pwa-v11-paginacao-exclusao';
+const STATIC_CACHE = 'sigr-static-v11-paginacao-exclusao';
 
 const CORE_SHELL = [
   './',
