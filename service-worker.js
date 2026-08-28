@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v11-paginacao-exclusao';
-const STATIC_CACHE = 'sigr-static-v11-paginacao-exclusao';
+const APP_CACHE = 'sigr-pwa-v12-escala-historico';
+const STATIC_CACHE = 'sigr-static-v12-escala-historico';
 
 const CORE_SHELL = [
   './',
