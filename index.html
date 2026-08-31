@@ -1644,11 +1644,12 @@
           </div>
         </section>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <div class="bg-white border border-slate-200 rounded-xl p-4"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Escalas salvas</div><div id="serviceMetricRecords" class="text-2xl font-black text-slate-800 mt-1">0</div></div>
           <div class="bg-white border border-slate-200 rounded-xl p-4"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Serviços confirmados</div><div id="serviceMetricPresence" class="text-2xl font-black text-emerald-600 mt-1">0</div></div>
           <div class="bg-white border border-slate-200 rounded-xl p-4"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Trocas registradas</div><div id="serviceMetricChanges" class="text-2xl font-black text-amber-600 mt-1">0</div></div>
           <div class="bg-white border border-slate-200 rounded-xl p-4"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Em baixa na data</div><div id="serviceMetricMedical" class="text-2xl font-black text-rose-600 mt-1">0</div></div>
+          <div class="bg-white border border-slate-200 rounded-xl p-4"><div class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Afastados da escala</div><div id="serviceMetricSuspended" class="text-2xl font-black text-violet-600 mt-1">0</div></div>
         </div>
 
         <section class="bg-white border border-slate-200 rounded-xl overflow-hidden">
@@ -1687,22 +1688,53 @@
               <button type="button" onclick="serviceSharePdf()" class="px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold">Compartilhar PDF</button>
             </div>
           </div>
-          <details class="border-b border-slate-100">
-            <summary class="cursor-pointer px-4 py-3 text-[11px] font-semibold text-slate-600">Configurar assinaturas do documento</summary>
+          <details class="border-b border-slate-100" open>
+            <summary class="cursor-pointer px-4 py-3 text-[11px] font-semibold text-slate-700">Autoridades da escala no PDF</summary>
+            <div class="px-4 pb-2 text-[10px] text-slate-500">Altere abaixo o nome, posto/graduação e função das duas autoridades. O PDF usa estes dados automaticamente e as alterações ficam salvas no SIGR.</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 px-4 pb-4">
-              <label class="block"><span class="text-[9px] uppercase font-bold text-slate-400">Assinatura esquerda — nome e posto</span><input id="serviceSignLeftName" oninput="serviceUpdateSignatures()" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs" /></label>
-              <label class="block"><span class="text-[9px] uppercase font-bold text-slate-400">Assinatura direita — nome e posto</span><input id="serviceSignRightName" oninput="serviceUpdateSignatures()" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs" /></label>
-              <label class="block"><span class="text-[9px] uppercase font-bold text-slate-400">Função esquerda</span><input id="serviceSignLeftRole" oninput="serviceUpdateSignatures()" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs" /></label>
-              <label class="block"><span class="text-[9px] uppercase font-bold text-slate-400">Função direita</span><input id="serviceSignRightRole" oninput="serviceUpdateSignatures()" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs" /></label>
+              <label class="block"><span class="text-[9px] uppercase font-bold text-slate-400">Autoridade esquerda — nome e posto/graduação</span><input id="serviceSignLeftName" oninput="serviceUpdateSignatures()" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs" /></label>
+              <label class="block"><span class="text-[9px] uppercase font-bold text-slate-400">Autoridade direita — nome e posto/graduação</span><input id="serviceSignRightName" oninput="serviceUpdateSignatures()" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs" /></label>
+              <label class="block"><span class="text-[9px] uppercase font-bold text-slate-400">Função da autoridade esquerda</span><input id="serviceSignLeftRole" oninput="serviceUpdateSignatures()" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs" /></label>
+              <label class="block"><span class="text-[9px] uppercase font-bold text-slate-400">Função da autoridade direita</span><input id="serviceSignRightRole" oninput="serviceUpdateSignatures()" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs" /></label>
             </div>
           </details>
           <div id="serviceScaleHistory" class="p-4 grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
         </section>
 
         <section class="bg-white border border-slate-200 rounded-xl overflow-hidden">
-          <div class="px-4 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-800">Controle de presença em serviço</h3><p class="text-[10px] text-slate-500 mt-0.5">Ordenado do menor para o maior número de serviços confirmados.</p></div>
+          <div class="px-4 py-4 border-b border-slate-100 flex flex-wrap items-end gap-3">
+            <div class="min-w-0 flex-1"><h3 class="text-sm font-bold text-slate-800">Disponibilidade dos recrutas</h3><p class="text-[10px] text-slate-500 mt-0.5">Consulte o histórico de serviço e afaste temporariamente quem não deve participar da escala.</p></div>
+            <label class="block min-w-[230px]"><span class="block text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1">Selecionar recruta</span><select id="serviceAvailabilityRecruitSelect" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white"></select></label>
+            <button type="button" onclick="serviceOpenSelectedRecruitDetails()" class="px-3 py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700 text-xs font-semibold">Abrir recruta</button>
+          </div>
+          <div id="serviceSuspendedList" class="px-4 py-3 bg-violet-50/50 border-b border-violet-100"></div>
+        </section>
+
+        <section class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100"><h3 class="text-sm font-bold text-slate-800">Controle de presença em serviço</h3><p class="text-[10px] text-slate-500 mt-0.5">Clique em qualquer recruta para ver exatamente quais serviços ele tirou. Recrutas afastados na data selecionada ficam fora desta lista e da sequência automática.</p></div>
           <div id="servicePresenceRanking" class="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2"></div>
         </section>
+
+        <div id="serviceRecruitModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-950/65 p-4" onclick="if(event.target===this) serviceCloseRecruitDetails()">
+          <div class="w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
+            <div class="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-100 bg-white px-5 py-4">
+              <div><div id="serviceRecruitModalEyebrow" class="text-[9px] font-black uppercase tracking-[.16em] text-violet-500">Histórico de serviço</div><h3 id="serviceRecruitModalTitle" class="text-base font-black text-slate-800 mt-1">Recruta</h3><div id="serviceRecruitModalStatus" class="mt-2"></div></div>
+              <button type="button" onclick="serviceCloseRecruitDetails()" class="w-9 h-9 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50">✕</button>
+            </div>
+            <div class="p-5 space-y-5">
+              <section class="rounded-xl border border-violet-100 bg-violet-50/40 p-4">
+                <div class="flex flex-wrap items-center justify-between gap-2"><div><h4 class="text-xs font-black text-slate-800">Afastamento temporário da escala</h4><p class="text-[10px] text-slate-500 mt-0.5">Durante o período, o recruta não entra na sugestão automática nem no ranking de disponíveis.</p></div><button id="serviceReactivateRecruitButton" type="button" onclick="serviceReactivateSelectedRecruit()" class="requires-write hidden px-3 py-2 rounded-lg bg-emerald-600 text-white text-[10px] font-bold">Reativar agora</button></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                  <label><span class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Início do afastamento</span><input id="serviceSuspendStart" type="date" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white" /></label>
+                  <label><span class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Retorno previsto (opcional)</span><input id="serviceSuspendEnd" type="date" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white" /></label>
+                  <label class="sm:col-span-2"><span class="block text-[9px] uppercase font-bold text-slate-400 mb-1">Motivo / observação</span><input id="serviceSuspendReason" type="text" placeholder="Ex.: dispensado temporariamente, restrição médica..." class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white" /></label>
+                </div>
+                <div class="mt-3 flex justify-end"><button type="button" onclick="serviceSaveSelectedRecruitSuspension()" class="requires-write px-3 py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700 text-xs font-semibold">Salvar afastamento</button></div>
+              </section>
+              <section><div class="flex items-center justify-between gap-2"><div><h4 class="text-xs font-black text-slate-800">Serviços do recruta</h4><p id="serviceRecruitHistorySummary" class="text-[10px] text-slate-500 mt-0.5"></p></div></div><div id="serviceRecruitHistory" class="mt-3 space-y-2"></div></section>
+            </div>
+          </div>
+        </div>
       </div>
 
 
@@ -8384,10 +8416,11 @@
 
     function serviceSeedState() {
       return {
-        version: 1,
+        version: 2,
         records: [],
         baselinePresence: [],
         deletedWeeks: [],
+        suspensions: [],
         signatures: {
           leftName: 'CASSIANO HONORATO MORGADO BERNARDES - 1º Ten Inf',
           leftRole: 'Comandante do EFSd',
@@ -8402,7 +8435,11 @@
         const raw = localStorage.getItem(SERVICE_SCALE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.records) && parsed.signatures) return parsed;
+          if (parsed && Array.isArray(parsed.records) && parsed.signatures) {
+            parsed.suspensions = Array.isArray(parsed.suspensions) ? parsed.suspensions : [];
+            parsed.version = Math.max(Number(parsed.version || 1), 2);
+            return parsed;
+          }
         }
       } catch (error) {
         console.warn('SIGR Escala: armazenamento local inválido.', error);
@@ -8421,7 +8458,8 @@
       serviceScaleState = Object.assign({}, defaults, serviceClone(remoteState), {
         records: serviceClone(remoteState.records),
         baselinePresence: Array.isArray(remoteState.baselinePresence) ? serviceClone(remoteState.baselinePresence) : defaults.baselinePresence,
-        deletedWeeks: Array.isArray(remoteState.deletedWeeks) ? serviceClone(remoteState.deletedWeeks) : []
+        deletedWeeks: Array.isArray(remoteState.deletedWeeks) ? serviceClone(remoteState.deletedWeeks) : [],
+        suspensions: Array.isArray(remoteState.suspensions) ? serviceClone(remoteState.suspensions) : []
       });
       serviceWeekStart = serviceScaleState.activeWeekStart || serviceMondayFor(todayStr());
       serviceDraft = null;
@@ -8531,7 +8569,7 @@
         checked++;
         if (!recruit) break;
         const id = String(recruit.id);
-        if (blocked.has(id) || serviceIsOnMedical(id, date)) continue;
+        if (blocked.has(id) || serviceIsOnMedical(id, date) || serviceIsSuspended(id, date)) continue;
         picks.push(recruit);
         blocked.add(id);
       }
@@ -8567,6 +8605,18 @@
         const date = dates[dayIndex];
         const saved = currentRecords.find(function(record) { return record.date === date; });
         const record = serviceNormalizeRecordSlots(saved ? serviceClone(saved) : serviceNewRecord(date));
+        if (record.status !== 'executed') {
+          record.slots.forEach(function(slot) {
+            if (slot.plannedRecruitId && serviceIsSuspended(slot.plannedRecruitId, date)) {
+              slot.plannedRecruitId = '';
+              slot.actualRecruitId = '';
+              slot.changeReason = '';
+            } else if (slot.actualRecruitId && serviceIsSuspended(slot.actualRecruitId, date)) {
+              slot.actualRecruitId = '';
+              slot.changeReason = '';
+            }
+          });
+        }
         const chosen = record.slots.map(function(slot) { return String(slot.plannedRecruitId || ''); }).filter(Boolean);
         if (new Set(chosen).size !== chosen.length) {
           showToast('Corrija os recrutas repetidos da escala de ' + serviceFormatDate(date));
@@ -8740,9 +8790,9 @@
         if (weekIds.length) {
           hint.textContent = 'Sequência da semana: Recruta ' + weekIds[0].padStart(3, '0') + ' até Recruta ' + weekIds[weekIds.length - 1].padStart(3, '0') + '. A próxima semana continuará depois desse último número.';
         } else {
-          const roster = serviceSequenceRecruits();
-          const next = roster[serviceSequenceStartIndexForDate(dates[0])];
-          hint.textContent = 'Próximo da fila: Recruta ' + (next ? String(next.id).padStart(3, '0') : '097') + '. Ordem fixa: 097 → 096 → ... → 001 → 097.';
+          const nextSequence = serviceTakeSequence(dates[0], serviceSequenceStartIndexForDate(dates[0]), 1, new Set());
+          const next = nextSequence.picks[0];
+          hint.textContent = 'Próximo disponível da fila: Recruta ' + (next ? String(next.id).padStart(3, '0') : '—') + '. Ordem fixa: 097 → 096 → ... → 001 → 097, pulando baixas e afastamentos.';
         }
       }
       const restore = document.getElementById('serviceRestoreWeekButton');
@@ -8779,6 +8829,39 @@
         const end = String(leave.fim || leave.end || '');
         return (!start || start <= date) && (!end || date <= end);
       });
+    }
+
+
+    function serviceSuspensions() {
+      if (!Array.isArray(serviceScaleState.suspensions)) serviceScaleState.suspensions = [];
+      return serviceScaleState.suspensions;
+    }
+
+
+    function serviceSuspensionFor(recruitId, date) {
+      const id = String(recruitId || '');
+      const target = String(date || todayStr());
+      if (!id) return null;
+      const matches = serviceSuspensions().filter(function(item) {
+        if (String(item.recruitId || '') !== id) return false;
+        const start = String(item.startDate || '');
+        const end = String(item.endDate || '');
+        return (!start || start <= target) && (!end || target <= end);
+      }).sort(function(a, b) { return String(b.startDate || '').localeCompare(String(a.startDate || '')); });
+      return matches[0] || null;
+    }
+
+
+    function serviceIsSuspended(recruitId, date) {
+      return !!serviceSuspensionFor(recruitId, date);
+    }
+
+
+    function serviceLatestOpenSuspension(recruitId) {
+      const id = String(recruitId || '');
+      return serviceSuspensions().filter(function(item) {
+        return String(item.recruitId || '') === id && !String(item.endDate || '');
+      }).sort(function(a, b) { return String(b.startDate || '').localeCompare(String(a.startDate || '')); })[0] || null;
     }
 
     function serviceEffectiveRecruitId(slot) {
@@ -8853,8 +8936,11 @@
       serviceValidRecruits().forEach(function(recruit) {
         const id = String(recruit.id);
         const medical = serviceIsOnMedical(id, date) ? ' · EM BAIXA' : '';
-        const label = 'Nº ' + id.padStart(3, '0') + ' — ' + (recruit.warName || recruit.name) + medical;
-        html += '<option value="' + escapeHTML(id) + '"' + (id === selected ? ' selected' : '') + '>' + escapeHTML(label) + '</option>';
+        const suspended = serviceIsSuspended(id, date);
+        const suspension = suspended ? ' · AFASTADO' : '';
+        const label = 'Nº ' + id.padStart(3, '0') + ' — ' + (recruit.warName || recruit.name) + medical + suspension;
+        const disabled = suspended && id !== selected ? ' disabled' : '';
+        html += '<option value="' + escapeHTML(id) + '"' + (id === selected ? ' selected' : '') + disabled + '>' + escapeHTML(label) + '</option>';
       });
       return html;
     }
@@ -8875,7 +8961,9 @@
       html += '<div class="flex items-center justify-between gap-2 mb-2"><span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Posto ' + slot.position + '</span>';
       if (changed) html += '<span class="text-[8px] font-black text-amber-700 bg-amber-100 rounded-full px-2 py-0.5">TROCA</span>';
       html += '</div><label class="block"><span class="text-[9px] font-bold text-slate-500">Escalado originalmente</span>';
-      html += '<select onchange="serviceUpdateSlot(' + index + ',\'plannedRecruitId\',this.value)" class="mt-1 w-full border border-slate-200 rounded-lg px-2 py-2 text-[11px] bg-white">' + serviceRecruitOptions(planned, serviceDraft.date, false) + '</select></label>';
+      html += '<select onchange="serviceUpdateSlot(' + index + ',\'plannedRecruitId\',this.value)" class="mt-1 w-full border border-slate-200 rounded-lg px-2 py-2 text-[11px] bg-white">' + serviceRecruitOptions(planned, serviceDraft.date, false) + '</select>';
+      if (planned) html += '<button type="button" onclick="serviceOpenRecruitDetails(\'' + escapeHTML(planned) + '\')" class="mt-1 text-[9px] font-bold text-violet-600 hover:underline">Ver histórico do Recruta ' + escapeHTML(planned.padStart(3, '0')) + '</button>';
+      html += '</label>';
       html += '<label class="block mt-2"><span class="text-[9px] font-bold ' + (changed ? 'text-amber-700' : 'text-slate-500') + '">Executante real (somente se houve troca)</span>';
       html += '<select onchange="serviceUpdateSlot(' + index + ',\'actualRecruitId\',this.value)" class="mt-1 w-full border ' + (changed ? 'border-amber-300' : 'border-slate-200') + ' rounded-lg px-2 py-2 text-[11px] bg-white">' + serviceRecruitOptions(actual, serviceDraft.date, true) + '</select></label>';
       if (changed) {
@@ -8948,6 +9036,8 @@
       if (new Set(planned).size !== planned.length) return { ok: false, message: 'Um recruta foi escalado em mais de um posto.' };
       const effective = serviceDraft.slots.map(serviceEffectiveRecruitId).filter(Boolean);
       if (new Set(effective).size !== effective.length) return { ok: false, message: 'O mesmo executante real aparece em mais de um posto.' };
+      const unavailable = effective.filter(function(id) { return serviceIsSuspended(id, serviceDraft.date); });
+      if (unavailable.length) return { ok: false, message: 'Há recruta(s) afastado(s) nesta data: ' + unavailable.map(function(id) { return 'Nº ' + String(id).padStart(3, '0'); }).join(', ') + '.' };
       if (confirming) {
         const missingReason = serviceDraft.slots.find(function(slot) {
           return slot.actualRecruitId && slot.actualRecruitId !== slot.plannedRecruitId && !String(slot.changeReason || '').trim();
@@ -9020,11 +9110,13 @@
       const total = Array.from(stats.values()).reduce(function(sum, item) { return sum + item.count; }, 0);
       const date = serviceDraft && serviceDraft.date ? serviceDraft.date : todayStr();
       const medical = serviceValidRecruits().filter(function(recruit) { return serviceIsOnMedical(recruit.id, date); }).length;
+      const suspended = serviceValidRecruits().filter(function(recruit) { return serviceIsSuspended(recruit.id, date); }).length;
       const values = {
         serviceMetricRecords: (serviceScaleState.records || []).length,
         serviceMetricPresence: total,
         serviceMetricChanges: serviceCountChanges(),
-        serviceMetricMedical: medical
+        serviceMetricMedical: medical,
+        serviceMetricSuspended: suspended
       };
       Object.keys(values).forEach(function(id) {
         const el = document.getElementById(id);
@@ -9088,7 +9180,10 @@
       const host = document.getElementById('servicePresenceRanking');
       if (!host) return;
       const stats = servicePresenceStats();
-      const rows = serviceValidRecruits().map(function(recruit) {
+      const referenceDate = serviceDraft && serviceDraft.date ? serviceDraft.date : todayStr();
+      const rows = serviceValidRecruits().filter(function(recruit) {
+        return !serviceIsSuspended(recruit.id, referenceDate);
+      }).map(function(recruit) {
         const item = stats.get(String(recruit.id)) || { count: 0, lastDate: '' };
         return { recruit: recruit, count: item.count, lastDate: item.lastDate };
       }).sort(function(a, b) {
@@ -9096,12 +9191,207 @@
       });
       host.innerHTML = rows.map(function(item) {
         const last = item.lastDate ? 'Último: ' + serviceFormatDate(item.lastDate) : 'Ainda sem serviço registrado';
-        return '<div class="flex items-center gap-3 rounded-lg border border-slate-100 px-3 py-2"><span class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-black">' +
+        return '<button type="button" onclick="serviceOpenRecruitDetails(\'' + escapeHTML(String(item.recruit.id)) + '\')" class="w-full text-left flex items-center gap-3 rounded-lg border border-slate-100 px-3 py-2 hover:border-violet-200 hover:bg-violet-50/40 transition"><span class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-black">' +
           escapeHTML(String(item.recruit.id).padStart(3, '0')) + '</span><span class="min-w-0 flex-1"><strong class="block text-[11px] text-slate-700 truncate">' +
           escapeHTML(item.recruit.warName || item.recruit.name) + '</strong><span class="text-[9px] text-slate-400">' + last +
-          '</span></span><span class="text-center"><strong class="block text-base text-brand-700">' + item.count + '</strong><span class="text-[8px] text-slate-400">presença(s)</span></span></div>';
+          '</span></span><span class="text-center"><strong class="block text-base text-brand-700">' + item.count + '</strong><span class="text-[8px] text-slate-400">presença(s)</span></span></button>';
       }).join('');
     }
+    let serviceSelectedRecruitId = '';
+
+    function serviceRecruitById(recruitId) {
+      const id = String(recruitId || '');
+      return serviceValidRecruits().find(function(recruit) { return String(recruit.id) === id; }) || null;
+    }
+
+    function serviceAvailabilityLabel(recruit) {
+      if (!recruit) return '';
+      return 'Nº ' + String(recruit.id).padStart(3, '0') + ' — ' + (recruit.warName || recruit.name);
+    }
+
+    function renderServiceAvailabilityPanel() {
+      const select = document.getElementById('serviceAvailabilityRecruitSelect');
+      const list = document.getElementById('serviceSuspendedList');
+      const referenceDate = serviceDraft && serviceDraft.date ? serviceDraft.date : todayStr();
+      if (select) {
+        const current = select.value;
+        select.innerHTML = serviceValidRecruits().map(function(recruit) {
+          const id = String(recruit.id);
+          const tag = serviceIsSuspended(id, referenceDate) ? ' · AFASTADO' : '';
+          return '<option value="' + escapeHTML(id) + '">' + escapeHTML(serviceAvailabilityLabel(recruit) + tag) + '</option>';
+        }).join('');
+        if (current && serviceRecruitById(current)) select.value = current;
+      }
+      if (list) {
+        const suspended = serviceValidRecruits().filter(function(recruit) { return serviceIsSuspended(recruit.id, referenceDate); });
+        if (!suspended.length) {
+          list.innerHTML = '<div class="text-[10px] text-violet-500">Nenhum recruta afastado em ' + serviceFormatDate(referenceDate) + '.</div>';
+        } else {
+          list.innerHTML = '<div class="flex flex-wrap items-center gap-2"><span class="text-[9px] font-black uppercase tracking-wider text-violet-500">Afastados em ' + serviceFormatDate(referenceDate) + ':</span>' + suspended.map(function(recruit) {
+            const suspension = serviceSuspensionFor(recruit.id, referenceDate) || {};
+            const reason = suspension.reason ? ' — ' + suspension.reason : '';
+            return '<button type="button" onclick="serviceOpenRecruitDetails(\'' + escapeHTML(String(recruit.id)) + '\')" class="rounded-full border border-violet-200 bg-white px-2.5 py-1 text-[9px] font-bold text-violet-700 hover:bg-violet-100" title="' + escapeHTML(reason) + '">Nº ' + escapeHTML(String(recruit.id).padStart(3, '0')) + '</button>';
+          }).join('') + '</div>';
+        }
+      }
+    }
+
+    function serviceOpenSelectedRecruitDetails() {
+      const select = document.getElementById('serviceAvailabilityRecruitSelect');
+      if (!select || !select.value) { showToast('Selecione um recruta'); return; }
+      serviceOpenRecruitDetails(select.value);
+    }
+
+    function serviceRecruitHistoryEntries(recruitId) {
+      const id = String(recruitId || '');
+      const entries = [];
+      (serviceScaleState.records || []).forEach(function(record) {
+        (record.slots || []).forEach(function(slot) {
+          const planned = String(slot.plannedRecruitId || '');
+          const actual = String(slot.actualRecruitId || '');
+          if (planned !== id && actual !== id) return;
+          let kind = 'Escalado';
+          let detail = slot.role + ' · Posto ' + slot.position;
+          let counted = false;
+          if (record.status === 'executed') {
+            if (actual === id || (!actual && planned === id)) {
+              kind = 'Serviço cumprido';
+              counted = true;
+            } else if (planned === id && actual && actual !== id) {
+              kind = 'Substituído';
+              detail += ' · executado pelo Nº ' + actual.padStart(3, '0');
+            }
+          } else if (actual === id && actual !== planned) {
+            kind = 'Executante previsto após troca';
+          }
+          entries.push({ date: record.date, role: slot.role, position: slot.position, kind: kind, detail: detail, counted: counted, source: 'SIGR Escala' });
+        });
+      });
+      (serviceScaleState.baselinePresence || []).forEach(function(entry) {
+        if ((entry.recruitIds || []).map(String).includes(id)) {
+          entries.push({ date: entry.date, role: 'Função não informada', position: '', kind: 'Serviço confirmado (importado)', detail: entry.source || 'Histórico importado', counted: true, source: entry.source || 'Importação' });
+        }
+      });
+      return entries.sort(function(a, b) { return String(b.date).localeCompare(String(a.date)) || String(a.role).localeCompare(String(b.role)); });
+    }
+
+    function serviceOpenRecruitDetails(recruitId) {
+      const recruit = serviceRecruitById(recruitId);
+      if (!recruit) { showToast('Recruta não encontrado'); return; }
+      serviceSelectedRecruitId = String(recruit.id);
+      const modal = document.getElementById('serviceRecruitModal');
+      const title = document.getElementById('serviceRecruitModalTitle');
+      const status = document.getElementById('serviceRecruitModalStatus');
+      const historyHost = document.getElementById('serviceRecruitHistory');
+      const summary = document.getElementById('serviceRecruitHistorySummary');
+      const startInput = document.getElementById('serviceSuspendStart');
+      const endInput = document.getElementById('serviceSuspendEnd');
+      const reasonInput = document.getElementById('serviceSuspendReason');
+      const reactivate = document.getElementById('serviceReactivateRecruitButton');
+      const referenceDate = serviceDraft && serviceDraft.date ? serviceDraft.date : todayStr();
+      const active = serviceSuspensionFor(serviceSelectedRecruitId, referenceDate);
+      const openSuspension = serviceLatestOpenSuspension(serviceSelectedRecruitId);
+      if (title) title.textContent = serviceAvailabilityLabel(recruit);
+      if (status) {
+        if (active) {
+          status.innerHTML = '<span class="inline-flex rounded-full bg-violet-100 text-violet-700 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider">Afastado na data selecionada</span>' + (active.reason ? '<span class="ml-2 text-[10px] text-slate-500">' + escapeHTML(active.reason) + '</span>' : '');
+        } else {
+          status.innerHTML = '<span class="inline-flex rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-1 text-[9px] font-black uppercase tracking-wider">Disponível na data selecionada</span>';
+        }
+      }
+      const editable = openSuspension || active;
+      if (startInput) startInput.value = editable && editable.startDate ? editable.startDate : todayStr();
+      if (endInput) endInput.value = editable && editable.endDate ? editable.endDate : '';
+      if (reasonInput) reasonInput.value = editable && editable.reason ? editable.reason : '';
+      if (reactivate) reactivate.classList.toggle('hidden', !openSuspension && !serviceIsSuspended(serviceSelectedRecruitId, todayStr()));
+      const entries = serviceRecruitHistoryEntries(serviceSelectedRecruitId);
+      const confirmedCount = entries.filter(function(entry) { return entry.counted; }).length;
+      if (summary) summary.textContent = confirmedCount + ' serviço(s) confirmado(s) no histórico · ' + entries.length + ' registro(s) de escala no total.';
+      if (historyHost) {
+        if (!entries.length) {
+          historyHost.innerHTML = '<div class="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center text-xs text-slate-400">Este recruta ainda não possui serviço registrado.</div>';
+        } else {
+          historyHost.innerHTML = entries.map(function(entry) {
+            const tone = entry.counted ? 'border-emerald-100 bg-emerald-50/40' : (entry.kind === 'Substituído' ? 'border-amber-100 bg-amber-50/40' : 'border-slate-100 bg-slate-50/50');
+            return '<div class="rounded-xl border ' + tone + ' px-3 py-3 flex items-start gap-3"><div class="w-20 shrink-0"><strong class="block text-[10px] text-slate-700">' + serviceFormatDate(entry.date) + '</strong><span class="text-[8px] text-slate-400">' + escapeHTML(entry.source) + '</span></div><div class="min-w-0 flex-1"><strong class="block text-[11px] text-slate-800">' + escapeHTML(entry.kind) + '</strong><span class="block text-[10px] text-slate-500 mt-0.5">' + escapeHTML(entry.detail) + '</span></div></div>';
+          }).join('');
+        }
+      }
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function serviceCloseRecruitDetails() {
+      const modal = document.getElementById('serviceRecruitModal');
+      if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    }
+
+    function serviceSaveSelectedRecruitSuspension() {
+      if (!canSigrWrite()) { showToast('Acesso somente para consulta'); return; }
+      if (!serviceSelectedRecruitId) { showToast('Selecione um recruta'); return; }
+      const startInput = document.getElementById('serviceSuspendStart');
+      const endInput = document.getElementById('serviceSuspendEnd');
+      const reasonInput = document.getElementById('serviceSuspendReason');
+      const startDate = startInput && startInput.value ? startInput.value : todayStr();
+      const endDate = endInput && endInput.value ? endInput.value : '';
+      const reason = reasonInput ? String(reasonInput.value || '').trim() : '';
+      if (endDate && endDate < startDate) { showToast('A data de retorno não pode ser anterior ao início'); return; }
+      const now = new Date().toISOString();
+      const open = serviceLatestOpenSuspension(serviceSelectedRecruitId);
+      const activeAtStart = serviceSuspensionFor(serviceSelectedRecruitId, startDate);
+      const target = open || activeAtStart;
+      if (target) {
+        target.startDate = startDate;
+        target.endDate = endDate;
+        target.reason = reason;
+        target.updatedAt = now;
+        target.updatedBy = serviceActorName();
+      } else {
+        serviceSuspensions().push({
+          id: 'svc-susp-' + serviceSelectedRecruitId + '-' + Date.now().toString(36),
+          recruitId: serviceSelectedRecruitId,
+          startDate: startDate,
+          endDate: endDate,
+          reason: reason,
+          createdAt: now,
+          createdBy: serviceActorName(),
+          updatedAt: now,
+          updatedBy: serviceActorName()
+        });
+      }
+      serviceSaveState();
+      renderServiceScaleModule();
+      serviceOpenRecruitDetails(serviceSelectedRecruitId);
+      showToast('Afastamento salvo. O recruta ficará fora da sequência automática no período informado');
+    }
+
+    function serviceReactivateSelectedRecruit() {
+      if (!canSigrWrite()) { showToast('Acesso somente para consulta'); return; }
+      if (!serviceSelectedRecruitId) return;
+      const today = todayStr();
+      const open = serviceLatestOpenSuspension(serviceSelectedRecruitId);
+      const active = serviceSuspensionFor(serviceSelectedRecruitId, today);
+      const target = open || active;
+      if (!target) { showToast('O recruta já está disponível'); return; }
+      if (!confirm('Reativar este recruta na escala a partir de hoje?')) return;
+      const start = String(target.startDate || today);
+      if (start >= today) {
+        serviceScaleState.suspensions = serviceSuspensions().filter(function(item) { return item.id !== target.id; });
+      } else {
+        const previous = serviceDateObject(today);
+        previous.setDate(previous.getDate() - 1);
+        target.endDate = serviceISODate(previous);
+        target.updatedAt = new Date().toISOString();
+        target.updatedBy = serviceActorName();
+      }
+      serviceSaveState();
+      renderServiceScaleModule();
+      serviceOpenRecruitDetails(serviceSelectedRecruitId);
+      showToast('Recruta reativado na escala');
+    }
+
 
     function serviceFillSignatureFields() {
       const signatures = serviceScaleState.signatures || {};
@@ -9144,6 +9434,7 @@
       serviceRenderMetrics();
       renderServiceHistory();
       renderServicePresenceRanking();
+      renderServiceAvailabilityPanel();
       serviceFillSignatureFields();
     }
 
