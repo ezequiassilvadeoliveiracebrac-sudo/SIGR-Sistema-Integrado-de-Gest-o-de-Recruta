@@ -6359,12 +6359,21 @@
     }
     function sigrTop10Data(mode,days) {
       const period=sigrPeriodLastDays(days);
-      const data=getActiveRecruits().map(rec=>{
+      const allData=getActiveRecruits().map(rec=>{
         const occs=sigrOccsBetween(rec.id,period.start,period.end);
         const neg=occs.filter(o=>Number(o.points)<0), pos=occs.filter(o=>Number(o.points)>0);
         const saldo=occs.reduce((s,o)=>s+(Number(o.points)||0),0);
-        return {rec,occs,neg,pos,saldo};
-      }).filter(x=>x.occs.length>0);
+        return {rec,occs,neg,pos,saldo,topReason:''};
+      });
+      if(mode==='best' && days===7){
+        const positive=allData.filter(x=>x.pos.length>0).sort((a,b)=>b.saldo-a.saldo || b.pos.length-a.pos.length || a.neg.length-b.neg.length || String(a.rec.id).localeCompare(String(b.rec.id),undefined,{numeric:true}));
+        positive.forEach(x=>x.topReason='Recebeu FO+ no período selecionado.');
+        const remaining=Math.max(0,10-positive.length);
+        const unchanged=allData.filter(x=>x.occs.length===0).sort((a,b)=>getRecruitPartialScore(b.rec.id)-getRecruitPartialScore(a.rec.id) || String(a.rec.id).localeCompare(String(b.rec.id),undefined,{numeric:true})).slice(0,remaining);
+        unchanged.forEach(x=>x.topReason='Não recebeu alteração no período selecionado.');
+        return {period,ranking:positive.slice(0,10).concat(unchanged).slice(0,10)};
+      }
+      const data=allData.filter(x=>x.occs.length>0);
       data.sort((a,b)=> mode==='changed'
         ? (String(a.rec.id).localeCompare(String(b.rec.id), undefined, { numeric:true }))
         : mode==='best'
@@ -6413,6 +6422,7 @@
         const tl=pdf.splitTextToSize(title,W);pdf.text(tl,ML,y);y+=tl.length*4.2+1;
         setText(8,'normal',MID);pdf.text(`Ocorrências: ${x.occs.length}  |  Negativas: ${x.neg.length}  |  Positivas: ${x.pos.length}`,ML,y);
         setText(8.2,'bold',x.saldo<0?RED:x.saldo>0?GREEN:MID);pdf.text(`Saldo: ${x.saldo>0?'+':''}${x.saldo} pts`,PW-MR,y,{align:'right'}); y+=5;
+        if(x.topReason){setText(7.5,'bold',x.pos.length?GREEN:BLUE);pdf.text('Motivo no Top 10: '+x.topReason,ML,y);y+=4.5;}
       }
       const widths=[25,104,28,25];
       function occHeader(){
@@ -6426,14 +6436,22 @@
       header(true); summaryBox();
       if(!ranking.length){ensure(22);pdf.setDrawColor(...GRID);pdf.roundedRect(ML,y,W,18,2,2,'S');setText(9,'normal',MID);pdf.text('Nenhum registro encontrado no período.',PW/2,y+10,{align:'center'});y+=24;}
       else ranking.forEach((x,index)=>{
-        ensure(27);recruitHeading(x,index,false);occHeader();
-        x.occs.forEach(o=>{setText(7.2,'normal',DARK);const desc=pdf.splitTextToSize(String(o.text||''),widths[1]-4);const rh=Math.max(7.2,desc.length*3.35+3);if(y+rh>PH-MB){addPage();recruitHeading(x,index,true);occHeader()}drawOcc(o)});y+=7;
+        ensure(31);recruitHeading(x,index,false);
+        if(x.occs.length){
+          occHeader();
+          x.occs.forEach(o=>{setText(7.2,'normal',DARK);const desc=pdf.splitTextToSize(String(o.text||''),widths[1]-4);const rh=Math.max(7.2,desc.length*3.35+3);if(y+rh>PH-MB){addPage();recruitHeading(x,index,true);occHeader()}drawOcc(o)});
+        }else{
+          ensure(10);pdf.setFillColor(239,246,255);pdf.setDrawColor(147,197,253);pdf.roundedRect(ML,y,W,8,1.5,1.5,'FD');setText(7.8,'bold',BLUE);pdf.text('Sem alterações registradas no período selecionado.',ML+3,y+5.2);y+=9;
+        }
+        y+=7;
       });
       ensure(35);section('SÍNTESE DO PERÍODO');
       setText(8.1,'normal',[55,65,81]);const synth=isChanged
         ? `O relatório apresenta todos os recrutas que tiveram ao menos uma ocorrência ou alteração de pontuação nos últimos ${days} dias, sem limite de quantidade. Os recrutas estão organizados por número e cada registro do período é detalhado.`
         : isBest
-          ? `O relatório apresenta os recrutas com melhor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e, em caso de empate, prioriza maior número de registros positivos e menor número de registros negativos.`
+          ? (days===7
+            ? `O relatório prioriza os recrutas que receberam FO+ nos últimos 7 dias. Quando há menos de 10 recrutas com alteração positiva, as vagas restantes são preenchidas pelos recrutas de maior pontuação atual que não receberam nenhuma alteração no período. Recrutas com somente alterações negativas não entram nesta relação.`
+            : `O relatório apresenta os recrutas com melhor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e, em caso de empate, prioriza maior número de registros positivos e menor número de registros negativos.`)
           : `O relatório apresenta os recrutas com menor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e serve como apoio à identificação de casos que merecem maior atenção.`;
       const sl=pdf.splitTextToSize(synth,W);pdf.text(sl,ML,y,{maxWidth:W});y+=sl.length*4+8;line(ML,y,PW-MR,y,[229,231,235],.25);y+=7;setText(6.4,'normal',[148,163,184]);pdf.text('Documento gerado pelo SIGR — uso interno',ML,y);pdf.text('Não substitui julgamento do instrutor',PW-MR,y,{align:'right'});y+=11;line(PW/2-27,y,PW/2+27,y,[148,163,184],.25);y+=5;setText(7.2,'normal',MID);pdf.text('Encarregado / Comandante da Esquadrilha',PW/2,y,{align:'center'});
       const pages=pdf.getNumberOfPages();for(let p=1;p<=pages;p++){pdf.setPage(p);setText(6.3,'normal',[148,163,184]);pdf.text(`Página ${p} de ${pages}`,PW-MR,PH-5,{align:'right'})}
