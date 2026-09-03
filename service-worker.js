@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v13-registro-ocorrencias';
-const STATIC_CACHE = 'sigr-static-v13-registro-ocorrencias';
+const APP_CACHE = 'sigr-pwa-v14-qts-escala-afastamentos';
+const STATIC_CACHE = 'sigr-static-v14-qts-escala-afastamentos';
 
 const CORE_SHELL = [
   './',
