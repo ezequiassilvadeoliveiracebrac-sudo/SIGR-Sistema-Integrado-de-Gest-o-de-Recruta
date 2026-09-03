@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v17-relatorio-alteracoes';
-const STATIC_CACHE = 'sigr-static-v17-relatorio-alteracoes';
+const APP_CACHE = 'sigr-pwa-v18-licenciamento-sustado';
+const STATIC_CACHE = 'sigr-static-v18-licenciamento-sustado';
 
 const CORE_SHELL = [
   './',
