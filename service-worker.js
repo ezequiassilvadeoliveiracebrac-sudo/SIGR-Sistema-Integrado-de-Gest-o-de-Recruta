@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v14-qts-escala-afastamentos';
-const STATIC_CACHE = 'sigr-static-v14-qts-escala-afastamentos';
+const APP_CACHE = 'sigr-pwa-v14-afastamento-feriado';
+const STATIC_CACHE = 'sigr-static-v14-afastamento-feriado';
 
 const CORE_SHELL = [
   './',

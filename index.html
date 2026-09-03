@@ -4447,7 +4447,9 @@
         provas: Array.isArray(r.provas) ? r.provas : [],
         taf: Array.isArray(r.taf) ? r.taf : [],
         instrucoes: Array.isArray(r.instrucoes) ? r.instrucoes : [],
-        observacoes: Array.isArray(r.observacoes) ? r.observacoes : []
+        observacoes: Array.isArray(r.observacoes) ? r.observacoes : [],
+        recruitmentAway: !!r.recruitmentAway,
+        recruitmentAwayReason: r.recruitmentAwayReason || ''
       }]));
     }
 
@@ -4468,21 +4470,55 @@
         }]));
     }
 
-    async function syncTableSnapshot(tableName, rows, deleteStale = true) {
-      if (!sigrSupabase || !sigrSession) return;
-      if (rows.length) {
-        const { error } = await sigrSupabase.from(tableName).upsert(rows, { onConflict: 'id' });
+    // Mantém as configurações originais de paginação e escrita segura no Supabase.
+    // Sem isso, consultas acima de 1.000 registros ficavam incompletas.
+    const SIGR_DB_PAGE_SIZE = 500;
+    const SIGR_DB_WRITE_BATCH_SIZE = 500;
+    const SIGR_DB_DELETE_BATCH_SIZE = 100;
+
+    async function fetchAllRows(tableName, { columns = '*', orderColumn = 'id', ascending = true } = {}) {
+      const allRows = [];
+      let offset = 0;
+      while (true) {
+        let query = sigrSupabase.from(tableName).select(columns);
+        if (orderColumn) {
+          query = query.order(orderColumn, { ascending });
+          if (orderColumn !== 'id') query = query.order('id', { ascending: true });
+        }
+        const { data, error } = await query.range(offset, offset + SIGR_DB_PAGE_SIZE - 1);
+        if (error) return { data: null, error };
+        const page = data || [];
+        allRows.push(...page);
+        if (page.length < SIGR_DB_PAGE_SIZE) return { data: allRows, error: null };
+        offset += SIGR_DB_PAGE_SIZE;
+      }
+    }
+
+    async function upsertRowsInChunks(tableName, rows) {
+      for (let offset = 0; offset < rows.length; offset += SIGR_DB_WRITE_BATCH_SIZE) {
+        const batch = rows.slice(offset, offset + SIGR_DB_WRITE_BATCH_SIZE);
+        const { error } = await sigrSupabase.from(tableName).upsert(batch, { onConflict: 'id' });
         if (error) throw error;
       }
+    }
+
+    async function deleteRowsByIdInChunks(tableName, ids) {
+      for (let offset = 0; offset < ids.length; offset += SIGR_DB_DELETE_BATCH_SIZE) {
+        const batch = ids.slice(offset, offset + SIGR_DB_DELETE_BATCH_SIZE);
+        const { error } = await sigrSupabase.from(tableName).delete().in('id', batch);
+        if (error) throw error;
+      }
+    }
+
+    async function syncTableSnapshot(tableName, rows, deleteStale = true) {
+      if (!sigrSupabase || !sigrSession) return;
+      if (rows.length) await upsertRowsInChunks(tableName, rows);
       if (!deleteStale) return;
-      const { data: existing, error: listError } = await sigrSupabase.from(tableName).select('id');
+      const { data: existing, error: listError } = await fetchAllRows(tableName, { columns: 'id', orderColumn: 'id' });
       if (listError) throw listError;
       const liveIds = new Set(rows.map(row => String(row.id)));
       const staleIds = (existing || []).map(row => row.id).filter(id => !liveIds.has(String(id)));
-      if (staleIds.length) {
-        const { error: deleteError } = await sigrSupabase.from(tableName).delete().in('id', staleIds);
-        if (deleteError) throw deleteError;
-      }
+      if (staleIds.length) await deleteRowsByIdInChunks(tableName, staleIds);
     }
 
     function queueSupabaseSync() {
@@ -4538,14 +4574,11 @@
         if (configError) throw configError;
 
         // Recrutas são removidos por último para respeitar as referências das tabelas filhas.
-        const { data: existingRecruits, error: existingError } = await sigrSupabase.from('recruits').select('id');
+        const { data: existingRecruits, error: existingError } = await fetchAllRows('recruits', { columns: 'id', orderColumn: 'id' });
         if (existingError) throw existingError;
         const liveRecruitIds = new Set(recruitRows.map(row => String(row.id)));
         const staleRecruitIds = (existingRecruits || []).map(row => row.id).filter(id => !liveRecruitIds.has(String(id)));
-        if (staleRecruitIds.length) {
-          const { error: deleteRecruitError } = await sigrSupabase.from('recruits').delete().in('id', staleRecruitIds);
-          if (deleteRecruitError) throw deleteRecruitError;
-        }
+        if (staleRecruitIds.length) await deleteRowsByIdInChunks('recruits', staleRecruitIds);
         setSigrSyncStatus('online', 'Online');
       } catch (error) {
         console.error('SIGR Supabase: falha ao sincronizar', error);
@@ -4564,10 +4597,10 @@
       if (!sigrSupabase || !sigrSession) throw new Error('Sessão do Supabase indisponível.');
       setSigrSyncStatus('syncing', 'Carregando');
       const [recRes, occRes, eventRes, medicalRes, cfgRes] = await Promise.all([
-        sigrSupabase.from('recruits').select('*').order('id'),
-        sigrSupabase.from('occurrences').select('*').order('id', { ascending: false }),
-        sigrSupabase.from('events').select('*').order('date'),
-        sigrSupabase.from('medicalLeaves').select('*').order('inicio', { ascending: false }),
+        fetchAllRows('recruits', { orderColumn: 'id', ascending: true }),
+        fetchAllRows('occurrences', { orderColumn: 'id', ascending: false }),
+        fetchAllRows('events', { orderColumn: 'date', ascending: true }),
+        fetchAllRows('medicalLeaves', { orderColumn: 'inicio', ascending: false }),
         sigrSupabase.from('sigr_config').select('config, metadata').eq('id', 'principal').maybeSingle()
       ]);
       for (const result of [recRes, occRes, eventRes, medicalRes, cfgRes]) {
@@ -4592,6 +4625,14 @@
       occurrences = remoteOccurrences.map(row => Object.assign(row, occurrenceAudit[String(row.id)] || {}));
       events = eventRes.data || [];
       medicalLeaves = medicalRes.data || [];
+      if (typeof serviceAdoptRemoteState === 'function') {
+        if (sigrMetadata.serviceScale) {
+          serviceAdoptRemoteState(sigrMetadata.serviceScale);
+        } else if (typeof serviceScaleState !== 'undefined') {
+          sigrMetadata.serviceScale = serviceClone(serviceScaleState);
+          queueSupabaseSync();
+        }
+      }
 
       localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ recruits, occurrences, events, medicalLeaves }));
@@ -5541,6 +5582,7 @@
             <div class="flex-shrink-0 text-right">
               <span class="font-bold block ${occ.points >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${occ.points >= 0 ? '+' + occ.points : occ.points}</span>
               <button type="button" onclick="openOccurrenceEdit('${escapeHTML(String(occ.id))}')" class="requires-write mt-2 rounded-md border border-brand-200 bg-brand-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-brand-700 hover:bg-brand-100">Ajustar pontos</button>
+              ${getEffectiveSigrRole() === 'admin' ? `<button type="button" onclick="deleteOccurrence('${escapeHTML(String(occ.id))}')" class="mt-2 rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-rose-700 hover:bg-rose-100">Apagar ocorrência</button>` : ''}
             </div>
           </div>`;
       }).join('');
@@ -5673,6 +5715,34 @@
       if (!modal) return;
       modal.classList.add('hidden');
       modal.classList.remove('flex');
+    }
+
+    function deleteOccurrence(occurrenceId) {
+      if (getEffectiveSigrRole() !== 'admin') {
+        showToast('Somente o administrador pode apagar ocorrências');
+        return;
+      }
+      const occurrence = occurrences.find(item => String(item.id) === String(occurrenceId));
+      if (!occurrence) { showToast('Ocorrência não encontrada'); return; }
+      const recruitId = String(occurrence.recruitId);
+      const recruit = getRecruitById(recruitId);
+      const recruitLabel = recruit ? `${recruit.id} — ${recruit.warName || recruit.name}` : recruitId;
+      const occurrenceSummary = `${occurrence.date || 'sem data'} · ${occurrence.type || 'Ocorrência'} · ${Number(occurrence.points || 0) >= 0 ? '+' : ''}${Number(occurrence.points || 0)} pts`;
+      if (!confirm(`APAGAR OCORRÊNCIA DO RECRUTA ${recruitLabel}?\n\n${occurrenceSummary}\n${occurrence.text || ''}\n\nEsta ação não poderá ser desfeita.`)) return;
+      occurrences = occurrences.filter(item => String(item.id) !== String(occurrenceId));
+      if (recruit) {
+        recruit.score = config.baseScore + occurrences
+          .filter(item => String(item.recruitId) === recruitId)
+          .reduce((sum, item) => sum + Number(item.points || 0), 0);
+      }
+      saveData();
+      renderAll();
+      openModal(recruitId);
+      showToast('Ocorrência apagada e pontuação recalculada');
+      recordOperatorActivity('OCCURRENCE_DELETED', 'occurrence', occurrence.id, {
+        recruitId, date: occurrence.date || null, type: occurrence.type || null,
+        severity: occurrence.gravidade || null, points: Number(occurrence.points || 0), text: occurrence.text || ''
+      });
     }
 
     function handleOccurrencePointEdit(event) {
@@ -8960,6 +9030,25 @@
     let serviceScaleState = serviceLoadState();
     let serviceWeekStart = serviceScaleState.activeWeekStart || serviceMondayFor(todayStr());
 
+    function serviceAdoptRemoteState(remoteState) {
+      if (!remoteState || !Array.isArray(remoteState.records)) return false;
+      const defaults = serviceSeedState();
+      serviceScaleState = Object.assign({}, defaults, serviceClone(remoteState), {
+        records: serviceClone(remoteState.records),
+        baselinePresence: Array.isArray(remoteState.baselinePresence) ? serviceClone(remoteState.baselinePresence) : defaults.baselinePresence,
+        deletedWeeks: Array.isArray(remoteState.deletedWeeks) ? serviceClone(remoteState.deletedWeeks) : [],
+        suspensions: Array.isArray(remoteState.suspensions) ? serviceClone(remoteState.suspensions) : [],
+        holidays: Array.isArray(remoteState.holidays) ? serviceClone(remoteState.holidays) : []
+      });
+      serviceWeekStart = serviceScaleState.activeWeekStart || serviceMondayFor(todayStr());
+      serviceDraft = null;
+      servicePdfSelection.clear();
+      servicePdfSelectionInitialized = false;
+      localStorage.setItem(SERVICE_SCALE_KEY, JSON.stringify(serviceScaleState));
+      if (!document.getElementById('view-escala')?.classList.contains('hidden')) renderServiceScaleModule();
+      return true;
+    }
+
     function serviceDateObject(date) {
       const parts = String(date || todayStr()).split('-').map(Number);
       return new Date(parts[0], parts[1] - 1, parts[2], 12);
@@ -9292,12 +9381,16 @@
 
     function serviceSaveState() {
       localStorage.setItem(SERVICE_SCALE_KEY, JSON.stringify(serviceScaleState));
+      if (canSigrWrite()) {
+        sigrMetadata = Object.assign({}, sigrMetadata, { serviceScale: serviceClone(serviceScaleState) });
+        queueSupabaseSync();
+      }
     }
 
     function serviceActorName() {
       if (sigrActiveOperator) return operatorFullName(sigrActiveOperator);
       if (sigrSession && sigrSession.user && sigrSession.user.email) return sigrSession.user.email;
-      return 'Operador do teste local';
+      return 'Operador SIGR';
     }
 
     function serviceValidRecruits() {
@@ -11308,7 +11401,7 @@ body{padding:0;}
       }
     }
 
-    // ---------- INIT DO SISTEMA ORIGINAL ----------
+    // ---------- INIT ----------
     updatePeriodLabel();
     renderAIChat();
     renderAll();
@@ -11316,7 +11409,6 @@ body{padding:0;}
     initializeSupabase();
   </script>
   <script>
-    // Mantém a instalação PWA e força a verificação segura de novas versões.
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
         navigator.serviceWorker
