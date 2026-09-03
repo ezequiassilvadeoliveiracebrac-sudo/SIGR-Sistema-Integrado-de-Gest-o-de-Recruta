@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v15-pdf-feriado';
-const STATIC_CACHE = 'sigr-static-v15-pdf-feriado';
+const APP_CACHE = 'sigr-pwa-v16-producao';
+const STATIC_CACHE = 'sigr-static-v16-producao';
 
 const CORE_SHELL = [
   './',
