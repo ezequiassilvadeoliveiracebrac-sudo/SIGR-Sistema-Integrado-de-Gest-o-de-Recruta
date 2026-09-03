@@ -9182,8 +9182,10 @@
 
       for (let dayIndex = 0; dayIndex < dates.length; dayIndex++) {
         const date = dates[dayIndex];
+        const holiday = serviceIsHoliday(date);
         const saved = currentRecords.find(function(record) { return record.date === date; });
         const record = serviceNormalizeRecordSlots(saved ? serviceClone(saved) : serviceNewRecord(date));
+        if (holiday) record.slots = serviceEmptySlots();
         if (record.status !== 'executed') {
           record.slots.forEach(function(slot) {
             if (slot.plannedRecruitId && (serviceIsSuspended(slot.plannedRecruitId, date) || isRecruitmentAway(slot.plannedRecruitId))) {
@@ -9207,7 +9209,7 @@
           return;
         }
         const excluded = new Set(chosen.concat(record.slots.map(function(slot) { return String(slot.actualRecruitId || ''); }).filter(Boolean)));
-        const missing = record.slots.filter(function(slot) { return !slot.plannedRecruitId; });
+        const missing = holiday ? [] : record.slots.filter(function(slot) { return !slot.plannedRecruitId; });
         const sequence = serviceTakeSequence(date, sequenceIndex, missing.length, excluded);
         if (sequence.picks.length < missing.length) {
           showToast('Não há recrutas disponíveis para completar ' + serviceFormatDate(date));
@@ -9221,8 +9223,8 @@
 
         const wasComplete = saved && serviceRecordComplete(saved);
         record.id = record.id || 'svc-' + date + '-' + Date.now().toString(36) + '-' + dayIndex;
-        record.status = saved && saved.status === 'executed' && wasComplete ? 'executed' : 'draft';
-        record.notes = record.notes || 'Planejamento semanal de ' + serviceFormatDate(dates[0]) + ' a ' + serviceFormatDate(dates[4]) + '.';
+        record.status = holiday ? 'holiday' : (saved && saved.status === 'executed' && wasComplete ? 'executed' : 'draft');
+        record.notes = holiday ? 'FERIADO' : (record.notes || 'Planejamento semanal de ' + serviceFormatDate(dates[0]) + ' a ' + serviceFormatDate(dates[4]) + '.');
         record.createdAt = record.createdAt || now;
         record.createdBy = record.createdBy || serviceActorName();
         record.updatedAt = now;
@@ -9234,7 +9236,7 @@
           changes: []
         }]);
         plannedRecords.push(record);
-        sequenceIndex = serviceSequenceIndexAfter(serviceLastPlannedRecruitId(record));
+        if (!holiday) sequenceIndex = serviceSequenceIndexAfter(serviceLastPlannedRecruitId(record));
       }
 
       plannedRecords.forEach(function(record) {
@@ -9260,7 +9262,7 @@
         return dates.has(record.date) && serviceRecordComplete(record);
       });
       if (records.length !== 5) {
-        showToast('Monte e complete os cinco dias antes de gerar o PDF da semana');
+        showToast('Monte os cinco dias; feriados marcados já contam como completos para o PDF');
         return false;
       }
       servicePdfSelection.clear();
@@ -9459,7 +9461,7 @@
         });
       });
       (serviceScaleState.records || []).filter(function(record) {
-        return record.status === 'executed';
+        return record.status === 'executed' && !serviceIsHoliday(record.date);
       }).forEach(function(record) {
         (record.slots || []).forEach(function(slot) {
           const key = serviceEffectiveRecruitId(slot);
@@ -9487,9 +9489,32 @@
       const dates = new Set(serviceScaleState.holidays || []);
       if (checked) dates.add(serviceDraft.date); else dates.delete(serviceDraft.date);
       serviceScaleState.holidays = Array.from(dates).sort();
+      const records = serviceScaleState.records || (serviceScaleState.records = []);
+      const now = new Date().toISOString();
+      let index = records.findIndex(function(record) { return record.date === serviceDraft.date; });
+      const previous = index >= 0 ? records[index] : null;
+      const record = serviceClone(previous || serviceDraft || serviceNewRecord(serviceDraft.date));
+      record.id = record.id || 'svc-' + record.date + '-' + Date.now().toString(36);
+      record.slots = checked ? serviceEmptySlots() : serviceNormalizeRecordSlots(record).slots;
+      record.status = checked ? 'holiday' : 'draft';
+      record.notes = checked ? 'FERIADO' : (record.notes === 'FERIADO' ? '' : (record.notes || ''));
+      record.createdAt = record.createdAt || now;
+      record.createdBy = record.createdBy || serviceActorName();
+      record.updatedAt = now;
+      record.updatedBy = serviceActorName();
+      record.audit = (record.audit || []).concat([{
+        ts: now,
+        actor: serviceActorName(),
+        action: checked ? 'holiday_marked' : 'holiday_removed',
+        changes: []
+      }]);
+      if (index >= 0) records[index] = record; else records.push(record);
+      serviceDraft = serviceClone(record);
+      if (checked) servicePdfSelection.add(record.id); else servicePdfSelection.delete(record.id);
+      servicePdfSelectionInitialized = true;
       serviceSaveState();
       renderServiceScaleModule();
-      showToast(checked ? 'Feriado marcado; a escala será mantida normalmente' : 'Marcação de feriado removida');
+      showToast(checked ? 'Feriado salvo e incluído no PDF da escala' : 'Marcação de feriado removida');
     }
 
     function serviceNewDraft() {
@@ -9588,10 +9613,13 @@
       const summary = serviceDraftSummary();
       if (statusEl) {
         const executed = serviceDraft.status === 'executed';
-        statusEl.className = 'inline-flex rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ' + (executed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700');
-        statusEl.textContent = executed ? 'Serviço confirmado' : (serviceDraft.id ? 'Rascunho salvo' : 'Novo rascunho');
+        const holiday = serviceIsHoliday(serviceDraft.date);
+        statusEl.className = 'inline-flex rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ' + (holiday ? 'bg-amber-200 text-amber-900' : (executed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'));
+        statusEl.textContent = holiday ? 'Feriado salvo' : (executed ? 'Serviço confirmado' : (serviceDraft.id ? 'Rascunho salvo' : 'Novo rascunho'));
       }
-      if (hintEl) hintEl.textContent = summary.planned + '/18 postos preenchidos' + (summary.changes ? ' · ' + summary.changes + ' troca(s)' : '') + '.';
+      if (hintEl) hintEl.textContent = serviceIsHoliday(serviceDraft.date)
+        ? 'Dia considerado completo para o PDF; os 21 campos serão exibidos como FERIADO.'
+        : summary.planned + '/18 postos preenchidos' + (summary.changes ? ' · ' + summary.changes + ' troca(s)' : '') + '.';
     }
 
     function serviceClearDraftSlots() {
@@ -9622,6 +9650,7 @@
 
     function serviceValidateDraft(confirming) {
       if (!serviceDraft || !serviceDraft.date) return { ok: false, message: 'Informe a data da escala.' };
+      if (serviceIsHoliday(serviceDraft.date)) return { ok: true };
       const planned = serviceDraft.slots.map(function(slot) { return String(slot.plannedRecruitId || ''); }).filter(Boolean);
       if (confirming && planned.length !== 18) return { ok: false, message: 'Preencha os 18 postos antes de confirmar. Faltam ' + (18 - planned.length) + '.' };
       if (new Set(planned).size !== planned.length) return { ok: false, message: 'Um recruta foi escalado em mais de um posto.' };
@@ -9670,12 +9699,12 @@
       const record = serviceClone(serviceDraft);
       const changes = serviceSlotChanges(previous && previous.slots, record.slots);
       record.id = record.id || 'svc-' + record.date + '-' + Date.now().toString(36);
-      record.status = confirming ? 'executed' : 'draft';
+      record.status = serviceIsHoliday(record.date) ? 'holiday' : (confirming ? 'executed' : 'draft');
       record.createdAt = previous && previous.createdAt ? previous.createdAt : now;
       record.createdBy = previous && previous.createdBy ? previous.createdBy : serviceActorName();
       record.updatedAt = now;
       record.updatedBy = serviceActorName();
-      record.confirmedAt = confirming ? now : '';
+      record.confirmedAt = confirming && !serviceIsHoliday(record.date) ? now : '';
       record.audit = (previous && previous.audit ? previous.audit : (record.audit || [])).concat([{
         ts: now,
         actor: serviceActorName(),
@@ -9724,7 +9753,9 @@
     }
 
     function serviceRecordComplete(record) {
-      return !!record && Array.isArray(record.slots) && record.slots.length === 18 && record.slots.every(function(slot) { return !!slot.plannedRecruitId; });
+      if (!record) return false;
+      if (serviceIsHoliday(record.date)) return true;
+      return Array.isArray(record.slots) && record.slots.length === 18 && record.slots.every(function(slot) { return !!slot.plannedRecruitId; });
     }
 
     function serviceTogglePdfRecord(id, checked) {
@@ -9762,8 +9793,7 @@
         let html = '<article class="rounded-xl border ' + (holiday ? 'border-amber-300 bg-amber-50/40' : (executed ? 'border-emerald-200 bg-white' : 'border-slate-200 bg-white')) + ' p-3"><div class="flex items-start gap-3">';
         html += '<label class="pt-0.5" title="' + (complete ? 'Incluir no PDF' : 'Complete os 18 postos para gerar o PDF') + '"><input type="checkbox" ' + (servicePdfSelection.has(record.id) ? 'checked ' : '') + (complete ? '' : 'disabled ') + 'onchange="serviceTogglePdfRecord(\'' + escapeHTML(record.id) + '\',this.checked)" class="accent-brand-600" /></label>';
         html += '<div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><strong class="text-sm text-slate-800">' + serviceFormatDate(record.date) + '</strong>';
-        html += '<span class="text-[8px] font-black rounded-full px-2 py-0.5 ' + (executed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600') + '">' + (executed ? 'CUMPRIDO' : 'RASCUNHO') + '</span>';
-        if (holiday) html += '<span class="text-[8px] font-black rounded-full px-2 py-0.5 bg-amber-200 text-amber-900">FERIADO</span>';
+        html += '<span class="text-[8px] font-black rounded-full px-2 py-0.5 ' + (holiday ? 'bg-amber-200 text-amber-900' : (executed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600')) + '">' + (holiday ? 'FERIADO' : (executed ? 'CUMPRIDO' : 'RASCUNHO')) + '</span>';
         if (changes) html += '<span class="text-[8px] font-black rounded-full px-2 py-0.5 bg-amber-100 text-amber-700">' + changes + ' TROCA(S)</span>';
         html += '</div><p class="text-[10px] text-slate-500 mt-1 truncate">' + escapeHTML(record.notes || 'Sem observação interna') + '</p></div>';
         html += '<button type="button" onclick="serviceEditRecord(\'' + escapeHTML(record.id) + '\')" class="text-[10px] font-bold text-brand-600 hover:underline">Abrir</button></div></article>';
@@ -10086,10 +10116,20 @@
       doc.setFontSize(9.5);
       doc.text('ESCALA DE SERVIÇO DO DIA ' + serviceDateLong(record.date), 105, y, { align: 'center' });
       if (serviceIsHoliday(record.date)) {
-        doc.setTextColor(180, 83, 9);
+        const holidayRowHeight = 4;
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.22);
+        doc.rect(x, tableTop, width, holidayRowHeight * 7);
+        for (let col = 1; col < 3; col++) doc.line(x + (colWidth * col), tableTop, x + (colWidth * col), tableTop + (holidayRowHeight * 7));
+        for (let row = 1; row < 7; row++) doc.line(x, tableTop + (holidayRowHeight * row), x + width, tableTop + (holidayRowHeight * row));
+        doc.setFont('helvetica', 'normal');
         doc.setFontSize(8.5);
-        doc.text('FERIADO', 183, y, { align: 'right' });
-        doc.setTextColor(0, 0, 0);
+        for (let row = 0; row < 7; row++) {
+          for (let col = 0; col < 3; col++) {
+            doc.text('FERIADO', x + (colWidth * col) + (colWidth / 2), tableTop + (holidayRowHeight * row) + 2.95, { align: 'center' });
+          }
+        }
+        return;
       }
       doc.setDrawColor(0);
       doc.setLineWidth(0.22);
