@@ -6301,6 +6301,7 @@
             <button onclick="generateTop10PeriodPDF('worst',30)" class="w-full text-left px-4 py-3 rounded-xl border border-rose-200 hover:bg-rose-50 text-xs font-semibold">⚠ 10 Piores do Mês</button>
             <button onclick="generateTop10PeriodPDF('best',7)" class="w-full text-left px-4 py-3 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-xs font-semibold">🏅 10 Melhores da Semana</button>
             <button onclick="generateTop10PeriodPDF('best',30)" class="w-full text-left px-4 py-3 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-xs font-semibold">🏅 10 Melhores do Mês</button>
+            <button onclick="generateTop10PeriodPDF('changed',7)" class="sm:col-span-2 w-full text-left px-4 py-3 rounded-xl border border-blue-200 bg-blue-50/40 hover:bg-blue-50 text-xs font-semibold">📋 Todos com Alterações na Semana <span class="block mt-1 text-[9px] font-normal text-slate-500">Sem limite: inclui todo recruta que teve registro no período.</span></button>
           </div>
           <section class="requires-admin relative overflow-hidden mt-4 rounded-2xl border border-cyan-400/30 bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-950 p-5 text-white shadow-xl">
             <div class="absolute -right-12 -top-16 h-40 w-40 rounded-full border border-cyan-300/20 shadow-[0_0_0_28px_rgba(34,211,238,.04),0_0_0_56px_rgba(34,211,238,.025)]"></div>
@@ -6363,10 +6364,12 @@
         const saldo=occs.reduce((s,o)=>s+(Number(o.points)||0),0);
         return {rec,occs,neg,pos,saldo};
       }).filter(x=>x.occs.length>0);
-      data.sort((a,b)=> mode==='best'
-        ? (b.saldo-a.saldo || b.pos.length-a.pos.length || a.neg.length-b.neg.length || String(a.rec.id).localeCompare(String(b.rec.id)))
-        : (a.saldo-b.saldo || b.neg.length-a.neg.length || a.pos.length-b.pos.length || String(a.rec.id).localeCompare(String(b.rec.id))));
-      return {period, ranking:data.slice(0,10)};
+      data.sort((a,b)=> mode==='changed'
+        ? (String(a.rec.id).localeCompare(String(b.rec.id), undefined, { numeric:true }))
+        : mode==='best'
+          ? (b.saldo-a.saldo || b.pos.length-a.pos.length || a.neg.length-b.neg.length || String(a.rec.id).localeCompare(String(b.rec.id)))
+          : (a.saldo-b.saldo || b.neg.length-a.neg.length || a.pos.length-b.pos.length || String(a.rec.id).localeCompare(String(b.rec.id))));
+      return {period, ranking:mode==='changed' ? data : data.slice(0,10)};
     }
 
     async function generateTop10PeriodPDF(mode, days) {
@@ -6375,8 +6378,9 @@
       if(!JsPDF){ showToast('Biblioteca jsPDF não carregada'); return; }
       const {period,ranking}=sigrTop10Data(mode,days);
       const isBest=mode==='best';
-      const accent=isBest?[5,150,105]:[225,29,72];
-      const accentSoft=isBest?[236,253,245]:[255,241,242];
+      const isChanged=mode==='changed';
+      const accent=isChanged?[37,99,235]:(isBest?[5,150,105]:[225,29,72]);
+      const accentSoft=isChanged?[239,246,255]:(isBest?[236,253,245]:[255,241,242]);
       const BLUE=[30,58,138],DARK=[15,23,42],MID=[71,85,105],GRID=[203,213,225],LIGHT=[248,250,252],GREEN=[5,150,105],RED=[225,29,72];
       const pdf=new JsPDF({unit:'mm',format:'a4',orientation:'portrait',compress:true});
       const PW=210,PH=297,ML=14,MR=14,MT=12,MB=15,W=PW-ML-MR; let y=MT;
@@ -6389,8 +6393,9 @@
         setText(5.8,'normal',[148,163,184]);pdf.text('Sistema Integrado de Gestão de Recrutas',PW-MR,y+4.5,{align:'right'});
         line(ML,y+8,PW-MR,y+8,BLUE,.65);y+=15;
         if(first){
-          setText(15.5,'bold',DARK);pdf.text(`${isBest?'10 MELHORES':'10 PIORES'} ${days===7?'DA SEMANA':'DO MÊS'}`,ML,y);y+=6;
-          setText(8.4,'normal',MID);pdf.text(`Período: ${sigrFmtDate(period.start)} a ${sigrFmtDate(period.end)} | Critério: saldo de pontos no período`,ML,y);y+=7;
+          const reportTitle=isChanged?'RECRUTAS COM ALTERAÇÕES NA SEMANA':`${isBest?'10 MELHORES':'10 PIORES'} ${days===7?'DA SEMANA':'DO MÊS'}`;
+          setText(15.5,'bold',DARK);pdf.text(reportTitle,ML,y);y+=6;
+          setText(8.4,'normal',MID);pdf.text(`Período: ${sigrFmtDate(period.start)} a ${sigrFmtDate(period.end)} | ${isChanged?'Todos os recrutas com registros, sem limite':'Critério: saldo de pontos no período'}`,ML,y);y+=7;
         }
       }
       function addPage(){pdf.addPage();header(false)}
@@ -6399,7 +6404,7 @@
       function summaryBox(){
         ensure(27); const totalOcc=ranking.reduce((s,x)=>s+x.occs.length,0), totalNeg=ranking.reduce((s,x)=>s+x.neg.length,0), totalPos=ranking.reduce((s,x)=>s+x.pos.length,0), totalSaldo=ranking.reduce((s,x)=>s+x.saldo,0);
         pdf.setFillColor(...accentSoft);pdf.setDrawColor(...GRID);pdf.roundedRect(ML,y,W,23,2,2,'FD');
-        const vals=[['Selecionados',ranking.length],['Ocorrências',totalOcc],['Negativas',totalNeg],['Positivas',totalPos],['Saldo',`${totalSaldo>0?'+':''}${totalSaldo} pts`]];
+        const vals=[[isChanged?'Recrutas':'Selecionados',ranking.length],['Ocorrências',totalOcc],['Negativas',totalNeg],['Positivas',totalPos],['Saldo',`${totalSaldo>0?'+':''}${totalSaldo} pts`]];
         const cw=W/5; vals.forEach((v,i)=>{const x=ML+i*cw;if(i)line(x,y+3,x,y+20,GRID,.2);setText(6.2,'bold',MID);pdf.text(v[0],x+3,y+6);setText(12,'bold',i===4?accent:DARK);pdf.text(String(v[1]),x+3,y+15)}); y+=28;
       }
       function recruitHeading(x,index,cont=false){
@@ -6424,12 +6429,18 @@
         x.occs.forEach(o=>{setText(7.2,'normal',DARK);const desc=pdf.splitTextToSize(String(o.text||''),widths[1]-4);const rh=Math.max(7.2,desc.length*3.35+3);if(y+rh>PH-MB){addPage();recruitHeading(x,index,true);occHeader()}drawOcc(o)});y+=7;
       });
       ensure(35);section('SÍNTESE DO PERÍODO');
-      setText(8.1,'normal',[55,65,81]);const synth=isBest
-        ? `O relatório apresenta os recrutas com melhor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e, em caso de empate, prioriza maior número de registros positivos e menor número de registros negativos.`
-        : `O relatório apresenta os recrutas com menor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e serve como apoio à identificação de casos que merecem maior atenção.`;
+      setText(8.1,'normal',[55,65,81]);const synth=isChanged
+        ? `O relatório apresenta todos os recrutas que tiveram ao menos uma ocorrência ou alteração de pontuação nos últimos ${days} dias, sem limite de quantidade. Os recrutas estão organizados por número e cada registro do período é detalhado.`
+        : isBest
+          ? `O relatório apresenta os recrutas com melhor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e, em caso de empate, prioriza maior número de registros positivos e menor número de registros negativos.`
+          : `O relatório apresenta os recrutas com menor saldo entre aqueles que possuem registros nos últimos ${days} dias. A ordenação considera o saldo de pontos no período e serve como apoio à identificação de casos que merecem maior atenção.`;
       const sl=pdf.splitTextToSize(synth,W);pdf.text(sl,ML,y,{maxWidth:W});y+=sl.length*4+8;line(ML,y,PW-MR,y,[229,231,235],.25);y+=7;setText(6.4,'normal',[148,163,184]);pdf.text('Documento gerado pelo SIGR — uso interno',ML,y);pdf.text('Não substitui julgamento do instrutor',PW-MR,y,{align:'right'});y+=11;line(PW/2-27,y,PW/2+27,y,[148,163,184],.25);y+=5;setText(7.2,'normal',MID);pdf.text('Encarregado / Comandante da Esquadrilha',PW/2,y,{align:'center'});
       const pages=pdf.getNumberOfPages();for(let p=1;p<=pages;p++){pdf.setPage(p);setText(6.3,'normal',[148,163,184]);pdf.text(`Página ${p} de ${pages}`,PW-MR,PH-5,{align:'right'})}
-      const label=`${isBest?'Melhores':'Piores'}_${days===7?'Semana':'Mes'}`;const filename=`SIGR_10_${label}_${sigrLocalISODate(new Date())}.pdf`;pdf.save(filename);showToast(`PDF ${isBest?'dos melhores':'dos piores'} gerado com sucesso (${pages} pág.)`);recordOperatorActivity('PDF_RANKING_GENERATED','report',label,{days,mode,pages});
+      const label=isChanged?'Alteracoes_Semana':`${isBest?'Melhores':'Piores'}_${days===7?'Semana':'Mes'}`;
+      const filename=isChanged?`SIGR_Alteracoes_Semana_${sigrLocalISODate(new Date())}.pdf`:`SIGR_10_${label}_${sigrLocalISODate(new Date())}.pdf`;
+      pdf.save(filename);
+      showToast(isChanged?`PDF com todos os ${ranking.length} recrutas alterados gerado (${pages} pág.)`:`PDF ${isBest?'dos melhores':'dos piores'} gerado com sucesso (${pages} pág.)`);
+      recordOperatorActivity(isChanged?'PDF_WEEKLY_CHANGES_GENERATED':'PDF_RANKING_GENERATED','report',label,{days,mode,pages,recruits:ranking.length});
     }
 
     async function generateRecruitPDFVector(rec, filename) {
