@@ -6498,7 +6498,7 @@
         modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[90] hidden items-center justify-center p-4 no-print';
         modal.innerHTML = `<div class="bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] overflow-hidden shadow-2xl flex flex-col">
           <div class="px-5 py-4 border-b border-slate-200 flex items-start justify-between gap-3"><div><div class="text-[9px] font-black tracking-[.16em] text-amber-700 uppercase">Medida disciplinar</div><h2 class="text-base font-black text-slate-900 mt-1">Criar LS — Licenciamento Sustado</h2><p id="lsPeriodLabel" class="text-[10px] text-slate-500 mt-1"></p></div><button onclick="closeLSModal()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500">✕</button></div>
-          <div class="overflow-y-auto p-5"><div class="grid md:grid-cols-[1.2fr_.8fr] gap-4"><section><h3 class="text-xs font-black text-slate-700">Recrutas com alterações negativas</h3><p class="text-[10px] text-slate-500 mt-1 mb-3">Marque quem deverá entrar na LS. As alterações aparecem automaticamente.</p><div id="lsCandidateList" class="space-y-2"></div></section><aside class="rounded-xl border border-amber-200 bg-amber-50/50 p-4 h-fit"><label class="block"><span class="text-[9px] font-black uppercase text-slate-500">Data da LS</span><input id="lsDate" type="date" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white"></label><div class="mt-4 border-t border-amber-200 pt-4"><div class="text-[9px] font-black uppercase text-amber-800">Adicionar outro recruta</div><p class="text-[9px] text-slate-500 mt-1">Para nota ruim ou outro motivo sem alteração negativa.</p><select id="lsManualRecruit" class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white"></select><textarea id="lsManualReason" rows="2" placeholder="Motivo obrigatório. Ex.: nota baixa na avaliação..." class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white"></textarea><button onclick="addLSManualRecruit()" class="requires-write mt-2 w-full rounded-lg border border-amber-400 bg-white text-amber-800 px-3 py-2 text-[10px] font-black">+ ADICIONAR À LS</button><div id="lsManualList" class="mt-3 space-y-2"></div></div><label class="block mt-4"><span class="text-[9px] font-black uppercase text-slate-500">Observação geral</span><textarea id="lsNotes" rows="3" placeholder="Ex.: permanecerá sem o final de semana..." class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white"></textarea></label><div id="lsSelectionSummary" class="mt-4 text-[11px] text-slate-600">Nenhum recruta selecionado.</div><button onclick="saveLSRecord()" class="requires-write mt-4 w-full rounded-lg bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 text-xs font-black">SALVAR LS</button><button onclick="generateCurrentLSPDF()" class="mt-2 w-full rounded-lg bg-slate-900 hover:bg-black text-white px-4 py-2.5 text-xs font-black">GERAR PDF</button></aside></div><section class="mt-5 border-t border-slate-200 pt-4"><h3 class="text-xs font-black text-slate-700 mb-3">Histórico de LS</h3><div id="lsHistory" class="grid sm:grid-cols-2 gap-2"></div></section></div>
+          <div class="overflow-y-auto p-5"><div class="grid md:grid-cols-[1.2fr_.8fr] gap-4"><section><h3 class="text-xs font-black text-slate-700">Recrutas com alterações negativas</h3><p class="text-[10px] text-slate-500 mt-1 mb-3">Marque quem deverá entrar na LS. As alterações aparecem automaticamente.</p><div id="lsCandidateList" class="space-y-2"></div></section><aside class="rounded-xl border border-amber-200 bg-amber-50/50 p-4 h-fit"><label class="block"><span class="text-[9px] font-black uppercase text-slate-500">Data da LS</span><input id="lsDate" type="date" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white"></label><div class="mt-4 border-t border-amber-200 pt-4"><div class="text-[9px] font-black uppercase text-amber-800">Adicionar outro recruta</div><p class="text-[9px] text-slate-500 mt-1">Para nota ruim ou outro motivo sem alteração negativa.</p><select id="lsManualRecruit" class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white"></select><textarea id="lsManualReason" rows="2" placeholder="Motivo obrigatório. Ex.: nota baixa na avaliação..." class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white"></textarea><button onclick="addLSManualRecruit()" class="requires-write mt-2 w-full rounded-lg border border-amber-400 bg-white text-amber-800 px-3 py-2 text-[10px] font-black">+ ADICIONAR À LS</button><div id="lsManualList" class="mt-3 space-y-2"></div></div><label class="block mt-4"><span class="text-[9px] font-black uppercase text-slate-500">Observação geral</span><textarea id="lsNotes" rows="3" placeholder="Ex.: permanecerá sem o final de semana..." class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-xs bg-white"></textarea></label><div id="lsSelectionSummary" class="mt-4 text-[11px] text-slate-600">Nenhum recruta selecionado.</div><button onclick="saveLSRecord()" class="requires-write mt-4 w-full rounded-lg bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 text-xs font-black">SALVAR LS</button><button onclick="generateCurrentLSPDF()" class="mt-2 w-full rounded-lg bg-slate-900 hover:bg-black text-white px-4 py-2.5 text-xs font-black">GERAR PDF</button><button onclick="generateCurrentLSRelationPDF()" class="mt-2 w-full rounded-lg border border-blue-700 bg-white hover:bg-blue-50 text-blue-800 px-4 py-2.5 text-xs font-black">RELAÇÃO DE LS</button></aside></div><section class="mt-5 border-t border-slate-200 pt-4"><h3 class="text-xs font-black text-slate-700 mb-3">Histórico de LS</h3><div id="lsHistory" class="grid sm:grid-cols-2 gap-2"></div></section></div>
         </div>`;
         document.body.appendChild(modal);
       }
@@ -6560,7 +6560,7 @@
       const history = document.getElementById('lsHistory');
       if (history) {
         const records = sigrLSRecords().slice().sort(function(a,b){ return String(b.createdAt).localeCompare(String(a.createdAt)); });
-        history.innerHTML = records.length ? records.map(function(item) { return '<article class="rounded-xl border border-slate-200 p-3"><div class="flex items-start justify-between gap-2"><div><strong class="text-xs text-slate-800">LS de ' + sigrFmtDate(item.date) + '</strong><p class="text-[9px] text-slate-500 mt-1">' + item.entries.length + ' recruta(s) · ' + sigrFmtDate(item.period.start) + ' a ' + sigrFmtDate(item.period.end) + '</p></div><button onclick="generateSavedLSPDF(\'' + escapeHTML(item.id) + '\')" class="text-[9px] font-black text-blue-600">PDF</button></div></article>'; }).join('') : '<div class="sm:col-span-2 text-xs text-slate-400">Nenhuma LS salva.</div>';
+        history.innerHTML = records.length ? records.map(function(item) { return '<article class="rounded-xl border border-slate-200 p-3"><div class="flex items-start justify-between gap-2"><div><strong class="text-xs text-slate-800">LS de ' + sigrFmtDate(item.date) + '</strong><p class="text-[9px] text-slate-500 mt-1">' + item.entries.length + ' recruta(s) · ' + sigrFmtDate(item.period.start) + ' a ' + sigrFmtDate(item.period.end) + '</p></div><div class="flex items-center gap-3"><button onclick="generateSavedLSPDF(\'' + escapeHTML(item.id) + '\')" class="text-[9px] font-black text-blue-600">PDF</button><button onclick="generateSavedLSRelationPDF(\'' + escapeHTML(item.id) + '\')" class="text-[9px] font-black text-emerald-700">Relação de LS</button></div></div></article>'; }).join('') : '<div class="sm:col-span-2 text-xs text-slate-400">Nenhuma LS salva.</div>';
       }
     }
 
@@ -6611,6 +6611,88 @@
       const record = sigrLSRecords().find(function(item) { return String(item.id) === String(id); });
       if (!record) { showToast('LS não encontrada'); return; }
       generateLSPDF(record);
+    }
+
+    function generateCurrentLSRelationPDF() {
+      try { generateLSRelationPDF(buildCurrentLSRecord()); }
+      catch (error) { showToast(error.message || 'Não foi possível gerar a Relação de LS'); }
+    }
+
+    function generateSavedLSRelationPDF(id) {
+      const record = sigrLSRecords().find(function(item) { return String(item.id) === String(id); });
+      if (!record) { showToast('LS não encontrada'); return; }
+      generateLSRelationPDF(record);
+    }
+
+    function generateLSRelationPDF(record) {
+      const JsPDF = window.jspdf && window.jspdf.jsPDF;
+      if (!JsPDF) throw new Error('Biblioteca jsPDF não carregada.');
+      const entries = (Array.isArray(record.entries) ? record.entries : []).slice().sort(function(a, b) {
+        return String(a.recruit?.id || '').localeCompare(String(b.recruit?.id || ''), undefined, { numeric:true });
+      });
+      if (!entries.length) throw new Error('A Relação de LS precisa ter ao menos um recruta.');
+
+      const pdf = new JsPDF({ unit:'mm', format:'a4', orientation:'portrait', compress:true });
+      const PW=210, PH=297, ML=15, MR=15, W=PW-ML-MR;
+      const NUMBER_W=30, TITLE_H=18, HEADER_H=9, ROW_H=8.1, BOTTOM=11;
+      let y=14;
+
+      function fitNameFont(name, maxWidth) {
+        let size=11.2;
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(size);
+        while (size>8.2 && pdf.getTextWidth(name)>maxWidth) {
+          size-=0.3;
+          pdf.setFontSize(size);
+        }
+        return size;
+      }
+
+      function drawTitleAndHeader() {
+        y=14;
+        pdf.setDrawColor(0,0,0);
+        pdf.setLineWidth(0.35);
+        pdf.rect(ML,y,W,TITLE_H);
+        pdf.setFont('helvetica','bold');
+        pdf.setFontSize(16);
+        pdf.setTextColor(0,0,0);
+        pdf.text('Licenciamento não concedido CFSD 2º/2026',PW/2,y+11.5,{align:'center'});
+        y+=TITLE_H;
+        pdf.rect(ML,y,W,HEADER_H);
+        pdf.line(ML+NUMBER_W,y,ML+NUMBER_W,y+HEADER_H);
+        pdf.setFont('helvetica','bold');
+        pdf.setFontSize(11.5);
+        pdf.text('NÚMERO',ML+NUMBER_W/2,y+6.1,{align:'center'});
+        pdf.text('NOME',ML+NUMBER_W+(W-NUMBER_W)/2,y+6.1,{align:'center'});
+        y+=HEADER_H;
+      }
+
+      drawTitleAndHeader();
+      entries.forEach(function(entry) {
+        if (y+ROW_H>PH-BOTTOM) {
+          pdf.addPage();
+          drawTitleAndHeader();
+        }
+        const rawId=String(entry.recruit?.id || '').trim();
+        const displayId=rawId.replace(/^0+(?=\d)/,'') || rawId;
+        const name=String(entry.recruit?.name || entry.recruit?.warName || '').trim().toUpperCase();
+        pdf.setDrawColor(0,0,0);
+        pdf.setLineWidth(0.35);
+        pdf.rect(ML,y,W,ROW_H);
+        pdf.line(ML+NUMBER_W,y,ML+NUMBER_W,y+ROW_H);
+        pdf.setFont('helvetica','normal');
+        pdf.setFontSize(11.2);
+        pdf.setTextColor(0,0,0);
+        pdf.text(displayId,ML+NUMBER_W/2,y+5.55,{align:'center'});
+        pdf.setFontSize(fitNameFont(name,W-NUMBER_W-5));
+        pdf.text(name,ML+NUMBER_W+(W-NUMBER_W)/2,y+5.55,{align:'center'});
+        y+=ROW_H;
+      });
+
+      const filename='Relacao_de_LS_'+(record.date || todayStr())+'.pdf';
+      pdf.save(filename);
+      showToast('Relação de LS gerada com ' + entries.length + ' recruta(s)');
+      recordOperatorActivity('PDF_LS_RELATION_GENERATED','report',record.id || filename,{recruits:entries.length,date:record.date || todayStr()});
     }
 
     function generateLSPDF(record) {
