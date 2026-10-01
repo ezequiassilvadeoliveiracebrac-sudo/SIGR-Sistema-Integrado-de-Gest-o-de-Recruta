@@ -1,4 +1,4 @@
-# SIGR v4.1 — IA 3.0 HOLO
+# SIGR v4.2 — Segurança, Ocorrências e Escala
 
 Pacote de atualização do Sistema Integrado de Gestão de Recrutas — CFSd 2ª/2026.
 
@@ -6,14 +6,36 @@ Pacote de atualização do Sistema Integrado de Gestão de Recrutas — CFSd 2ª
 
 1. Faça uma cópia dos arquivos atuais do repositório.
 2. Extraia este pacote na raiz do projeto.
-3. Substitua `index.html`, `service-worker.js` e `manifest.webmanifest`.
-4. Mantenha a pasta `icons` já existente no GitHub. O pacote não substitui os ícones.
-5. Envie os três arquivos atualizados ao GitHub e aguarde a publicação do GitHub Pages.
-6. Feche e abra o aplicativo no celular. O cache `v7-holo` força a atualização da PWA.
+3. Substitua todos os arquivos do projeto pelos arquivos deste pacote, preservando somente Secrets configurados fora do repositório.
+4. Envie os arquivos atualizados ao GitHub e aguarde a publicação do GitHub Pages.
+5. Feche e abra o aplicativo no celular. O cache `v22-seguranca` força a atualização da PWA.
 
-Não é necessário alterar as tabelas, os dados ou as Edge Functions do Supabase para usar esta atualização visual e funcional.
+Se `supabase/sigr-v3-setup.sql` já foi aplicado, não é necessário recriar tabelas nem apagar dados. Se ainda não foi aplicado, execute-o antes de liberar gravações para operadores.
 
-## Principais melhorias
+## Principais melhorias da v4.2
+
+- A relação nominal deixou de existir dentro do HTML público. Os recrutas são carregados do Supabase somente depois de uma sessão válida.
+- Remoção da escala e das presenças de demonstração que acompanhavam o frontend.
+- Migração automática da escala local antiga, mantendo uma cópia de segurança no próprio navegador.
+- Correção da gravação de ocorrências por contas com perfil `operator`, mesmo quando o módulo opcional de identificação por PIN ainda não está implantado.
+- Validação de data, tipo, descrição e pontuação antes de registrar uma ocorrência.
+- Sincronização cotidiana não destrutiva, evitando que um aparelho com uma cópia antiga apague registros criados por outro.
+- Nome da conta autenticada usado na auditoria quando não houver uma identificação individual ativa.
+- Campos vindos do banco e dos formulários são tratados antes de entrar em blocos HTML, reduzindo risco de injeção de conteúdo.
+- O logout limpa do aparelho os dados operacionais locais da sessão, inclusive histórico de IA e escala.
+- Opção administrativa **Apagar ocorrência**, com confirmação e recálculo da pontuação.
+- Cartão de ocorrências abre a listagem paginada com data e responsável pelo registro.
+- Consulta paginada ao Supabase carrega todos os registros, sem parar no limite padrão de 1.000 linhas.
+- Escala semanal de segunda a sexta, sequência 097 → 001, trocas, confirmação do executante real, exclusão/restauração da semana e PDF.
+
+## Importante antes de publicar
+
+- Faça um backup JSON no SIGR atual e confirme que o arquivo foi baixado.
+- Execute/valide `supabase/sigr-v3-setup.sql` no projeto Supabase. A escrita depende do RLS reconhecer a conta como `admin` ou `operator`.
+- A `Publishable Key` pode permanecer no frontend; nunca publique `service_role`, `sb_secret_`, VAPID privado ou segredo de Cron.
+- O pacote não inclui dados de recrutas. Depois do login, eles devem vir do banco.
+
+## Melhorias preservadas da v4.1
 
 - Ajuste de ocorrência no mesmo padrão do lançamento: tipo, gravidade/classificação, valor exato e justificativa.
 - Histórico de auditoria preservando operador, data, valor anterior, novo valor, tipo e classificação.
@@ -53,8 +75,9 @@ Não desative o aviso de segurança do navegador.
 - Abrir SIGR IA, alternar entre Chat e Holograma e permitir o microfone.
 - Testar uma pergunta por voz e confirmar os estados Ouvindo, Processando e Falando.
 - Enviar uma mensagem no Chat da Equipe.
+- Consulte também `VALIDACAO-SIGR-v4.2.md` para o roteiro completo de conferência.
 
-## Validações executadas
+## Validações do pacote anterior
 
 - Sintaxe dos três blocos JavaScript.
 - Sintaxe CSS.
@@ -62,6 +85,5 @@ Não desative o aviso de segurança do navegador.
 - Service worker.
 - IDs HTML sem duplicação.
 - Handlers da interface declarados.
-- Preservação das 282 funções originais.
+- Preservação dos módulos funcionais existentes.
 - Teste de runtime do ajuste de pontos, pesquisa mobile, filtros e abertura/fechamento do modo holográfico.
-
