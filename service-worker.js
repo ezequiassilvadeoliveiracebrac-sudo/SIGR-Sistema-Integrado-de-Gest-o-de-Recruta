@@ -1,5 +1,5 @@
-const APP_CACHE = 'sigr-pwa-v22-seguranca';
-const STATIC_CACHE = 'sigr-static-v22-seguranca';
+const APP_CACHE = 'sigr-pwa-v23-correcao-3pontos';
+const STATIC_CACHE = 'sigr-static-v23-correcao-3pontos';
 
 const CORE_SHELL = [
   './',

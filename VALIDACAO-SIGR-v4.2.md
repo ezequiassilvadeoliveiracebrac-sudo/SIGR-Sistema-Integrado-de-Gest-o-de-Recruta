@@ -46,3 +46,14 @@
 O frontend usa as Edge Functions `sigr-ai`, `sigr-communications` e `sigr-notify`. Este pacote contém somente o código-fonte de `sigr-notify`; portanto, `sigr-ai` e `sigr-communications` precisam continuar implantadas no projeto Supabase atual. A ausência de `sigr-communications` desativa PIN individual, chat e chamadas, mas uma conta autenticada com perfil `operator` continua autorizada a registrar ocorrências pela regra corrigida da v4.2.
 
 As permissões reais do banco dependem do RLS configurado por `supabase/sigr-v3-setup.sql`. Não publique nenhuma chave privada no GitHub.
+
+## Validação adicional — 01/10/2026
+
+- Base utilizada: somente o pacote oficial `SIGR-v4.2-seguranca-atualizado.zip`.
+- Nenhum arquivo `teste`, `protótipo` ou HTML antigo foi incorporado.
+- `sigr-communications` cobre todas as ações atualmente chamadas pelo frontend, incluindo `operator-delete` e `operator-change-pin`.
+- Remoção de integrante validada para depender do papel `admin` da conta Supabase, sem exigir sessão operacional por PIN.
+- SIGR IA ampliada com validação server-side de papel e conjunto de ações compatível com o executor do frontend.
+- Continuidade da escala validada pelo executante real: último Nº 058 → próximo Nº 057.
+- Cache PWA atualizado para `v23-correcao-3pontos`.
+- Sintaxe dos blocos JavaScript do `index.html` e do `service-worker.js` validada com Node.js.

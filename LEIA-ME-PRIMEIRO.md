@@ -87,3 +87,9 @@ Não desative o aviso de segurança do navegador.
 - Handlers da interface declarados.
 - Preservação dos módulos funcionais existentes.
 - Teste de runtime do ajuste de pontos, pesquisa mobile, filtros e abertura/fechamento do modo holográfico.
+
+---
+
+## Patch oficial de 01/10/2026 — três correções
+
+Esta cópia mantém a versão **SIGR v4.2** e adiciona somente os três ajustes solicitados: remoção de integrante, ampliação da SIGR IA e continuidade da Escala pelo executante real. Consulte `supabase/ATUALIZACAO-3-PONTOS-2026-10-01.md` antes de implantar as Edge Functions.

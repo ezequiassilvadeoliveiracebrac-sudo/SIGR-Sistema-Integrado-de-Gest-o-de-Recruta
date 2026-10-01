@@ -1,0 +1,5 @@
+[functions.sigr-communications]
+verify_jwt = false
+
+[functions.sigr-ai]
+verify_jwt = true

@@ -8419,7 +8419,7 @@
       const asksOccurrences=/ocorr[eê]ncia|reincid[eê]ncia|anota[cç][aã]o|disciplin|ponto|score|problema|vacil|positivo|negativo/i.test(q);
       const asksAgenda=/consulta|agenda|evento|compromisso|agend|m[eé]dic|gsau|baixa/i.test(q);
       const asksAssessment=/prova|avalia[cç][aã]o|nota|taf|instru[cç][aã]o|observa[cç][aã]o/i.test(q);
-      const isAction=/\b(marqu|agend|registr|adicione|adicion|lance|atualiz|altere|inclua|crie)\b/i.test(q);
+      const isAction=/\b(marqu|agend|registr|adicione|adicion|lance|atualiz|altere|inclua|crie|apag|exclu|remov|afast|retir|mont|ger|confirm|abr)\b/i.test(q);
       const isSigrQuestion=isClearlySigrOnly(q)||ids.length>0||isAction;
 
       const context={
@@ -8466,37 +8466,100 @@
       if(asksAgenda&&!selected.length){
         context.recentEvents=events.slice().sort((a,b)=>(String(b.date)+String(b.time||'')).localeCompare(String(a.date)+String(a.time||''))).slice(0,15);
       }
+      context.permissions={role:getEffectiveSigrRole(),canWrite:canSigrWrite()};
+      if(/escala|servi[cç]o/i.test(q)){
+        context.serviceScale=(serviceScaleState?.records||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,12).map(r=>({
+          id:r.id,date:r.date,status:r.status,slots:(r.slots||[]).map(slot=>({role:slot.role,position:slot.position,plannedRecruitId:slot.plannedRecruitId,actualRecruitId:slot.actualRecruitId,changeReason:slot.changeReason}))
+        }));
+      }
+      if(/integrante|operador|equipe|comunica[cç][aã]o/i.test(q)){
+        context.operators=(sigrOperators||[]).map(o=>({id:o.id,rank:o.rank,warName:o.war_name,dutyFunction:o.duty_function,active:o.active}));
+      }
+      if(/baixa|m[eé]dic|afastad/i.test(q)) context.medicalLeaves=(medicalLeaves||[]).slice().sort((a,b)=>String(b.inicio).localeCompare(String(a.inicio))).slice(0,30);
       return context;
     }
     function shouldUseWeb(question){return /\b(pesquis|internet|web|not[ií]cia|hoje no mundo|atual|atualmente|agora no brasil|quem [ée] o atual|pre[cç]o|cotação|clima|tempo em|resultado de|últimas|recentes)\b/i.test(question);}
-    function isClearlySigrOnly(question){return /recruta|turma|ocorr[eê]ncia|score|pelot[aã]o|esquadr[aã]o|consulta|agenda|observa[cç][aã]o|taf|prova|sigr|ranking|relat[oó]rio/i.test(question);}
+    function isClearlySigrOnly(question){return /recruta|turma|ocorr[eê]ncia|score|pelot[aã]o|esquadr[aã]o|consulta|agenda|observa[cç][aã]o|taf|prova|sigr|ranking|relat[oó]rio|escala|servi[cç]o|baixa|afastad|integrante|operador|chat|comunica[cç][aã]o/i.test(question);}
 
     function normalizeActionDate(value){
       if(!value)return todayStr(); const s=String(value).trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
       const m=s.match(/^(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?$/); if(m){let y=m[3]?Number(m[3]):Number(todayStr().slice(0,4));if(y<100)y+=2000;return `${y}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;} return s;
     }
     async function executeSigrToolCall(call){
-      if(!call||!call.name)return null; const a=call.args||{}; const id=a.recruitId?padId(a.recruitId):null; const rec=id?getRecruitById(id):null;
+      if(!call||!call.name)return null;
+      const a=call.args||{};
+      const action=String(call.name||'');
+      const id=a.recruitId?padId(a.recruitId):null;
+      const rec=id?getRecruitById(id):null;
       if(id&&!rec)throw new Error(`Recruta ${id} não encontrado.`);
-      if(call.name==='create_event'){
+
+      const destructive=new Set(['delete_occurrence','delete_event','delete_recruit','delete_medical_leave','delete_observation','delete_service_week','delete_operator']);
+      if(destructive.has(action)){
+        if(getEffectiveSigrRole()!=='admin')throw new Error('Esta ação exige acesso de administrador.');
+        const labels={
+          delete_occurrence:'apagar esta ocorrência',delete_event:'excluir este evento',delete_recruit:'remover este recruta e seus registros vinculados',
+          delete_medical_leave:'excluir esta baixa médica',delete_observation:'excluir esta observação',delete_service_week:'apagar a escala desta semana',delete_operator:'remover este integrante da equipe SIGR'
+        };
+        if(!confirm(`SIGR IA solicita confirmação para ${labels[action]||'executar esta ação destrutiva'}.\n\nDeseja continuar?`))return 'Ação cancelada pelo administrador.';
+      }
+
+      if(action==='create_event'){
         const ev={id:'ev'+Date.now()+Math.random().toString(36).slice(2,7),date:normalizeActionDate(a.date),time:a.time||'',type:a.type||'Outro',recruitId:id||null,title:a.title||((a.type||'Evento')+(rec?` — Nº ${rec.id}`:'')),notes:a.notes||a.reason||''};
-        if(/consulta|m[eé]dic|odont/i.test(`${ev.type} ${ev.title}`))ev.type='Consulta Médica'; events.push(ev);saveData();try{renderCalendar()}catch(_){};recordOperatorActivity('AI_EVENT_CREATED','event',ev.id,{recruitId:id,type:ev.type,date:ev.date,title:ev.title,notes:ev.notes});return `Evento criado: ${ev.type} em ${ev.date}${ev.time?' às '+ev.time:''}${rec?' para o Nº '+rec.id:''}.`;
+        if(/consulta|m[eé]dic|odont/i.test(`${ev.type} ${ev.title}`))ev.type='Consulta Médica';events.push(ev);saveData();try{renderCalendar()}catch(_){};recordOperatorActivity('AI_EVENT_CREATED','event',ev.id,{recruitId:id,type:ev.type,date:ev.date,title:ev.title,notes:ev.notes});return `Evento criado: ${ev.type} em ${ev.date}${ev.time?' às '+ev.time:''}${rec?' para o Nº '+rec.id:''}.`;
       }
-      if(call.name==='add_observation'){
-        if(!rec)throw new Error('Informe o recruta para adicionar observação.');ensureRecruitExtras(rec);const obsText=a.text||a.notes||'';const obsDate=normalizeActionDate(a.date);rec.observacoes.push({id:'ob'+Date.now(),date:obsDate,autor:a.author||currentSigrActorName()||'SIGR IA',texto:obsText,operatorId:sigrActiveOperator?.id||null,createdAt:new Date().toISOString()});saveData();recordOperatorActivity('AI_OBSERVATION_CREATED','recruit',rec.id,{recruitId:rec.id,date:obsDate,text:obsText});return `Observação adicionada ao recruta Nº ${rec.id}.`;
+      if(action==='update_event'){
+        const ev=events.find(x=>String(x.id)===String(a.eventId||''));if(!ev)throw new Error('Evento não encontrado.');
+        ['time','type','title','notes'].forEach(k=>{if(a[k]!==undefined)ev[k]=String(a[k]);});if(a.date!==undefined)ev.date=normalizeActionDate(a.date);if(a.recruitId!==undefined)ev.recruitId=a.recruitId?padId(a.recruitId):null;
+        saveData();try{renderCalendar()}catch(_){};recordOperatorActivity('AI_EVENT_UPDATED','event',ev.id,{date:ev.date,title:ev.title});return 'Evento atualizado.';
       }
-      if(call.name==='add_occurrence'){
-        if(!rec)throw new Error('Informe o recruta para lançar ocorrência.'); const type=/posit/i.test(a.type)?'Positiva':'Negativa'; const grav=a.severity||(type==='Positiva'?'Bom':'Leve'); const pointMap={'Leve':-1,'Média':-2,'Media':-2,'Grave':-5,'Gravíssima':-10,'Gravissima':-10,'Bom':1,'Ótimo':2,'Otimo':2,'Excelente':3,'Excepcional':5}; const base=Number(a.basePoints??pointMap[grav]??(type==='Positiva'?1:-1)); const date=normalizeActionDate(a.date); const text=a.text||a.description||'Registro lançado pela SIGR IA'; const calc=computeFinalPoints(base,date,rec.id,normDesc(text),null); const occurrenceId=Date.now(); occurrences.unshift({id:occurrenceId,recruitId:rec.id,date,type,gravidade:grav,text,basePoints:base,phaseIdx:calc.phase.idx,phaseMult:calc.phase.mult,recidNumber:calc.recid.occurrenceNumber,recidMult:calc.recid.mult,points:calc.finalPts,registeredById:sigrActiveOperator?.id||null,registeredByName:currentSigrActorName(),registeredAt:new Date().toISOString()});rec.score+=calc.finalPts;saveData();renderAll();recordOperatorActivity('AI_OCCURRENCE_CREATED','recruit',rec.id,{occurrenceId,recruitId:rec.id,date,type,gravidade:grav,points:calc.finalPts,text});requestOccurrenceMilestoneCheck();return `Ocorrência ${type.toLowerCase()} lançada para o Nº ${rec.id} (${calc.finalPts>=0?'+':''}${calc.finalPts} pts).`;
+      if(action==='delete_event'){
+        const ev=events.find(x=>String(x.id)===String(a.eventId||''));if(!ev)throw new Error('Evento não encontrado.');await deleteRemoteRecord('events',ev.id);events=events.filter(x=>String(x.id)!==String(ev.id));saveData();try{renderCalendar()}catch(_){};recordOperatorActivity('AI_EVENT_DELETED','event',ev.id,{});return 'Evento excluído.';
       }
-      if(call.name==='add_exam'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.provas.push({id:'pv'+Date.now(),date:normalizeActionDate(a.date),nome:a.name||a.title||'Avaliação',nota:Number(a.grade),obs:a.notes||''});saveData();return `Prova/avaliação registrada para o Nº ${rec.id}.`;}
-      if(call.name==='add_taf'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.taf.push({id:'tf'+Date.now(),date:normalizeActionDate(a.date),tipo:a.type||'TAF',resultado:a.result||'',conceito:a.concept||'',obs:a.notes||''});saveData();return `Registro de TAF adicionado ao Nº ${rec.id}.`;}
-      if(call.name==='add_instruction'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.instrucoes.push({id:'in'+Date.now(),date:normalizeActionDate(a.date),titulo:a.title||'Instrução',conteudo:a.content||'',por:a.by||sigrActiveOperator?.display_name||'SIGR IA'});saveData();return `Instrução registrada para o Nº ${rec.id}.`;}
-      if(call.name==='update_recruit'){if(!rec)throw new Error('Informe o recruta.');if(a.name)rec.name=a.name;if(a.warName)rec.warName=a.warName;if(a.saram!==undefined)rec.saram=a.saram;if(a.platoon)rec.platoon=a.platoon;if(a.squad)rec.squad=a.squad;saveData();renderAll();return `Cadastro do recruta Nº ${rec.id} atualizado.`;}
-      if(call.name==='set_active_recruit'){if(!rec)throw new Error('Recruta não encontrado.');document.getElementById('aiRecruitFocus').value=rec.id;aiContext.lastRecruitId=rec.id;refreshAIContextBadge();return `Contexto alterado para o recruta Nº ${rec.id}.`;}
+      if(action==='add_observation'){
+        if(!rec)throw new Error('Informe o recruta para adicionar observação.');ensureRecruitExtras(rec);const obsText=a.text||a.notes||'';const obsDate=normalizeActionDate(a.date);const obs={id:'ob'+Date.now(),date:obsDate,autor:a.author||currentSigrActorName()||'SIGR IA',texto:obsText,operatorId:sigrActiveOperator?.id||null,createdAt:new Date().toISOString()};rec.observacoes.push(obs);saveData();recordOperatorActivity('AI_OBSERVATION_CREATED','recruit',rec.id,{observationId:obs.id,recruitId:rec.id,date:obsDate,text:obsText});return `Observação adicionada ao recruta Nº ${rec.id}.`;
+      }
+      if(action==='delete_observation'){
+        if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);const before=rec.observacoes.length;rec.observacoes=rec.observacoes.filter(o=>String(o.id)!==String(a.observationId||''));if(rec.observacoes.length===before)throw new Error('Observação não encontrada.');saveData();recordOperatorActivity('AI_OBSERVATION_DELETED','recruit',rec.id,{observationId:a.observationId});return `Observação excluída do Nº ${rec.id}.`;
+      }
+      if(action==='add_occurrence'){
+        if(!rec)throw new Error('Informe o recruta para lançar ocorrência.');const type=/posit/i.test(a.type)?'Positiva':'Negativa';const grav=a.severity||(type==='Positiva'?'Bom':'Leve');const pointMap={'Leve':-1,'Média':-2,'Media':-2,'Grave':-5,'Gravíssima':-10,'Gravissima':-10,'Bom':1,'Ótimo':2,'Otimo':2,'Excelente':3,'Excepcional':5};const base=Number(a.basePoints??pointMap[grav]??(type==='Positiva'?1:-1));const date=normalizeActionDate(a.date);const text=a.text||a.description||'Registro lançado pela SIGR IA';const calc=computeFinalPoints(base,date,rec.id,normDesc(text),null);const occurrenceId=Date.now();occurrences.unshift({id:occurrenceId,recruitId:rec.id,date,type,gravidade:grav,text,basePoints:base,phaseIdx:calc.phase.idx,phaseMult:calc.phase.mult,recidNumber:calc.recid.occurrenceNumber,recidMult:calc.recid.mult,points:calc.finalPts,registeredById:sigrActiveOperator?.id||null,registeredByName:currentSigrActorName(),registeredAt:new Date().toISOString()});rec.score+=calc.finalPts;saveData();renderAll();recordOperatorActivity('AI_OCCURRENCE_CREATED','recruit',rec.id,{occurrenceId,recruitId:rec.id,date,type,gravidade:grav,points:calc.finalPts,text});requestOccurrenceMilestoneCheck();return `Ocorrência ${type.toLowerCase()} lançada para o Nº ${rec.id} (${calc.finalPts>=0?'+':''}${calc.finalPts} pts).`;
+      }
+      if(action==='update_occurrence'){
+        const occ=occurrences.find(o=>String(o.id)===String(a.occurrenceId||''));if(!occ)throw new Error('Ocorrência não encontrada.');const oldRecruit=getRecruitById(occ.recruitId);if(a.type!==undefined)occ.type=/posit/i.test(String(a.type))?'Positiva':'Negativa';if(a.severity!==undefined)occ.gravidade=String(a.severity);if(a.text!==undefined)occ.text=String(a.text);if(a.date!==undefined)occ.date=normalizeActionDate(a.date);if(a.points!==undefined){occ.points=Number(a.points);occ.basePoints=Number(a.points);}
+        if(oldRecruit)oldRecruit.score=config.baseScore+occurrences.filter(o=>String(o.recruitId)===String(oldRecruit.id)).reduce((sum,o)=>sum+Number(o.points||0),0);saveData();renderAll();recordOperatorActivity('AI_OCCURRENCE_UPDATED','occurrence',occ.id,{recruitId:occ.recruitId,points:occ.points});return 'Ocorrência atualizada e pontuação recalculada.';
+      }
+      if(action==='delete_occurrence'){
+        const occ=occurrences.find(o=>String(o.id)===String(a.occurrenceId||''));if(!occ)throw new Error('Ocorrência não encontrada.');const target=getRecruitById(occ.recruitId);await deleteRemoteRecord('occurrences',occ.id);occurrences=occurrences.filter(o=>String(o.id)!==String(occ.id));if(target)target.score=config.baseScore+occurrences.filter(o=>String(o.recruitId)===String(target.id)).reduce((sum,o)=>sum+Number(o.points||0),0);saveData();renderAll();recordOperatorActivity('AI_OCCURRENCE_DELETED','occurrence',occ.id,{recruitId:occ.recruitId,points:occ.points});return 'Ocorrência apagada e pontuação recalculada.';
+      }
+      if(action==='add_exam'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.provas.push({id:'pv'+Date.now(),date:normalizeActionDate(a.date),nome:a.name||a.title||'Avaliação',nota:Number(a.grade),obs:a.notes||''});saveData();return `Prova/avaliação registrada para o Nº ${rec.id}.`;}
+      if(action==='add_taf'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.taf.push({id:'tf'+Date.now(),date:normalizeActionDate(a.date),tipo:a.type||'TAF',resultado:a.result||'',conceito:a.concept||'',obs:a.notes||''});saveData();return `Registro de TAF adicionado ao Nº ${rec.id}.`;}
+      if(action==='add_instruction'){if(!rec)throw new Error('Informe o recruta.');ensureRecruitExtras(rec);rec.instrucoes.push({id:'in'+Date.now(),date:normalizeActionDate(a.date),titulo:a.title||'Instrução',conteudo:a.content||'',por:a.by||sigrActiveOperator?.display_name||'SIGR IA'});saveData();return `Instrução registrada para o Nº ${rec.id}.`;}
+      if(action==='update_recruit'){if(!rec)throw new Error('Informe o recruta.');if(a.name!==undefined)rec.name=String(a.name);if(a.warName!==undefined)rec.warName=String(a.warName);if(a.saram!==undefined)rec.saram=a.saram;if(a.platoon!==undefined)rec.platoon=String(a.platoon);if(a.squad!==undefined)rec.squad=String(a.squad);saveData();renderAll();recordOperatorActivity('AI_RECRUIT_UPDATED','recruit',rec.id,{});return `Cadastro do recruta Nº ${rec.id} atualizado.`;}
+      if(action==='delete_recruit'){
+        if(!rec)throw new Error('Informe o recruta.');const rid=rec.id;const {error:eventsError}=await sigrSupabase.from('events').update({recruitId:null}).eq('recruitId',rid);if(eventsError)throw eventsError;const {error:occError}=await sigrSupabase.from('occurrences').delete().eq('recruitId',rid);if(occError)throw occError;const {error:medError}=await sigrSupabase.from('medicalLeaves').delete().eq('recruitId',rid);if(medError)throw medError;await deleteRemoteRecord('recruits',rid);recruits=recruits.filter(r=>String(r.id)!==String(rid));occurrences=occurrences.filter(o=>String(o.recruitId)!==String(rid));events=events.map(ev=>String(ev.recruitId)===String(rid)?{...ev,recruitId:null}:ev);medicalLeaves=(medicalLeaves||[]).filter(b=>String(b.recruitId)!==String(rid));saveData();renderAll();recordOperatorActivity('AI_RECRUIT_DELETED','recruit',rid,{});return `Recruta Nº ${rid} removido.`;
+      }
+      if(action==='set_recruitment_away'){if(!rec)throw new Error('Informe o recruta.');rec.recruitmentAway=!!a.away;rec.recruitmentAwayReason=rec.recruitmentAway?String(a.reason||'').trim():'';rec.recruitmentAwayUpdatedAt=new Date().toISOString();rec.recruitmentAwayUpdatedBy=currentSigrActorName();saveData();renderAll();recordOperatorActivity('AI_RECRUITMENT_AWAY_UPDATED','recruit',rec.id,{away:rec.recruitmentAway,reason:rec.recruitmentAwayReason});return rec.recruitmentAway?`Nº ${rec.id} afastado do recrutamento.`:`Nº ${rec.id} reativado no recrutamento.`;}
+      if(action==='add_medical_leave'){
+        if(!rec)throw new Error('Informe o recruta.');const inicio=normalizeActionDate(a.inicio),fim=normalizeActionDate(a.fim);if(!inicio||!fim||fim<inicio)throw new Error('Período de baixa inválido.');const leave={id:'bm'+Date.now()+Math.random().toString(36).slice(2,6),recruitId:rec.id,motivo:String(a.motivo||'Baixa médica'),inicio,fim,dias:daysBetween(inicio,fim)+1,notes:String(a.notes||'')};medicalLeaves.push(leave);saveData();renderBaixaModule();recordOperatorActivity('MEDICAL_LEAVE_CREATED','recruit',rec.id,{inicio,fim});return `Baixa médica registrada para o Nº ${rec.id}, de ${inicio} a ${fim}.`;
+      }
+      if(action==='update_medical_leave'){
+        const leave=medicalLeaves.find(b=>String(b.id)===String(a.leaveId||''));if(!leave)throw new Error('Baixa médica não encontrada.');if(a.recruitId!==undefined)leave.recruitId=padId(a.recruitId);if(a.inicio!==undefined)leave.inicio=normalizeActionDate(a.inicio);if(a.fim!==undefined)leave.fim=normalizeActionDate(a.fim);if(a.motivo!==undefined)leave.motivo=String(a.motivo);if(a.notes!==undefined)leave.notes=String(a.notes);leave.dias=daysBetween(leave.inicio,leave.fim)+1;saveData();renderBaixaModule();recordOperatorActivity('MEDICAL_LEAVE_UPDATED','recruit',leave.recruitId,{inicio:leave.inicio,fim:leave.fim});return 'Baixa médica atualizada.';
+      }
+      if(action==='delete_medical_leave'){
+        const leave=medicalLeaves.find(b=>String(b.id)===String(a.leaveId||''));if(!leave)throw new Error('Baixa médica não encontrada.');await deleteRemoteRecord('medicalLeaves',leave.id);medicalLeaves=medicalLeaves.filter(b=>String(b.id)!==String(leave.id));saveData();renderBaixaModule();recordOperatorActivity('AI_MEDICAL_LEAVE_DELETED','recruit',leave.recruitId,{leaveId:leave.id});return 'Baixa médica excluída.';
+      }
+      if(action==='set_active_recruit'){if(!rec)throw new Error('Recruta não encontrado.');document.getElementById('aiRecruitFocus').value=rec.id;aiContext.lastRecruitId=rec.id;refreshAIContextBadge();return `Contexto alterado para o recruta Nº ${rec.id}.`;}
+      if(action==='build_service_week'){const date=normalizeActionDate(a.date)||todayStr();serviceSetWeekStart(date);serviceBuildWorkWeek();return `Escala da semana de ${serviceMondayFor(date)} montada seguindo a continuidade da escala anterior.`;}
+      if(action==='suggest_service_day'){const date=normalizeActionDate(a.date)||todayStr();serviceLoadDate(date);serviceSuggestEighteen();return `Sugestão dos 18 postos preparada para ${date}.`;}
+      if(action==='confirm_service_day'){const date=normalizeActionDate(a.date)||todayStr();serviceLoadDate(date);serviceSaveDraft(true);return `Confirmação da escala de ${date} solicitada.`;}
+      if(action==='delete_service_week'){const date=normalizeActionDate(a.date)||todayStr();serviceSetWeekStart(date);serviceDeleteCurrentWeek();return `Exclusão da semana de ${serviceMondayFor(date)} processada.`;}
+      if(action==='delete_operator'){const operatorId=String(a.operatorId||'');if(!operatorId)throw new Error('Informe o integrante.');await invokeSigrCommunications('operator-delete',{operatorToken:sigrOperatorToken,operatorId});await loadSigrOperators();return 'Integrante removido da equipe SIGR e histórico de auditoria preservado.';}
+      if(action==='open_view'){const allowed=new Set(['dashboard','efetivo','ranking','calendario','baixa','escala','qts','comunicacao','ai']);const view=String(a.view||'');if(!allowed.has(view))throw new Error('Tela não reconhecida.');showView(view);return `Tela ${view} aberta.`;}
       return null;
     }
     async function callOnlineSIGRAI(question,focusId){
-      if(!sigrSupabase||!sigrSession)throw new Error('Sessão online indisponível'); const body={question,context:buildAIContextSnapshot(question,focusId),useWeb:shouldUseWeb(question),allowActions:sigrUserRole!=='viewer'};
+      if(!sigrSupabase||!sigrSession)throw new Error('Sessão online indisponível');
+      const body={question,context:buildAIContextSnapshot(question,focusId),useWeb:shouldUseWeb(question),allowActions:canSigrWrite(),role:getEffectiveSigrRole(),operatorToken:sigrOperatorToken||null};
       const {data,error}=await sigrSupabase.functions.invoke(SIGR_AI_FUNCTION,{body}); if(error)throw error; if(!data?.answer)throw new Error(data?.error||'Resposta online vazia'); return data;
     }
 
@@ -9474,7 +9537,9 @@
     }
 
     function serviceLastPlannedRecruitId(record) {
-      const ids = serviceOrderedSlots(record).map(function(slot) { return String(slot.plannedRecruitId || ''); }).filter(Boolean);
+      // A continuidade da fila deve seguir quem REALMENTE executou o último posto.
+      // Se houve substituição, actualRecruitId é a referência; sem troca, usa plannedRecruitId.
+      const ids = serviceOrderedSlots(record).map(function(slot) { return String(serviceEffectiveRecruitId(slot) || ''); }).filter(Boolean);
       return ids.length ? ids[ids.length - 1] : '';
     }
 
@@ -9486,9 +9551,14 @@
     }
 
     function serviceSequenceStartIndexForDate(date) {
-      const previous = (serviceScaleState.records || []).filter(function(record) {
+      const candidates = (serviceScaleState.records || []).filter(function(record) {
         return record.date < date && !!serviceLastPlannedRecruitId(record);
-      }).sort(function(a, b) { return b.date.localeCompare(a.date); })[0];
+      }).sort(function(a, b) { return b.date.localeCompare(a.date); });
+      // Prefere o último serviço confirmado. Isso impede rascunhos/edições incompletas
+      // de deslocarem a fila da semana seguinte. Em bases antigas sem status confirmado,
+      // mantém compatibilidade usando o registro completo mais recente.
+      const previous = candidates.find(function(record) { return record.status === 'executed'; }) ||
+        candidates.find(function(record) { return serviceRecordComplete(record); }) || candidates[0];
       return previous ? serviceSequenceIndexAfter(serviceLastPlannedRecruitId(previous)) : 0;
     }
 
@@ -9609,7 +9679,7 @@
       serviceSaveState();
       serviceDraft = serviceClone(plannedRecords[0]);
       renderServiceScaleModule();
-      showToast('Semana criada na sequência do 097 ao 001');
+      showToast('Semana criada continuando o último executante real da escala anterior');
     }
 
     function serviceSelectCurrentWeekForPdf() {
