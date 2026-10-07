@@ -4495,6 +4495,7 @@
           ...sigrMetadata,
           recruitExtras: buildRecruitExtras(),
           occurrenceAudit: buildOccurrenceAudit(),
+          serviceScale: serviceClone(serviceScaleState),
           lastSyncAt: new Date().toISOString()
         };
         const { error: configError } = await sigrSupabase.from('sigr_config').upsert({
@@ -6177,9 +6178,13 @@
 
     function validateBackupPayload(data) {
       if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Estrutura inválida');
-      if (!Array.isArray(data.recruits)) throw new Error('Relação de recrutas ausente');
+      const scaleOnly = !Object.prototype.hasOwnProperty.call(data, 'recruits') && !!data.serviceScale;
+      if (scaleOnly && ['occurrences', 'events', 'medicalLeaves', 'config'].some(key => Object.prototype.hasOwnProperty.call(data, key))) {
+        throw new Error('Uma importação somente de escala não pode incluir outras coleções');
+      }
+      if (!scaleOnly && !Array.isArray(data.recruits)) throw new Error('Relação de recrutas ausente');
       const collections = {
-        recruits: data.recruits,
+        recruits: scaleOnly ? recruits : data.recruits,
         occurrences: data.occurrences || [],
         events: data.events || [],
         medicalLeaves: data.medicalLeaves || []
@@ -6208,7 +6213,90 @@
         if (!['Negativa', 'Positiva'].includes(String(occurrence.type || ''))) throw new Error(`Tipo inválido na ocorrência ${id}`);
         if (String(occurrence.text || '').length > 10000) throw new Error(`Descrição excessiva na ocorrência ${id}`);
       });
+      const mode = data.serviceScaleImportMode || (scaleOnly ? 'mergeByDate' : 'replace');
+      if (!['mergeByDate', 'replace'].includes(mode)) throw new Error('Modo de importação de escala inválido');
+      if (scaleOnly && mode !== 'mergeByDate') throw new Error('Uma correção somente de escala deve preservar as outras semanas');
+      collections.scaleOnly = scaleOnly;
+      collections.serviceScale = data.serviceScale == null ? null : validateServiceScaleBackup(data.serviceScale, recruitIds);
+      collections.serviceScaleImportMode = mode;
+      if (scaleOnly && !collections.serviceScale) throw new Error('Escala ausente');
       return collections;
+    }
+
+    function validateServiceScaleBackup(input, recruitIds) {
+      if (!input || typeof input !== 'object' || Array.isArray(input) || !Array.isArray(input.records)) {
+        throw new Error('Estrutura da escala inválida');
+      }
+      if (input.records.length > 50000) throw new Error('Quantidade de escalas acima do limite');
+      ['baselinePresence', 'deletedWeeks', 'suspensions', 'holidays'].forEach(key => {
+        if (input[key] != null && (!Array.isArray(input[key]) || input[key].length > 50000)) throw new Error('Coleção de escala inválida: ' + key);
+      });
+      if (input.signatures != null && (typeof input.signatures !== 'object' || Array.isArray(input.signatures))) throw new Error('Assinaturas da escala inválidas');
+      const dates = new Set();
+      const ids = new Set();
+      const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) && !Number.isNaN(Date.parse(value + 'T12:00:00Z')) && new Date(value + 'T12:00:00Z').toISOString().slice(0, 10) === value;
+      input.records.forEach(record => {
+        if (!record || typeof record !== 'object' || !validDate(record.date) || !record.id || dates.has(record.date) || ids.has(String(record.id))) {
+          throw new Error('Data ou identificador de escala inválido ou duplicado');
+        }
+        dates.add(record.date); ids.add(String(record.id));
+        if (!['draft', 'executed', 'holiday'].includes(record.status)) throw new Error('Situação da escala inválida');
+        if (!Array.isArray(record.slots) || record.slots.length !== 18) throw new Error('A escala deve conter os 18 postos');
+        const positions = new Set();
+        const planned = new Set();
+        const effective = new Set();
+        record.slots.forEach(slot => {
+          if (!slot || !SERVICE_SCALE_ROLES.includes(slot.role) || !Number.isInteger(Number(slot.position)) || Number(slot.position) < 1 || Number(slot.position) > 6) throw new Error('Posto de escala inválido');
+          const position = slot.role + ':' + Number(slot.position);
+          if (positions.has(position)) throw new Error('Posto de escala duplicado');
+          positions.add(position);
+          const original = String(slot.plannedRecruitId || '');
+          const actual = String(slot.actualRecruitId || '');
+          [original, actual].filter(Boolean).forEach(id => {
+            if (!recruitIds.has(id)) throw new Error('Recruta inexistente na escala: ' + id);
+          });
+          if (original && planned.has(original)) throw new Error('Recruta repetido na escala de ' + record.date);
+          if (original) planned.add(original);
+          const final = actual || original;
+          if (final && effective.has(final)) throw new Error('Executante repetido na escala de ' + record.date);
+          if (final) effective.add(final);
+          if (actual && actual !== original && !String(slot.changeReason || '').trim()) throw new Error('Troca de escala sem motivo');
+        });
+        if (record.status === 'executed' && planned.size !== 18) throw new Error('Escala cumprida incompleta');
+        if (record.audit != null && (!Array.isArray(record.audit) || record.audit.length > 50000)) throw new Error('Histórico de escala inválido');
+      });
+      if (input.activeWeekStart != null && !validDate(input.activeWeekStart)) throw new Error('Semana ativa inválida');
+      (input.holidays || []).forEach(date => { if (!validDate(date)) throw new Error('Feriado inválido'); });
+      return serviceClone(input);
+    }
+
+    function prepareImportedServiceScale(incoming, mode) {
+      if (mode === 'replace') return serviceSanitizeState(incoming);
+      const state = serviceSanitizeState(serviceScaleState);
+      const now = new Date().toISOString();
+      incoming.records.forEach(imported => {
+        const index = state.records.findIndex(record => record.date === imported.date);
+        const previous = index >= 0 ? state.records[index] : null;
+        const next = serviceClone(imported);
+        // Uma única identidade por data; histórico anterior permanece na auditoria.
+        next.id = previous ? previous.id : next.id;
+        next.createdAt = previous?.createdAt || next.createdAt || now;
+        next.createdBy = previous?.createdBy || next.createdBy || serviceActorName();
+        next.updatedAt = now;
+        next.updatedBy = serviceActorName();
+        next.audit = (previous?.audit || next.audit || []).concat([{
+          ts: now, actor: serviceActorName(), action: 'restored_from_json',
+          previousStatus: previous?.status || '', previousNotes: previous?.notes || '',
+          changes: serviceSlotChanges(previous?.slots, next.slots)
+        }]);
+        if (index >= 0) state.records[index] = next; else state.records.push(next);
+      });
+      // O patch corrige somente os dias recebidos. Outras semanas e afastamentos ficam intactos.
+      const patchedDates = new Set(incoming.records.map(record => record.date));
+      state.holidays = state.holidays.filter(date => !patchedDates.has(date)).concat((incoming.holidays || []).filter(date => patchedDates.has(date)));
+      if (incoming.signatures) state.signatures = Object.assign({}, state.signatures, incoming.signatures);
+      state.activeWeekStart = incoming.activeWeekStart || serviceMondayFor(incoming.records[0]?.date || todayStr());
+      return state;
     }
 
     function mergeImportedConfig(imported) {
@@ -6235,6 +6323,7 @@
           exportadoEmLocal: new Date().toLocaleString('pt-BR'),
           totalRecrutas: recruits.length,
           totalOcorrencias: occurrences.length,
+          totalEscalasServico: serviceScaleState.records.length,
           pontuacaoBase: config.baseScore,
           periodoCurso: { inicio: config.courseStart, fim: config.courseEnd }
         },
@@ -6246,7 +6335,8 @@
         })),
         occurrences,
         events,
-        medicalLeaves
+        medicalLeaves,
+        serviceScale: serviceClone(serviceScaleState)
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -6276,6 +6366,9 @@
         try {
           const data = JSON.parse(e.target.result);
           const validated = validateBackupPayload(data);
+          const nextServiceScale = validated.serviceScale
+            ? prepareImportedServiceScale(validated.serviceScale, validated.serviceScaleImportMode) : null;
+          if (!validated.scaleOnly) {
           recruits = validated.recruits.map(r => {
             const { pontuacaoParcial, condicao, totalOcorrencias, ...rest } = r;
             return ensureRecruitExtras(rest);
@@ -6285,14 +6378,20 @@
           medicalLeaves = validated.medicalLeaves;
           recruits.forEach(ensureRecruitExtras);
           if (data.config) { config = mergeImportedConfig(data.config); saveConfig(); }
+          }
+          if (nextServiceScale) {
+            serviceAdoptRemoteState(nextServiceScale);
+            sigrMetadata = Object.assign({}, sigrMetadata, { serviceScale: serviceClone(serviceScaleState) });
+          }
           saveData();
           clearTimeout(sigrSyncTimer);
           sigrSyncTimer = null;
-          const synced = await syncAllToSupabase({ replaceRemote: true });
+          const synced = await syncAllToSupabase({ replaceRemote: !validated.scaleOnly });
           renderAll();
           if (!document.getElementById('view-calendario').classList.contains('hidden')) renderCalendar();
-          showToast(synced === false ? 'Backup carregado no aparelho, mas o Supabase recusou a restauração' : (synced === null ? 'Backup carregado; restauração completa na fila' : 'Backup importado e sincronizado'));
-          recordOperatorActivity('JSON_BACKUP_IMPORTED','backup','class',{ recruits:recruits.length, occurrences:occurrences.length });
+          const importedLabel = validated.scaleOnly ? 'Escala importada' : 'Backup importado';
+          showToast(synced === false ? importedLabel + ' no aparelho; sincronização não confirmada' : (synced === null ? importedLabel + '; sincronização na fila' : importedLabel + ' e sincronizada'));
+          recordOperatorActivity('JSON_BACKUP_IMPORTED','backup','class',{ recruits:recruits.length, occurrences:occurrences.length, serviceRecords:serviceScaleState.records.length, scaleOnly:validated.scaleOnly });
         } catch (err) { alert(`Erro ao importar o arquivo: ${err.message || 'conteúdo inválido'}.`); }
       };
       reader.readAsText(file);
@@ -9460,7 +9559,10 @@
       if (!remoteState || !Array.isArray(remoteState.records)) return false;
       serviceScaleState = serviceSanitizeState(remoteState);
       serviceWeekStart = serviceScaleState.activeWeekStart || serviceMondayFor(todayStr());
-      serviceDraft = null;
+      const openingRecord = serviceScaleState.records.find(record => record.date === serviceWeekStart);
+      serviceDraft = openingRecord ? serviceClone(openingRecord) : null;
+      const dateInput = document.getElementById('serviceScaleDate');
+      if (dateInput) dateInput.value = serviceWeekStart;
       servicePdfSelection.clear();
       servicePdfSelectionInitialized = false;
       localStorage.setItem(SERVICE_SCALE_KEY, JSON.stringify(serviceScaleState));
@@ -9610,6 +9712,12 @@
         const date = dates[dayIndex];
         const holiday = serviceIsHoliday(date);
         const saved = currentRecords.find(function(record) { return record.date === date; });
+        // Gerar uma semana não altera uma escala completa já salva (inclusive histórica).
+        if (saved && serviceRecordComplete(saved)) {
+          plannedRecords.push(serviceClone(saved));
+          if (!holiday) sequenceIndex = serviceSequenceIndexAfter(serviceLastPlannedRecruitId(saved));
+          continue;
+        }
         const record = serviceNormalizeRecordSlots(saved ? serviceClone(saved) : serviceNewRecord(date));
         if (holiday) record.slots = serviceEmptySlots();
         if (record.status !== 'executed') {
@@ -10061,6 +10169,7 @@
     function serviceSuggestEighteen() {
       if (!canSigrWrite()) { showToast('Acesso somente para consulta'); return; }
       if (!serviceDraft) serviceDraft = serviceNewRecord(todayStr());
+      if (serviceDraft.id && serviceRecordComplete(serviceDraft) && !confirm('Substituir os 18 postos desta escala salva por uma nova sugestão? A alteração só será aplicada após salvar.')) return;
       const sequence = serviceTakeSequence(serviceDraft.date, serviceSequenceStartIndexForDate(serviceDraft.date), 18, new Set());
       if (sequence.picks.length < 18) { showToast('Não há 18 recrutas disponíveis fora da baixa médica'); return; }
       serviceDraft.slots.forEach(function(slot, index) {
